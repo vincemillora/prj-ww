@@ -3,6 +3,7 @@
 import { DIETARY_OPTIONS } from "@/lib/dietary";
 import { fieldLabel } from "@/components/letter/letter-type";
 import { Choice } from "@/components/letter/rsvp-form/choice";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 /**
  * The allergy presets plus the "Something else" toggle, shared by the invitee's
@@ -58,11 +59,11 @@ export function DietaryChoices({
   if (!label) return chips;
 
   return (
-    <div role="group" aria-labelledby={labelId} className="space-y-2">
-      <p id={labelId} className={fieldLabel}>
+    <Field aria-labelledby={labelId} className="gap-2">
+      <FieldLabel id={labelId} className={fieldLabel}>
         {label}
-      </p>
+      </FieldLabel>
       {chips}
-    </div>
+    </Field>
   );
 }

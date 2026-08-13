@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -59,16 +60,18 @@ export function FilterDropdown({
         }
       />
       <DropdownMenuContent align="end" className="min-w-44">
-        {options.map((o) => (
-          <DropdownMenuCheckboxItem
-            key={o.id}
-            checked={selected == null || selected.has(o.id)}
-            onCheckedChange={() => onToggle(o.id)}
-            closeOnClick={false}
-          >
-            {o.name}
-          </DropdownMenuCheckboxItem>
-        ))}
+        <DropdownMenuGroup>
+          {options.map((o) => (
+            <DropdownMenuCheckboxItem
+              key={o.id}
+              checked={selected == null || selected.has(o.id)}
+              onCheckedChange={() => onToggle(o.id)}
+              closeOnClick={false}
+            >
+              {o.name}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

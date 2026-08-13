@@ -69,7 +69,7 @@ export function Hero() {
                 src={lacePng}
                 alt=""
                 fill
-                priority
+                loading="eager"
                 sizes="(max-width: 768px) 86vw, 541px"
                 className="object-contain"
               />

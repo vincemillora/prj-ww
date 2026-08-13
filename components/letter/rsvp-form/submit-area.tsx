@@ -1,9 +1,10 @@
 "use client";
 
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { letterButton } from "@/components/letter/letter-button";
 import { disabledControl } from "@/components/letter/rsvp-form/form-style";
+import { Spinner } from "@/components/ui/spinner";
 
 /**
  * The end of the form: the server's error if it rejected the reply, the list of
@@ -26,7 +27,7 @@ export function SubmitArea({
   return (
     // No rule above the action: the button is the end of the page, not
     // another section of it. Spacing alone carries the separation.
-    <div className="mt-8 space-y-4">
+    <div className="mt-8 flex flex-col gap-4">
       {error && (
         <p role="alert" className="text-center text-meta italic text-destructive">
           {error}
@@ -40,7 +41,7 @@ export function SubmitArea({
         <div
           id="send-blocked"
           aria-live="polite"
-          className="space-y-1 text-center text-meta italic text-destructive"
+          className="flex flex-col gap-1 text-center text-meta italic text-destructive"
         >
           {missing.map((m) => (
             <p key={m.field}>{m.message}</p>
@@ -68,9 +69,9 @@ export function SubmitArea({
           )}
         >
           {pending ? (
-            <Loader2 aria-hidden strokeWidth={1.5} className="animate-spin" />
+            <Spinner aria-hidden data-icon="inline-start" strokeWidth={1.5} />
           ) : (
-            <Send aria-hidden strokeWidth={1.5} />
+            <Send aria-hidden data-icon="inline-start" strokeWidth={1.5} />
           )}
           {pending ? "Sending…" : "Send RSVP"}
         </button>

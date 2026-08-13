@@ -10,12 +10,19 @@ import { Choice } from "@/components/letter/rsvp-form/choice";
 import { CompanionFields } from "@/components/letter/rsvp-form/companion-fields";
 import { DietaryChoices } from "@/components/letter/rsvp-form/dietary-choices";
 import { errorText } from "@/components/letter/rsvp-form/form-style";
+import {
+  buildCompanionFields,
+  buildFallbackSummary,
+  getCapacityMessage,
+  getMissingRsvpFields,
+  type RsvpStatusChoice,
+} from "@/components/letter/rsvp-form/form-state";
 import { Section } from "@/components/letter/rsvp-form/section";
 import { Stepper } from "@/components/letter/rsvp-form/stepper";
 import { SubmitArea } from "@/components/letter/rsvp-form/submit-area";
 import { summarizeReply } from "@/components/letter/rsvp-form/summarize-reply";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const initial: RsvpState = { ok: false };
@@ -42,7 +49,7 @@ export function RsvpForm({
   maxGuests: number;
 }) {
   const [state, action, pending] = useActionState(submitRsvp, initial);
-  const [status, setStatus] = useState<"going" | "not_going" | "">("");
+  const [status, setStatus] = useState<RsvpStatusChoice>("");
   const [adults, setAdults] = useState(1);
   const [kids, setKids] = useState(0);
   const [dietaryOther, setDietaryOther] = useState(false);
@@ -66,9 +73,6 @@ export function RsvpForm({
   const [sent, setSent] = useState<ReplySummary | null>(null);
   const partySize = adults + kids;
   const overCapacity = status === "going" && partySize > maxGuests;
-  const atCapacity = status === "going" && partySize === maxGuests;
-  const seats = `${maxGuests} seat${maxGuests === 1 ? "" : "s"}`;
-  const extra = partySize - maxGuests;
   // A one-seat invitation has nothing to count: the guest is adult 1 and there
   // is no room for anyone else, so the counters would be four dead buttons
   // asking a question with a single possible answer.
@@ -79,18 +83,7 @@ export function RsvpForm({
    * themselves in the section above. Slugs are stable per position, so a card
    * keeps its answers when the count of the OTHER kind changes.
    */
-  const companions = [
-    ...Array.from({ length: Math.max(0, adults - 1) }, (_, i) => ({
-      slug: `adult-${i + 2}`,
-      label: `Adult ${i + 2}`,
-      kind: "adult" as const,
-    })),
-    ...Array.from({ length: kids }, (_, i) => ({
-      slug: `kid-${i + 1}`,
-      label: `Kid ${i + 1}`,
-      kind: "kid" as const,
-    })),
-  ];
+  const companions = buildCompanionFields(adults, kids);
 
   /**
    * Everything still standing between the guest and a sent reply, in the order
@@ -98,29 +91,13 @@ export function RsvpForm({
    * the send button is dead while it is non-empty, the note above the button says
    * what is left, and the matching field is marked invalid.
    */
-  const missing: { field: string; message: string }[] = [];
-  if (!status) {
-    missing.push({
-      field: "status",
-      message: "Let us know if you can make it.",
-    });
-  }
-  if (status === "going") {
-    for (const c of companions) {
-      if (!(companionNames[c.slug] ?? "").trim()) {
-        missing.push({
-          field: `${c.slug}-name`,
-          message: `Add a name for ${c.label}.`,
-        });
-      }
-    }
-    if (overCapacity) {
-      missing.push({
-        field: "party",
-        message: `We've saved ${seats} for you. You've used ${extra} too many.`,
-      });
-    }
-  }
+  const missing = getMissingRsvpFields({
+    status,
+    adults,
+    kids,
+    maxGuests,
+    companionNames,
+  });
 
   /** True once this field should show as wrong rather than merely empty. */
   const showsError = (field: string) =>
@@ -130,32 +107,20 @@ export function RsvpForm({
   // component the letter uses for a guest who answered on an earlier visit — so
   // "just sent" and "already answered" show the identical record.
   if (state.ok) {
-    return <RsvpReply reply={sent ?? fallbackSummary()} />;
-  }
-
-  /**
-   * Last resort if the snapshot is somehow missing: the state we do hold. A
-   * function declaration, so it is hoisted above the `state.ok` return.
-   */
-  function fallbackSummary(): ReplySummary {
-    return {
-      status: status === "not_going" ? "not_going" : "going",
-      adults: status === "going" ? adults : null,
-      kids: status === "going" ? kids : null,
-      dietary: [],
-      dietaryOther: null,
-      guestNote: null,
-      companions:
-        status === "going"
-          ? companions.map((c) => ({
-              kind: c.kind,
-              position: Number(c.slug.split("-")[1]),
-              name: (companionNames[c.slug] ?? "").trim(),
-              dietary: [],
-              dietaryOther: null,
-            }))
-          : [],
-    };
+    return (
+      <RsvpReply
+        reply={
+          sent ??
+          buildFallbackSummary({
+            status,
+            adults,
+            kids,
+            companions,
+            companionNames,
+          })
+        }
+      />
+    );
   }
 
   return (
@@ -218,10 +183,10 @@ export function RsvpForm({
               onOther={setDietaryOther}
             />
             {dietaryOther && (
-              <div className="space-y-2">
-                <Label htmlFor="dietaryOther" className={fieldLabel}>
+              <Field className="gap-2">
+                <FieldLabel htmlFor="dietaryOther" className={fieldLabel}>
                   Please tell us
-                </Label>
+                </FieldLabel>
                 <Textarea
                   id="dietaryOther"
                   name="dietaryOther"
@@ -230,7 +195,7 @@ export function RsvpForm({
                   className="placeholder:italic"
                   placeholder="Another allergy, or a diet we should cook around"
                 />
-              </div>
+              </Field>
             )}
           </Section>
 
@@ -279,15 +244,11 @@ export function RsvpForm({
                   overCapacity && "font-medium text-destructive",
                 )}
               >
-                {overCapacity
-                  ? `We've saved ${seats} for you. You've used ${extra} too many.`
-                  : atCapacity
-                    ? `We've saved ${seats} for you. You've used all ${maxGuests}.`
-                    : `We've saved ${seats} for you. You've used ${partySize}.`}
+                {getCapacityMessage(partySize, maxGuests)}
               </p>
 
               {companions.length > 0 && (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <p className="text-center font-sans text-meta">
                     We&rsquo;d love a name for each of them, and anything they
                     can&rsquo;t eat &mdash; it helps us seat everyone and get
@@ -330,10 +291,10 @@ export function RsvpForm({
         title="How can we reach you?"
         hint="Only if you would like us to have these."
       >
-        <div className="space-y-2">
-          <Label htmlFor="email" className={fieldLabel}>
+        <Field className="gap-2" data-invalid={Boolean(state.fieldErrors?.email)}>
+          <FieldLabel htmlFor="email" className={fieldLabel}>
             Email
-          </Label>
+          </FieldLabel>
           <Input
             id="email"
             name="email"
@@ -346,15 +307,15 @@ export function RsvpForm({
             }
           />
           {state.fieldErrors?.email && (
-            <span id="email-error" role="alert" className={errorText}>
+            <FieldError id="email-error" className={errorText}>
               {state.fieldErrors.email}
-            </span>
+            </FieldError>
           )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone" className={fieldLabel}>
+        </Field>
+        <Field className="gap-2" data-invalid={Boolean(state.fieldErrors?.phone)}>
+          <FieldLabel htmlFor="phone" className={fieldLabel}>
             Phone
-          </Label>
+          </FieldLabel>
           <Input
             id="phone"
             name="phone"
@@ -367,32 +328,34 @@ export function RsvpForm({
             }
           />
           {state.fieldErrors?.phone && (
-            <span id="phone-error" role="alert" className={errorText}>
+            <FieldError id="phone-error" className={errorText}>
               {state.fieldErrors.phone}
-            </span>
+            </FieldError>
           )}
-        </div>
+        </Field>
       </Section>
 
       <Section
         title="A note for the two of us"
         hint="A congratulations, a blessing, a memory of us you love."
       >
-        <Label htmlFor="guestNote" className="sr-only">
-          Message for the couple
-        </Label>
-        <Textarea
-          id="guestNote"
-          name="guestNote"
-          maxLength={1000}
-          placeholder="Congratulations, you two…"
-          // shadcn's Textarea is `field-sizing-content`, so it hugs whatever is
-          // typed and `rows` does nothing — the box rendered at its `min-h-16`
-          // floor, barely taller than the single-line inputs above it. Raising
-          // the floor is what gives it a note-sized opening; it still grows
-          // from there as the guest writes.
-          className="min-h-40"
-        />
+        <Field>
+          <FieldLabel htmlFor="guestNote" className="sr-only">
+            Message for the couple
+          </FieldLabel>
+          <Textarea
+            id="guestNote"
+            name="guestNote"
+            maxLength={1000}
+            placeholder="Congratulations, you two…"
+            // shadcn's Textarea is `field-sizing-content`, so it hugs whatever is
+            // typed and `rows` does nothing — the box rendered at its `min-h-16`
+            // floor, barely taller than the single-line inputs above it. Raising
+            // the floor is what gives it a note-sized opening; it still grows
+            // from there as the guest writes.
+            className="min-h-40"
+          />
+        </Field>
       </Section>
 
       <SubmitArea

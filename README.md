@@ -50,6 +50,19 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000). Sign in at [/login](http://localhost:3000/login).
 
+### 5. Verify changes
+
+```bash
+pnpm test        # run the Vitest + Testing Library regression suite once
+pnpm test:watch  # keep focused tests running while developing
+pnpm lint        # run ESLint
+pnpm build       # type-check and create the production Next.js build
+```
+
+Pure validation, form-state, dashboard-transform, CSV, authorization-capability,
+and route-error behavior is covered by tests. Use the production build as the
+final check that App Router and Partial Prerendering boundaries remain valid.
+
 ## Admin access model
 
 - **No self-sign-up.** Signing in with Google only authenticates an admin that **already exists**

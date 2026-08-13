@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 
 /**
@@ -145,14 +146,13 @@ export function EnvelopeGallery() {
                 className={`w-full overflow-hidden bg-paper ${photoShadow}`}
                 style={{ borderRadius: 'var(--env-r)' }}
               >
-                <div className="aspect-[4/3] bg-ink">
-                  {/* Remote picsum placeholders can't go through next/image
-                      (no remotePatterns) — plain img, as in our-story.tsx. */}
-                  <img
+                <div className="relative aspect-[4/3] bg-ink">
+                  <Image
                     src={card.image}
                     alt={card.alt}
+                    fill
+                    sizes="(max-width: 640px) 92vw, 38rem"
                     className="size-full object-cover"
-                    loading="lazy"
                   />
                 </div>
               </figure>

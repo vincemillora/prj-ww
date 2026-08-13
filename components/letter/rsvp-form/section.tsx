@@ -1,4 +1,9 @@
 import { RequiredMark } from "@/components/letter/rsvp-form/required-mark";
+import {
+  FieldGroup,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
 
 /**
  * One shell for every block of the form. Each block is a `fieldset` with the
@@ -32,8 +37,8 @@ export function Section({
 }) {
   return (
     <div className={sectionShell}>
-      <fieldset>
-        <legend className="w-full px-0 text-center">
+      <FieldSet className="gap-0">
+        <FieldLegend className="mb-0 w-full px-0 text-center font-normal">
           <span className="block font-sans text-subhead">
             {title}
             {required && <RequiredMark />}
@@ -43,9 +48,9 @@ export function Section({
               {hint}
             </span>
           )}
-        </legend>
-        <div className="mt-5 space-y-4">{children}</div>
-      </fieldset>
+        </FieldLegend>
+        <FieldGroup className="mt-5 gap-4">{children}</FieldGroup>
+      </FieldSet>
     </div>
   );
 }

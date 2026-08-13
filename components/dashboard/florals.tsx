@@ -281,7 +281,7 @@ export function AccountGarland({ className }: SvgProps) {
         // Right-anchored: the garland's arc was drawn around the chip's right
         // edge (chip is ~170px in the design but ours varies with the user's
         // name), so pinning the right side keeps the wreath hugging the outline.
-        className ?? "pointer-events-none absolute -top-4 -right-[21px] z-[5] hidden lg:block"
+        className ?? "pointer-events-none absolute -top-4 -right-[21px] z-5 hidden lg:block"
       }
     >
       <path
@@ -371,7 +371,7 @@ export function CardSprayTopRight({ className }: SvgProps) {
         // Cap height to the card (+42px bleed top & bottom); width scales with the
         // aspect ratio so the frame shrinks with short guest lists instead of
         // overhanging. Never taller than the design's intrinsic 420px.
-        "wind-sway pointer-events-none absolute -top-[42px] -right-[42px] z-[6] h-[calc(100%_+_84px)] max-h-[420px] w-auto"
+        "wind-sway pointer-events-none absolute -top-[42px] -right-[42px] z-6 h-[calc(100%_+_84px)] max-h-[420px] w-auto"
       }
     >
       <path
@@ -426,7 +426,7 @@ export function CardSprayBottomLeft({ className }: SvgProps) {
       focusable="false"
       className={
         className ??
-        "wind-sway pointer-events-none absolute -bottom-[42px] -left-[42px] z-[6] h-[calc(100%_+_84px)] max-h-[420px] w-auto"
+        "wind-sway pointer-events-none absolute -bottom-[42px] -left-[42px] z-6 h-[calc(100%_+_84px)] max-h-[420px] w-auto"
       }
     >
       <path

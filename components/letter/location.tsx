@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import {
   animate,
@@ -40,9 +41,8 @@ const VENUE = {
  * The photos stacked behind the venue card. Stand-ins for now: seeded
  * picsum shots (same approach as `our-story.tsx` / `prenup.tsx`, so each slot
  * keeps its image between loads). Swap for real files under `/public/venue/`
- * when we have them — once they're local, `next/image` becomes usable here;
- * remote picsum URLs cannot go through it because `next.config.ts` declares
- * no `images.remotePatterns`.
+ * when we have them. The narrow remote pattern in `next.config.ts` allows
+ * these seeded placeholders through the Next.js image optimizer meanwhile.
  */
 const PHOTOS = [
   {
@@ -244,17 +244,21 @@ export function Location() {
                   {/* Bare photo — no paper frame, no caption. It only borrows
                       the venue card's radius and shadow so the deck keeps one
                       silhouette as the cards shuffle. */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo.image}
-                    alt={`${VENUE.name} — ${photo.caption}`}
+                  <div
                     className={cn(
                       CARD_SHELL,
-                      'size-full bg-ink object-cover select-none',
+                      'relative size-full overflow-hidden bg-ink select-none',
                     )}
-                    draggable={false}
-                    loading="lazy"
-                  />
+                  >
+                    <Image
+                      src={photo.image}
+                      alt={`${VENUE.name} — ${photo.caption}`}
+                      fill
+                      sizes="(max-width: 768px) 92vw, 48rem"
+                      className="object-cover"
+                      draggable={false}
+                    />
+                  </div>
                 </StackCard>
               ))}
             </div>

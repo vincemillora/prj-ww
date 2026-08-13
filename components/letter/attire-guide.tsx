@@ -20,7 +20,7 @@ export function AttireGuide() {
           className="mx-auto mt-heading h-auto w-full"
           sizes="(max-width: 640px) 92vw, min(80vw, 56rem)"
         />
-        <div className="mx-auto mt-8 max-w-md space-y-3">
+        <div className="mx-auto mt-8 flex max-w-md flex-col gap-3">
           <p className="font-sans text-subhead text-ink">
             Semi-formal — garden party
           </p>

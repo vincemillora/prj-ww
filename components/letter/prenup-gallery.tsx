@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { useReducedMotion } from 'motion/react';
+import { MotionImage } from '@/components/letter/motion-image';
 import { MORPH, PhotoLightbox, photoLayoutId } from '@/components/letter/photo-lightbox';
+import { cn } from '@/lib/utils';
 
 export type Shot = {
   /** Alt text — also labels the striped placeholder when `image` is unset. */
@@ -74,11 +76,11 @@ function Tile({
   onOpen: () => void;
 }) {
   const span = shot.w > shot.h ? 'col-span-2' : 'col-span-1';
-  const hidden = hiddenOnMobile ? ' max-sm:hidden' : '';
+  const hidden = hiddenOnMobile && 'max-sm:hidden';
 
   if (!shot.image) {
     return (
-      <div className={`relative overflow-hidden ${span}${hidden}`}>
+      <div className={cn('relative overflow-hidden', span, hidden)}>
         <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--ink),var(--ink)_1px,var(--paper)_1px,var(--paper)_10px)]">
           <span className="font-mono text-micro uppercase tracking-[0.14em] text-ink">
             photo · {shot.alt}
@@ -93,15 +95,24 @@ function Tile({
       type="button"
       onClick={onOpen}
       aria-label={`View photo: ${shot.alt}`}
-      className={`relative cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink ${span}${hidden}`}
+      className={cn(
+        'relative cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink',
+        span,
+        hidden,
+      )}
     >
-      <motion.img
+      <MotionImage
         layoutId={reduce ? undefined : photoLayoutId(`prenup-${shot.alt}`)}
         transition={MORPH}
         src={shot.image}
         alt={shot.alt}
-        className="size-full object-cover"
-        loading="lazy"
+        fill
+        sizes={
+          shot.w > shot.h
+            ? '(max-width: 639px) 100vw, 50vw'
+            : '(max-width: 639px) 50vw, 25vw'
+        }
+        className="object-cover"
       />
     </button>
   );

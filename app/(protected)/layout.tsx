@@ -1,9 +1,15 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 
 import {
   PageFloralBottomRight,
   PageFloralTopLeft,
 } from "@/components/dashboard/florals";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description: "Manage wedding guests, invitations, and RSVP responses.",
+};
 
 /**
  * Sidebar-less admin shell (imported single-page design): a full-width, centered

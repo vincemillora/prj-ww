@@ -56,7 +56,7 @@ export function StatusColumn({
       }}
     >
       <ColumnVine status={col.key} />
-      <div className="relative z-[1] flex flex-1 flex-col">
+      <div className="relative z-1 flex flex-1 flex-col">
       <div className="flex items-center gap-2.5 px-1">
         <span
           className="size-[9px] flex-none rounded-full"

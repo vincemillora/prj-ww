@@ -33,9 +33,9 @@ import { PrenupMosaic, type Shot } from '@/components/letter/prenup-gallery';
  * `our-story.tsx`) so each slot keeps its image between loads. Drop real files
  * in `/public/prenup/`, point `image` at them, and set `w`/`h` to the file's
  * real pixel size — that is what decides whether it takes one column or two.
- * Unset `image` falls back to the striped placeholder. Once the files are local,
- * `next/image` becomes usable here; remote picsum URLs cannot go through it
- * because `next.config.ts` declares no `images.remotePatterns`.
+ * Unset `image` falls back to the striped placeholder. The seeded host is
+ * allowed by `next.config.ts`; `MotionImage` keeps the shared lightbox
+ * transition while routing the files through Next.js image optimization.
  */
 
 // Slot costs run [1, 2, 1, 1, 1, 2]: the first five spend the mobile budget of
@@ -132,4 +132,3 @@ function Heading() {
     />
   );
 }
-

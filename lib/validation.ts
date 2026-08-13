@@ -13,7 +13,7 @@ export const rsvpStatusValues = ['pending', 'going', 'not_going'] as const;
 
 /** Treat blank form fields as absent so optional() applies. */
 const blankToUndefined = (v: unknown) =>
-  typeof v === 'string' && v.trim() === '' ? undefined : v;
+  v == null || (typeof v === 'string' && v.trim() === '') ? undefined : v;
 
 /** Optional head-count field: blank → undefined (no reply), else 0–20 int. */
 const partyCount = z.preprocess(

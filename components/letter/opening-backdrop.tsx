@@ -81,7 +81,7 @@ export function OpeningBackdrop() {
             src={heroLily}
             alt=""
             fill
-            priority
+            preload
             placeholder="blur"
             sizes="100vw"
             className="object-cover object-center"

@@ -14,6 +14,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Field, FieldError } from '@/components/ui/field';
+import { Spinner } from '@/components/ui/spinner';
 
 const INITIAL: ActionState = { ok: false };
 
@@ -34,7 +36,7 @@ export function LabelsManager({
         <DialogTrigger
           render={
             <Button variant="outline" size="sm">
-              <Tag /> Labels
+              <Tag data-icon="inline-start" /> Labels
             </Button>
           }
         />
@@ -66,16 +68,23 @@ function AddLabelForm() {
     if (state.ok) ref.current?.reset();
   }, [state]);
   return (
-    <form ref={ref} action={action} className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <Input name="name" placeholder="New label…" maxLength={40} className="flex-1" />
-        <Button type="submit" size="sm" disabled={pending}>
-          Add
-        </Button>
-      </div>
-      {state.fieldErrors?.name ? (
-        <p className="text-xs text-destructive">{state.fieldErrors.name}</p>
-      ) : null}
+    <form ref={ref} action={action}>
+      <Field className="gap-1" data-invalid={Boolean(state.fieldErrors?.name)}>
+        <div className="flex items-center gap-2">
+          <Input
+            name="name"
+            placeholder="New label…"
+            maxLength={40}
+            className="flex-1"
+            aria-invalid={Boolean(state.fieldErrors?.name)}
+          />
+          <Button type="submit" size="sm" disabled={pending}>
+            {pending ? <Spinner data-icon="inline-start" /> : null}
+            Add
+          </Button>
+        </div>
+        <FieldError className="text-xs">{state.fieldErrors?.name}</FieldError>
+      </Field>
     </form>
   );
 }
@@ -89,6 +98,7 @@ function LabelRowItem({ label }: { label: LabelRow }) {
           <input type="hidden" name="labelId" value={label.id} />
           <Input name="name" defaultValue={label.name} maxLength={40} className="flex-1" />
           <Button type="submit" variant="outline" size="sm" disabled={pending}>
+            {pending ? <Spinner data-icon="inline-start" /> : null}
             Save
           </Button>
         </form>

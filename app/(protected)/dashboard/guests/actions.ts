@@ -4,6 +4,11 @@ import { updateTag } from 'next/cache';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { requireEditor } from '@/lib/dal';
+import {
+  OK_ACTION_STATE,
+  toFieldErrors,
+  type ActionState,
+} from '@/lib/action-state';
 import { db } from '@/db';
 import { guests, guestLabels, labels } from '@/db/schema';
 import {
@@ -15,45 +20,9 @@ import {
   rsvpStatusValues,
 } from '@/lib/validation';
 import { generateToken } from '@/lib/guest-token';
-import { SNS_PLATFORMS } from '@/lib/sns';
+import { guestFormValues } from '@/app/(protected)/dashboard/guests/guest-form';
 
-/** Result of a form Server Action, consumed via `useActionState` on the client. */
-export type ActionState = {
-  ok: boolean;
-  error?: string;
-  fieldErrors?: Record<string, string>;
-};
-
-const OK: ActionState = { ok: true };
-
-/** First message per field, shaped for inline display in the form. */
-function toFieldErrors(error: z.ZodError): ActionState {
-  const fieldErrors: Record<string, string> = {};
-  for (const issue of error.issues) {
-    const key = String(issue.path[0] ?? 'form');
-    if (!fieldErrors[key]) fieldErrors[key] = issue.message;
-  }
-  return { ok: false, fieldErrors };
-}
-
-function guestFormValues(formData: FormData) {
-  return {
-    name: formData.get('name'),
-    maxGuests: formData.get('maxGuests'),
-    adults: formData.get('adults'),
-    kids: formData.get('kids'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    adminNote: formData.get('adminNote'),
-    labelIds: formData.getAll('labelIds'),
-    // Per-platform inputs named `sns_<platform>`; drop the blank ones.
-    snsAccounts: Object.fromEntries(
-      SNS_PLATFORMS.map((p) => [p, String(formData.get(`sns_${p}`) ?? '').trim()]).filter(
-        ([, v]) => v !== '',
-      ),
-    ),
-  };
-}
+export type { ActionState } from '@/lib/action-state';
 
 /** Generate an invite token not already used (retry on the rare collision). */
 async function uniqueToken(): Promise<string> {
@@ -102,7 +71,7 @@ export async function createGuest(
   }
 
   updateTag('guests');
-  return OK;
+  return OK_ACTION_STATE;
 }
 
 export async function updateGuest(
@@ -146,7 +115,7 @@ export async function updateGuest(
   }
 
   updateTag('guests');
-  return OK;
+  return OK_ACTION_STATE;
 }
 
 /**
@@ -170,7 +139,7 @@ export async function moveGuestStatus(
     .from(guests)
     .where(eq(guests.id, id.data));
   if (!row) return { ok: false, error: 'Guest not found.' };
-  if (row.status === status.data) return OK;
+  if (row.status === status.data) return OK_ACTION_STATE;
 
   await db
     .update(guests)
@@ -183,7 +152,7 @@ export async function moveGuestStatus(
     .where(eq(guests.id, id.data));
 
   updateTag('guests');
-  return OK;
+  return OK_ACTION_STATE;
 }
 
 export async function deleteGuest(formData: FormData): Promise<void> {
@@ -206,7 +175,7 @@ export async function createLabel(
     return { ok: false, fieldErrors: { name: 'That label already exists.' } };
   }
   updateTag('labels');
-  return OK;
+  return OK_ACTION_STATE;
 }
 
 export async function renameLabel(
@@ -226,7 +195,7 @@ export async function renameLabel(
   // Label names are embedded in the cached guest rows — invalidate both.
   updateTag('labels');
   updateTag('guests');
-  return OK;
+  return OK_ACTION_STATE;
 }
 
 export async function deleteLabel(formData: FormData): Promise<void> {

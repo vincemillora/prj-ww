@@ -6,7 +6,13 @@ import { errorText } from "@/components/letter/rsvp-form/form-style";
 import { DietaryChoices } from "@/components/letter/rsvp-form/dietary-choices";
 import { RequiredMark } from "@/components/letter/rsvp-form/required-mark";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 
 /**
@@ -46,7 +52,7 @@ export function CompanionFields({
   const Icon = kind === "kid" ? Baby : UserRound;
 
   return (
-    <fieldset className="space-y-4 rounded-xl border border-ink/20 p-5">
+    <FieldSet className="gap-4 rounded-xl border border-ink/20 p-5">
       {/* The group name goes to assistive tech through a visually hidden
           legend, because a rendered legend notches the frame's top hairline.
           The visible heading is the same words, hidden from AT so it is not
@@ -55,7 +61,7 @@ export function CompanionFields({
           It is set in the section headings' serif at one size down, not in the
           tracked micro-caps of a field label: this names a group of fields, so
           it has to sit above them in the same voice the sections use. */}
-      <legend className="sr-only">{label}</legend>
+      <FieldLegend className="sr-only">{label}</FieldLegend>
       <p
         aria-hidden
         className="flex items-center justify-center gap-2 font-sans text-subhead"
@@ -63,15 +69,15 @@ export function CompanionFields({
         <Icon aria-hidden strokeWidth={1.5} className="size-4 shrink-0" />
         {label}
       </p>
-      <div className="space-y-2">
-        <Label htmlFor={`${slug}-name`} className={fieldLabel}>
+      <Field className="gap-2" data-invalid={nameError}>
+        <FieldLabel htmlFor={`${slug}-name`} className={fieldLabel}>
           {/* One inline span, so the Label's flex `gap-2` cannot land between
               the word and its mark — see RequiredMark. */}
           <span>
             Name
             <RequiredMark />
           </span>
-        </Label>
+        </FieldLabel>
         <Input
           id={`${slug}-name`}
           name={`${field}.name`}
@@ -85,11 +91,11 @@ export function CompanionFields({
           aria-describedby={nameError ? `${slug}-name-error` : undefined}
         />
         {nameError && (
-          <span id={`${slug}-name-error`} role="alert" className={errorText}>
+          <FieldError id={`${slug}-name-error`} className={errorText}>
             We need their name to seat them.
-          </span>
+          </FieldError>
         )}
-      </div>
+      </Field>
       <DietaryChoices
         name={`${field}.dietary`}
         label="Allergies"
@@ -97,10 +103,10 @@ export function CompanionFields({
         onOther={onOther}
       />
       {otherOpen && (
-        <div className="space-y-2">
-          <Label htmlFor={`${slug}-other`} className={fieldLabel}>
+        <Field className="gap-2">
+          <FieldLabel htmlFor={`${slug}-other`} className={fieldLabel}>
             Please tell us
-          </Label>
+          </FieldLabel>
           <Textarea
             id={`${slug}-other`}
             name={`${field}.dietaryOther`}
@@ -109,8 +115,8 @@ export function CompanionFields({
             className="placeholder:italic"
             placeholder="Another allergy, or a diet we should cook around"
           />
-        </div>
+        </Field>
       )}
-    </fieldset>
+    </FieldSet>
   );
 }
