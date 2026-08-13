@@ -1,4 +1,5 @@
 import { WeddingLetter } from '@/components/letter/wedding-letter';
+import { MotionProvider } from '@/components/letter/motion-provider';
 import { VinylPlayer } from '@/components/letter/vinyl-player';
 
 /**
@@ -19,15 +20,17 @@ export default function Home({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   return (
-    <main>
-      <WeddingLetter searchParams={searchParams} />
-      {/* Floating music player: fixed to the viewport's bottom-right so it
-          follows the scroll across every section. Above page content (z-50),
-          clear of the safe-area inset on notched phones. */}
-      <VinylPlayer
-        className="!fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-50"
-        size="min(18vw, 4.5rem)"
-      />
-    </main>
+    <MotionProvider>
+      <main>
+        <WeddingLetter searchParams={searchParams} />
+        {/* Floating music player: fixed to the viewport's bottom-right so it
+            follows the scroll across every section. Above page content (z-50),
+            clear of the safe-area inset on notched phones. */}
+        <VinylPlayer
+          className="!fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-50"
+          size="min(18vw, 4.5rem)"
+        />
+      </main>
+    </MotionProvider>
   );
 }

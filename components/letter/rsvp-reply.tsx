@@ -42,7 +42,7 @@ function formatDate(value: Date | string): string {
 /** One labelled line of the read-back. */
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1">
       <p className={cn(fieldLabel, 'text-center')}>{label}</p>
       <p className="text-center text-body">{children}</p>
     </div>
@@ -85,7 +85,7 @@ export function RsvpReply({
         </p>
       </div>
 
-      <div className="mt-7 space-y-5 border-t border-ink/20 pt-6">
+      <div className="mt-7 flex flex-col gap-5 border-t border-ink/20 pt-6">
         <Row label="Your reply">
           {going ? 'Joyfully accepted' : 'Regretfully declined'}
         </Row>
@@ -93,9 +93,9 @@ export function RsvpReply({
         {going && party ? <Row label="Your party">{party}</Row> : null}
 
         {going && companions.length > 0 ? (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <p className={cn(fieldLabel, 'text-center')}>Coming with you</p>
-            <ul className="space-y-2">
+            <ul className="flex flex-col gap-2">
               {companions.map((c) => {
                 const Icon = c.kind === 'kid' ? Baby : UserRound;
                 const diet = companionDietary(c);

@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { MotionImage } from '@/components/letter/motion-image';
 
 /**
  * Shared photo lightbox with a fly-to-centre morph, used by the prenup mosaic
@@ -12,7 +13,7 @@ import { AnimatePresence, motion } from 'motion/react';
  * and becomes the modal (motion's shared-layout `layoutId` morph), then flies
  * back on close.
  *
- * Contract: the in-page img must be a `motion.img` with
+ * Contract: the in-page image must be a `MotionImage` with
  * `layoutId={photoLayoutId(id)}` and `transition={MORPH}`, where `id` matches
  * the `LightboxPhoto.id` passed here. Under `prefers-reduced-motion` the
  * caller passes `reduce` (and drops its own layoutId) — the lightbox then
@@ -115,7 +116,7 @@ function Overlay({
       {/* Wrapper shrink-wraps the img so the close button can anchor to the
           photo's own top-right corner, not the viewport's. */}
       <div className="relative">
-        <motion.img
+        <MotionImage
           layoutId={reduce ? undefined : photoLayoutId(photo.id)}
           transition={MORPH}
           {...(reduce
@@ -123,6 +124,9 @@ function Overlay({
             : {})}
           src={photo.src}
           alt={photo.alt}
+          width={photo.w}
+          height={photo.h}
+          sizes="(max-width: 652px) 92vw, 600px"
           className="max-h-[85svh] max-w-[92vw] object-cover"
           style={{ aspectRatio: `${photo.w} / ${photo.h}` }}
         />

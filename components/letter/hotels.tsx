@@ -104,7 +104,7 @@ export function Hotels() {
                 {/* Address and phone: caption-sized, same muted tone as the
                     blurb, one row each with the icon on the first line of
                     wrapped text. */}
-                <dl className="mt-3 space-y-1 text-meta text-muted-foreground">
+                <dl className="mt-3 flex flex-col gap-1 text-meta text-muted-foreground">
                   <div className="flex gap-1.5">
                     <dt className="pt-px">
                       <MapPin aria-hidden className="size-4" strokeWidth={1.5} />

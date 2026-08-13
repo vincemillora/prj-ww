@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/dal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -26,6 +27,11 @@ const ERROR_MESSAGES: Record<string, string> = {
   unverified: 'Your Google email is not verified.',
   auth: 'We could not sign you in. Please try again.',
   denied: 'This Google account is not an authorized admin.',
+};
+
+export const metadata: Metadata = {
+  title: 'Admin Sign In',
+  description: 'Sign in to the wedding RSVP administration console.',
 };
 
 function GoogleIcon(props: ComponentProps<'svg'>) {

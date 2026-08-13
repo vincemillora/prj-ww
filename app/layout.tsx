@@ -4,7 +4,8 @@ import {
   Parisienne,
 } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Providers } from "@/components/providers";
+import { cn } from "@/lib/utils";
+import { COUPLE } from "@/lib/wedding";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -22,8 +23,11 @@ const parisienne = Parisienne({
 });
 
 export const metadata: Metadata = {
-  title: "Wedding RSVP · Admin",
-  description: "Admin console for managing wedding RSVPs.",
+  title: {
+    default: `${COUPLE} — Wedding`,
+    template: `%s · ${COUPLE}`,
+  },
+  description: "Wedding details, celebration information, and RSVP.",
 };
 
 export default function RootLayout({
@@ -34,10 +38,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.variable} ${parisienne.variable} h-full antialiased`}
+      className={cn(
+        montserrat.variable,
+        parisienne.variable,
+        "h-full antialiased",
+      )}
     >
       <body className="flex min-h-dvh flex-col overflow-x-hidden">
-        <Providers>{children}</Providers>
+        {children}
         <SpeedInsights />
       </body>
     </html>

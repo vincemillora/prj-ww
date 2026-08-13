@@ -3,9 +3,17 @@
 import { useActionState, useEffect, useState, type ReactNode } from 'react';
 import { Check, Pencil, Plus } from 'lucide-react';
 import type { Label as LabelRow } from '@/db/schema';
-import { SNS_PLATFORMS, SNS_CONFIG, type SnsAccounts } from '@/lib/sns';
+import { SNS_PLATFORMS, SNS_CONFIG } from '@/lib/sns';
 import { SnsIcon } from '@/components/dashboard/sns-icon';
 import { createGuest, updateGuest, type ActionState } from './actions';
+import {
+  getGuestPartyState,
+  STATUS_LABEL,
+  STATUS_OPTIONS,
+  type GuestData,
+  type GuestFormMode,
+  type RsvpStatus,
+} from './guest-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,48 +27,43 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from '@/components/ui/input-group';
 import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
 
-type RsvpStatus = 'pending' | 'going' | 'not_going';
-
-type GuestData = {
-  id: string;
-  name: string;
-  maxGuests: number;
-  adults: number | null;
-  kids: number | null;
-  email: string | null;
-  phone: string | null;
-  adminNote: string | null;
-  snsAccounts: SnsAccounts;
-  status: RsvpStatus;
-  labelIds: string[];
-};
-
-const STATUS_LABEL: Record<RsvpStatus, string> = {
-  pending: 'Pending',
-  going: 'Going',
-  not_going: 'Not going',
-};
-const STATUS_OPTIONS: RsvpStatus[] = ['pending', 'going', 'not_going'];
-
 const INITIAL: ActionState = { ok: false };
+const STATUS_ITEMS = STATUS_OPTIONS.map((value) => ({
+  value,
+  label: STATUS_LABEL[value],
+}));
 
 export function GuestDialog({
   mode,
   labels,
   guest,
 }: {
-  mode: 'create' | 'edit';
+  mode: GuestFormMode;
   labels: LabelRow[];
   guest?: GuestData;
 }) {
@@ -80,7 +83,7 @@ export function GuestDialog({
         render={
           mode === 'create' ? (
             <Button className="shadow-[0_4px_14px_rgba(138,118,176,0.32)]">
-              <Plus /> Add guest
+              <Plus data-icon="inline-start" /> Add guest
             </Button>
           ) : (
             <Button variant="ghost" size="icon-sm" aria-label={`Edit ${guest?.name ?? ''}`}>
@@ -108,7 +111,7 @@ function GuestForm({
   guest,
   onDone,
 }: {
-  mode: 'create' | 'edit';
+  mode: GuestFormMode;
   labels: LabelRow[];
   guest?: GuestData;
   onDone: () => void;
@@ -124,17 +127,14 @@ function GuestForm({
   const [kids, setKids] = useState(guest?.kids != null ? String(guest.kids) : '');
   const [labelIds, setLabelIds] = useState<string[]>(guest?.labelIds ?? []);
 
-  const declined = mode === 'edit' && status === 'not_going';
-  const hasCounts = !declined && (adults !== '' || kids !== '');
-  const partySize = (Number(adults) || 0) + (Number(kids) || 0);
-  const seats = Number(maxGuests) || 0;
-  const partyError =
-    state.fieldErrors?.partySize ??
-    (hasCounts && seats > 0 && partySize > seats
-      ? `Party size (${partySize}) can't exceed max guests (${seats}).`
-      : !declined && mode === 'edit' && status === 'going' && partySize < 1
-        ? 'A party marked Going needs at least 1 adult or kid.'
-        : undefined);
+  const { declined, hasCounts, partySize, seats, partyError } = getGuestPartyState({
+    mode,
+    status,
+    maxGuests,
+    adults,
+    kids,
+    serverError: state.fieldErrors?.partySize,
+  });
 
   useEffect(() => {
     if (state.ok) onDone();
@@ -157,10 +157,10 @@ function GuestForm({
         {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
         <Section title="Guest details">
-          <Field label="Name" error={state.fieldErrors?.name}>
+          <GuestField label="Name" error={state.fieldErrors?.name}>
             <Input name="name" defaultValue={guest?.name ?? ''} maxLength={120} required autoFocus />
-          </Field>
-          <Field
+          </GuestField>
+          <GuestField
             label="Max guests"
             hint="Seats reserved for this party — the most people their link can bring."
             error={state.fieldErrors?.maxGuests}
@@ -173,13 +173,14 @@ function GuestForm({
               value={maxGuests}
               onChange={(e) => setMaxGuests(e.target.value)}
             />
-          </Field>
+          </GuestField>
         </Section>
 
         <Section title={mode === 'create' ? 'Party count' : 'RSVP reply'}>
           {mode === 'edit' ? (
-            <Field label="Status">
+            <GuestField label="Status">
               <Select
+                items={STATUS_ITEMS}
                 name="status"
                 value={status}
                 onValueChange={(v) => setStatus(v as RsvpStatus)}
@@ -190,17 +191,19 @@ function GuestForm({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {STATUS_OPTIONS.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {STATUS_LABEL[s]}
-                    </SelectItem>
-                  ))}
+                  <SelectGroup>
+                    {STATUS_ITEMS.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
-            </Field>
+            </GuestField>
           ) : null}
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Adults" error={state.fieldErrors?.adults}>
+            <GuestField label="Adults" error={state.fieldErrors?.adults}>
               <Input
                 name="adults"
                 type="number"
@@ -211,8 +214,8 @@ function GuestForm({
                 onChange={(e) => setAdults(e.target.value)}
                 disabled={declined}
               />
-            </Field>
-            <Field label="Kids" error={state.fieldErrors?.kids}>
+            </GuestField>
+            <GuestField label="Kids" error={state.fieldErrors?.kids}>
               <Input
                 name="kids"
                 type="number"
@@ -223,7 +226,7 @@ function GuestForm({
                 onChange={(e) => setKids(e.target.value)}
                 disabled={declined}
               />
-            </Field>
+            </GuestField>
           </div>
           {partyError ? (
             <p className="text-xs text-destructive">{partyError}</p>
@@ -242,32 +245,33 @@ function GuestForm({
 
         <Section title="Contact">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Email" error={state.fieldErrors?.email}>
+            <GuestField label="Email" error={state.fieldErrors?.email}>
               <Input name="email" type="email" defaultValue={guest?.email ?? ''} />
-            </Field>
-            <Field label="Phone" error={state.fieldErrors?.phone}>
+            </GuestField>
+            <GuestField label="Phone" error={state.fieldErrors?.phone}>
               <Input name="phone" defaultValue={guest?.phone ?? ''} />
-            </Field>
+            </GuestField>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {SNS_PLATFORMS.map((p) => {
               const cfg = SNS_CONFIG[p];
               return (
-                <Field key={p} label={cfg.label}>
-                  <div className="flex items-center rounded-md border border-input focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
-                    <span className="flex shrink-0 items-center gap-1 py-1 pr-1 pl-2.5 text-xs text-muted-foreground">
-                      <SnsIcon platform={p} className="size-3.5" />
-                      {cfg.prefix}
-                    </span>
-                    <Input
+                <GuestField key={p} label={cfg.label}>
+                  <InputGroup>
+                    <InputGroupInput
                       name={`sns_${p}`}
                       defaultValue={guest?.snsAccounts?.[p] ?? ''}
                       placeholder="username"
                       maxLength={100}
-                      className="border-0 pl-0 shadow-none focus-visible:ring-0"
                     />
-                  </div>
-                </Field>
+                    <InputGroupAddon align="inline-start">
+                      <InputGroupText className="text-xs">
+                        <SnsIcon platform={p} />
+                        {cfg.prefix}
+                      </InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </GuestField>
               );
             })}
           </div>
@@ -308,19 +312,20 @@ function GuestForm({
         ) : null}
 
         <Section title="Notes">
-          <Field label="Admin note" error={state.fieldErrors?.adminNote}>
+          <GuestField label="Admin note" error={state.fieldErrors?.adminNote}>
             <Textarea
               name="adminNote"
               defaultValue={guest?.adminNote ?? ''}
               rows={2}
               placeholder="Private — only you see this"
             />
-          </Field>
+          </GuestField>
         </Section>
 
         <DialogFooter>
           <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
           <Button type="submit" disabled={pending}>
+            {pending ? <Spinner data-icon="inline-start" /> : null}
             {pending ? 'Saving…' : mode === 'create' ? 'Add guest' : 'Save changes'}
           </Button>
         </DialogFooter>
@@ -338,12 +343,12 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
         </span>
         <Separator className="flex-1" />
       </div>
-      {children}
+      <FieldGroup className="gap-3">{children}</FieldGroup>
     </div>
   );
 }
 
-function Field({
+function GuestField({
   label,
   hint,
   error,
@@ -355,14 +360,14 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label>{label}</Label>
+    <Field className="gap-1.5" data-invalid={Boolean(error)}>
+      <FieldLabel>{label}</FieldLabel>
       {children}
       {error ? (
-        <p className="text-xs text-destructive">{error}</p>
+        <FieldError className="text-xs">{error}</FieldError>
       ) : hint ? (
-        <p className="text-xs text-muted-foreground">{hint}</p>
+        <FieldDescription className="text-xs">{hint}</FieldDescription>
       ) : null}
-    </div>
+    </Field>
   );
 }

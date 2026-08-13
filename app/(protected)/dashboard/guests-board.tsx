@@ -11,6 +11,11 @@ import type { Label as LabelRow } from "@/db/schema";
 
 import { Button } from "@/components/ui/button";
 import { type Corner } from "@/components/dashboard/florals";
+import {
+  filterGuests,
+  groupGuestsByStatus,
+  responseProgress,
+} from "@/app/(protected)/dashboard/board/board-data";
 import { BoardToolbar } from "@/app/(protected)/dashboard/board/board-toolbar";
 import { ColumnStats } from "@/app/(protected)/dashboard/board/column-stats";
 import {
@@ -67,26 +72,15 @@ export function GuestsBoard({
 
   const labelIds = useMemo(() => labels.map((l) => l.id), [labels]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return optimisticRows.filter((row) => {
-      if (labelSel && !row.labels.some((l) => labelSel.has(l.id))) return false;
-      if (!q) return true;
-      return [row.name, row.email, row.phone, ...row.labels.map((l) => l.name)]
-        .filter(Boolean)
-        .some((v) => v!.toLowerCase().includes(q));
-    });
-  }, [optimisticRows, query, labelSel]);
+  const filtered = useMemo(
+    () => filterGuests(optimisticRows, query, labelSel),
+    [optimisticRows, query, labelSel],
+  );
 
-  const byStatus = useMemo(() => {
-    const m: Record<GuestStatus, GuestRow[]> = { pending: [], going: [], not_going: [] };
-    for (const row of filtered) m[row.status].push(row);
-    return m;
-  }, [filtered]);
+  const byStatus = useMemo(() => groupGuestsByStatus(filtered), [filtered]);
 
   const filterActive = query.trim() !== "" || labelSel != null;
-  const responded = optimisticRows.filter((r) => r.status !== "pending").length;
-  const pct = rows.length ? Math.round((responded / rows.length) * 100) : 0;
+  const pct = responseProgress(optimisticRows);
 
   function moveTo(id: string, status: GuestStatus) {
     startTransition(async () => {
@@ -137,7 +131,7 @@ export function GuestsBoard({
       {/* Mobile: active tab card list — vines live on the cards themselves
           (CardCornerFrame per item), never floating on this borderless list. */}
       <div className="relative flex flex-col gap-3 md:hidden">
-        <div className="relative z-[1] flex flex-col gap-3">
+        <div className="relative z-1 flex flex-col gap-3">
         <ColumnStats size="sm" cards={byStatus[tab]} showCounts={tab === "going"} />
         {byStatus[tab].length === 0 ? (
           <div className="py-8 text-center text-[12.5px] italic" style={{ color: "#c4b7a0" }}>

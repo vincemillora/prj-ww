@@ -98,7 +98,7 @@ export default async function DashboardPage() {
 
       {/* Mobile: fixed bottom action bar (per hi-fi mobile design) */}
       {canEdit(user.role) ? (
-        <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-white via-white/90 to-transparent px-5 pt-5 pb-6 sm:hidden dark:from-background dark:via-background/90">
+        <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background via-background/90 to-transparent px-5 pt-5 pb-6 sm:hidden">
           <GuestDialog mode="create" labels={allLabels} />
         </div>
       ) : null}

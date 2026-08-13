@@ -4,18 +4,11 @@ import { updateTag } from 'next/cache';
 import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { companions, guests } from '@/db/schema';
-import {
-  collectCompanions,
-  companionsSchema,
-  rsvpResponseSchema,
-} from '@/lib/validation';
+import type { ActionState } from '@/lib/action-state';
+import { parseRsvpFormData, validateRsvpParty } from '@/app/actions/rsvp-logic';
 
 /** Result of the RSVP submission, consumed via `useActionState` on the form. */
-export type RsvpState = {
-  ok: boolean;
-  error?: string;
-  fieldErrors?: Record<string, string>;
-};
+export type RsvpState = ActionState;
 
 /**
  * Records a guest's RSVP reply.
@@ -46,36 +39,9 @@ export async function submitRsvp(
   _prev: RsvpState,
   formData: FormData,
 ): Promise<RsvpState> {
-  const parsed = rsvpResponseSchema.safeParse({
-    token: formData.get('token'),
-    status: formData.get('status'),
-    adults: formData.get('adults'),
-    kids: formData.get('kids'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    guestNote: formData.get('guestNote'),
-    dietary: formData.getAll('dietary'),
-    dietaryOther: formData.get('dietaryOther'),
-  });
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const key = String(issue.path[0] ?? 'form');
-      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
-    }
-    return { ok: false, fieldErrors };
-  }
-  const input = parsed.data;
-
-  const parsedCompanions = companionsSchema.safeParse(
-    collectCompanions(formData),
-  );
-  if (!parsedCompanions.success) {
-    return {
-      ok: false,
-      error: 'Please check the names of everyone you are bringing.',
-    };
-  }
+  const parsed = parseRsvpFormData(formData);
+  if (!parsed.success) return parsed.state;
+  const { input, companions: submittedCompanions } = parsed;
 
   const [guest] = await db
     .select({ id: guests.id, status: guests.status, maxGuests: guests.maxGuests })
@@ -87,45 +53,15 @@ export async function submitRsvp(
     return { ok: false, error: 'You have already responded.' };
   }
 
-  let adults: number | null = null;
-  let kids: number | null = null;
-  if (input.status === 'going') {
-    if (input.adults == null) {
-      return { ok: false, fieldErrors: { adults: 'How many adults are attending?' } };
-    }
-    if (input.adults + input.kids > guest.maxGuests) {
-      return {
-        ok: false,
-        fieldErrors: {
-          adults: `Only ${guest.maxGuests} seat(s) are reserved for you.`,
-        },
-      };
-    }
-    adults = input.adults;
-    kids = input.kids;
-  }
-
-  // The party has to add up: one named companion for every seat beyond the
-  // invitee. A decline carries nobody.
-  const party = input.status === 'going' ? parsedCompanions.data : [];
-  if (input.status === 'going') {
-    const expectedAdults = (adults ?? 1) - 1;
-    const expectedKids = kids ?? 0;
-    const gotAdults = party.filter((c) => c.kind === 'adult').length;
-    const gotKids = party.filter((c) => c.kind === 'kid').length;
-    if (gotAdults !== expectedAdults || gotKids !== expectedKids) {
-      return {
-        ok: false,
-        error:
-          'Please give us a name for everyone in your party before sending.',
-      };
-    }
-  }
-
-  // Dietary only applies to a `going` reply; a decline clears it.
-  const dietary = input.status === 'going' ? input.dietary : [];
-  const dietaryOther =
-    input.status === 'going' ? (input.dietaryOther ?? null) : null;
+  const validated = validateRsvpParty(input, submittedCompanions, guest.maxGuests);
+  if (!validated.success) return validated.state;
+  const {
+    adults,
+    kids,
+    dietary,
+    dietaryOther,
+    companions: party,
+  } = validated.data;
 
   const updates: Partial<typeof guests.$inferInsert> = {
     status: input.status,

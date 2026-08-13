@@ -92,7 +92,7 @@ export function GuestCard({
       style={{ borderColor: CARD_BORDER }}
     >
       {vineCorner ? <CardCornerFrame corner={vineCorner} /> : null}
-      <div className="relative z-[1]">
+      <div className="relative z-1">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-semibold" style={{ color: INK }}>
@@ -193,7 +193,7 @@ export function GuestCard({
           person told us they need nothing — not that we failed to ask. */}
       {row.companions.length ? (
         <CardMeta title="Also coming">
-          <ul className="space-y-1.5">
+          <ul className="flex flex-col gap-1.5">
             {sortCompanions(row.companions).map((c) => {
               const diet = companionDietary(c);
               return (

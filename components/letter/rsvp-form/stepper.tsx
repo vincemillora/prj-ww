@@ -8,7 +8,7 @@ import {
   disabledControl,
   errorText,
 } from "@/components/letter/rsvp-form/form-style";
-import { Label } from "@/components/ui/label";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 /**
  * −/+ stepper for a whole-number count. Posts its value through a hidden input
@@ -48,14 +48,14 @@ export function Stepper({
   );
 
   return (
-    <div className="space-y-2">
-      <Label
+    <Field className="gap-2" data-invalid={Boolean(error)}>
+      <FieldLabel
         htmlFor={`${name}-value`}
         className={cn(fieldLabel, "flex items-center justify-center gap-1.5")}
       >
         <Icon aria-hidden strokeWidth={1.5} className="size-3.5 shrink-0" />
         {label}
-      </Label>
+      </FieldLabel>
       <div className="flex items-center gap-1 sm:gap-2">
         <button
           type="button"
@@ -84,11 +84,7 @@ export function Stepper({
         </button>
       </div>
       <input type="hidden" name={name} value={value} />
-      {error && (
-        <span role="alert" className={errorText}>
-          {error}
-        </span>
-      )}
-    </div>
+      {error ? <FieldError className={errorText}>{error}</FieldError> : null}
+    </Field>
   );
 }

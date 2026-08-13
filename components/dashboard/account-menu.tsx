@@ -104,7 +104,9 @@ export function AccountMenu({
                 </span>
               </span>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
             {user.role !== "viewer" ? (
               <DropdownMenuItem onClick={() => setLabelsOpen(true)}>
                 <Tag />
