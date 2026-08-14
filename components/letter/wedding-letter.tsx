@@ -10,6 +10,9 @@ import { Hotels } from '@/components/letter/hotels';
 import { Rsvp } from '@/components/letter/rsvp';
 import { Gifts } from '@/components/letter/gifts';
 import { Faq } from '@/components/letter/faq';
+import { CountdownBand } from '@/components/letter/countdown-band';
+import { OurStory } from '@/components/letter/our-story';
+import { FloralBorderPeonies } from '@/components/letter/floral-border-peonies';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -30,11 +33,11 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) {
   return (
     <div className="letter-theme bg-paper text-ink">
-      {/* Hero, CountdownBand and OurStory share one background and are composed
-          inside it: the lily photo is pinned behind all three and an ink layer
-          fades in over it, reaching flat green as Our Story ends (see
-          opening-backdrop.tsx). Prenup below is the first paper ground again. */}
+      {/* The hero owns its viewport-sized backdrop. CountdownBand and OurStory
+          remain sibling sections so their spacing follows the letter rhythm. */}
       <OpeningBackdrop />
+      <CountdownBand />
+      <OurStory />
       {/* <EnvelopeGallery /> parked here — reinsert to bring the keepsake
           envelope back between Our Story and Prenup. */}
       <Prenup />
@@ -43,6 +46,7 @@ export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) 
       <Location />
       <Hotels />
       <Rsvp searchParams={searchParams} />
+      <FloralBorderPeonies />
       <Gifts />
       <Faq />
     </div>

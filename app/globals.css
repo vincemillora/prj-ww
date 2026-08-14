@@ -827,12 +827,10 @@
   color: var(--ink);
 }
 
-/* Sections painted with the letter's ink rather than its paper — currently the
-   countdown band, which sits on the one continuous background shared by the
-   Hero and Our Story (components/letter/wedding-letter.tsx). Everything inside
-   inverts: the ring text is white, and the record keeps its ink wax (a record is
-   dark) but gains a hairline white edge and a lifted shadow, because ink wax on
-   an ink ground has no silhouette of its own. */
+/* Sections painted with the letter's ink rather than its paper. Everything
+   inside inverts: the ring text is white, and the record keeps its ink wax (a
+   record is dark) but gains a hairline white edge and a lifted shadow, because
+   ink wax on an ink ground has no silhouette of its own. */
 .letter-theme .letter-on-ink .vinyl-ring {
   color: var(--paper);
 }
@@ -880,4 +878,3 @@
     animation: none;
   }
 }
-

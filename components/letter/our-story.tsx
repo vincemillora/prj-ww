@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
-import { Dome } from "@/components/letter/dome";
 import { PhotoLightbox } from "@/components/letter/photo-lightbox";
 import { SectionHeading } from "@/components/letter/section-heading";
 import { MEMORIES, type Memory } from "@/components/letter/our-story/memories";
@@ -23,20 +22,27 @@ import { cn } from "@/lib/utils";
 const BLEED_X =
   "w-[calc(100%+var(--spacing-gutter)*2)] -translate-x-gutter overflow-hidden";
 const SPRIG_EDGE_ZONE = 26;
+const LACE_CLASS =
+  "pointer-events-none relative z-30 h-[4.5rem] bg-paper bg-[url('/laces/Untitled-1%20%5BRecovered%5D-14.svg?v=2')] bg-[length:auto_100%] bg-repeat-x sm:h-24";
 
 export function OurStory() {
   const [active, setActive] = useState<Memory | null>(null);
   const reduce = !!useReducedMotion();
 
   return (
-    <section className="relative z-10">
-      <Dome direction="up" className="bg-paper" />
-      <div className="relative px-gutter pt-section pb-section text-center sm:pt-dome">
+    <section className="relative z-10 bg-ink">
+      <div
+        aria-hidden
+        className={LACE_CLASS}
+      />
+      <div className="relative px-gutter py-section text-center">
         <div className="mx-auto max-w-[64rem] lg:max-w-[80rem]">
           <SectionHeading tone="white" title="Our Story" kicker="How it began" />
 
-          <div className="relative mx-auto mt-[calc(var(--spacing-heading)+79px)] max-w-[52rem] sm:mt-[calc(var(--spacing-heading)+93px)] lg:max-w-[64rem] xl:max-w-[72rem]">
-            <CameraCharm className="pointer-events-none absolute left-1/2 top-0 z-20 w-24 -translate-x-1/2 -translate-y-[85%] sm:w-28" />
+          <div className="relative mx-auto mt-heading max-w-[52rem] lg:max-w-[64rem] xl:max-w-[72rem]">
+            <div className="flex justify-center">
+              <CameraCharm className="pointer-events-none w-24 sm:w-28" />
+            </div>
 
             {/* Row height and vine units are paired. If story copy changes,
                 re-measure the tallest memory before adjusting either value. */}
@@ -129,6 +135,11 @@ export function OurStory() {
           </div>
         </div>
       </div>
+
+      <div
+        aria-hidden
+        className={`${LACE_CLASS} rotate-180`}
+      />
 
       <PhotoLightbox
         photo={

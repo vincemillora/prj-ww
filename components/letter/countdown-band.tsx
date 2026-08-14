@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from 'motion/react';
 import { AddToCalendar } from '@/components/letter/add-to-calendar';
+import { CountdownLocket } from '@/components/letter/countdown-locket';
 import { Countdown } from '@/components/countdown';
 
 /**
@@ -28,9 +29,9 @@ import { Countdown } from '@/components/countdown';
  * title plus a number plus a label was three things saying one thing, which is
  * what made the block read as a stat readout rather than a letter.
  *
- * It also carries no charm. An open heart locket used to hang over the top of
- * the band, the counterpart to Our Story's camera; it is gone, leaving the
- * count as the only thing in the band that draws the eye.
+ * The open locket starts the band as a keepsake before the count completes the
+ * thought. It is decorative, keeping the countdown itself as the band’s
+ * readable focal point.
  *
  * Colour is the letter's two-colour system upright: ink type on paper, both at
  * full strength. Nothing here is tinted — the count reads loudest because it is
@@ -50,10 +51,11 @@ export function CountdownBand() {
         viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
+        <CountdownLocket />
+
         {/* Quiet intro line — deliberately smaller than the count, so the
-            section has one loud thing in it and not three. No top margin: this
-            is the band's first element now that the locket charm is gone, and
-            the section's own `pt-28 sm:pt-32` is the whole gap. */}
+            section has one loud thing in it and not three. The locket’s own
+            lower spacing separates the keepsake from this sentence. */}
         <h2 className="font-sans text-subhead text-ink">counting down to the day</h2>
 
         {/* The row and the script line are one sentence: `Countdown` renders

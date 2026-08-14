@@ -5,13 +5,11 @@ import Image from 'next/image';
 import { motion, useScroll, useTransform, useMotionTemplate } from 'motion/react';
 import heroLily from '@/public/hero-lily.jpg';
 import { Hero } from '@/components/letter/hero';
-import { CountdownBand } from '@/components/letter/countdown-band';
-import { OurStory } from '@/components/letter/our-story';
 
 /**
- * The opening of the letter — Hero, CountdownBand and Our Story on ONE
- * background: the lily photo, greening away to solid ink #0A110E by the time Our
- * Story ends.
+ * The opening hero backdrop — the lily photo, with a darkening ink layer as the
+ * hero leaves the viewport. CountdownBand and OurStory are ordinary siblings
+ * in WeddingLetter, so their section spacing and backgrounds stay independent.
  *
  * TWO colours, never three. The ramp is the photo under a fixed dark scrim,
  * with ONE ink layer fading in on top. An earlier version faded a botanical
@@ -19,13 +17,11 @@ import { OurStory } from '@/components/letter/our-story';
  * arriving and leaving mid-scroll. The palette's accents are for controls; a
  * background transition only ever moves between the photo and the ink.
  *
- * The photo runs all the way to the END of Our Story, and the ink layer only
- * reaches full opacity there. Our Story therefore starts on a still-visible
- * photo and finishes on flat green — previously it was opaque `bg-ink` and the
- * photo stopped dead at its top edge, so the transition was over before the
- * section it was transitioning to.
+ * The backdrop is scoped to the hero. Our Story owns its own ink background;
+ * this keeps the photo's scroll range bounded to the viewport-sized hero and
+ * prevents later sections from changing the backdrop's measured progress.
  *
- * The backdrop is a viewport-sized `sticky top-0 h-svh` box nested inside an
+ * The backdrop is a viewport-sized `sticky top-0 h-lvh` box nested inside an
  * `absolute inset-0` layer. Both parts matter:
  *
  *   - sticky + `h-svh` keeps the photo framed to the SCREEN. A single
@@ -48,8 +44,7 @@ import { OurStory } from '@/components/letter/our-story';
  */
 export function OpeningBackdrop() {
   const ref = useRef<HTMLDivElement>(null);
-  // 0 at the top of the Hero -> 1 when the bottom of Our Story meets the bottom
-  // of the viewport, which is where the background is finally flat green.
+  // The backdrop's progress is measured only across the hero wrapper.
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end end'],
@@ -113,8 +108,6 @@ export function OpeningBackdrop() {
         </div>
       </div>
       <Hero />
-      <CountdownBand />
-      <OurStory />
     </div>
   );
 }

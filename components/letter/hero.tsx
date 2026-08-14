@@ -11,8 +11,8 @@ const [NAME_A, NAME_B] = COUPLE_NAMES;
 /**
  * Hero type — the names, the line, the date. It paints NO background of its
  * own: the lily photo, its scroll-zoom and the scrim-to-green overlay belong to
- * `OpeningBackdrop`, which wraps this section and the CountdownBand so the green
- * arrives gradually across both. See opening-backdrop.tsx.
+ * `OpeningBackdrop` owns the photo, scrim, and scroll treatment around this
+ * section. CountdownBand is composed separately by WeddingLetter.
  *
  * The section is exactly ONE viewport tall (`100dvh`), so it holds the screen
  * once and then scrolls away with the page. It used to be 150svh with the
