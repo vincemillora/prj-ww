@@ -6,10 +6,9 @@ import { cn } from '@/lib/utils';
 import { SectionHeading } from '@/components/letter/section-heading';
 
 /**
- * Sequence of events — EDGE-TO-EDGE white section. It used to be the section
- * that slid up behind Our Story's bottom dome; `Prenup` now sits between them
- * and carries that overlap (`-mt-48 pt-56`), so this just continues the same
- * white flow underneath it.
+ * Sequence of events — EDGE-TO-EDGE paper section. Prenup now sits directly
+ * above it, so this section owns the same top and bottom spacing rhythm as the
+ * other letter sections.
  *
  * Layout: a single centre rail runs down the middle. Each event alternates
  * sides — a line-icon illustration on one half, the description on the other,
@@ -60,7 +59,7 @@ export function DayItself() {
     // `px-gutter` on BOTH sides: this section used to carry `pr-5` alone, so on
     // a phone it had no left gutter at all — the centred heading sat 10px off
     // centre and a long one would have run into the screen edge.
-    <section className="relative z-0 bg-paper px-gutter pb-section">
+    <section className="relative z-0 bg-paper px-gutter pt-section pb-section">
       <div className="mx-auto max-w-[56rem] text-center lg:max-w-[76rem]">
         <SectionHeading
           title="The day itself"

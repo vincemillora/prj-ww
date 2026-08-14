@@ -86,40 +86,7 @@ export function Prenup() {
       <Heading />
 
       <PrenupMosaic shots={VISIBLE} mobileCount={MOBILE_COUNT} />
-
-      {/* Full-bleed, no bottom padding: the border closes the section and the
-          drawing's baseline meets DayItself's white. Same treatment as the
-          band-under-string-lights that closes `Hotels` into the RSVP band. */}
-      <FloralBorderPeonies />
     </section>
-  );
-}
-
-/**
- * Peony border that closes the section, edge to edge. The asset ships as one
- * flat colour (#145b9f), so it is painted through a CSS mask — here in the
- * letter's ink. Aspect ratio is the viewBox's (1032.1908 x 270.9679).
- */
-function FloralBorderPeonies() {
-  const mask = "url('/icons/hand_drawn/illustrations/floral-border-peonies.svg')";
-  return (
-    <span
-      aria-hidden
-      className="block aspect-[1032.1908/270.9679] w-full bg-ink"
-      style={{
-        maskImage: mask,
-        WebkitMaskImage: mask,
-        maskRepeat: 'no-repeat',
-        WebkitMaskRepeat: 'no-repeat',
-        // 20px wider than the box (scaled, so taller too) and centred: the
-        // SVG's own transparent margin gets cropped off instead of holding the
-        // drawing back from the screen edges.
-        maskSize: 'calc(100% + 20px) auto',
-        WebkitMaskSize: 'calc(100% + 20px) auto',
-        maskPosition: 'center',
-        WebkitMaskPosition: 'center',
-      }}
-    />
   );
 }
 
