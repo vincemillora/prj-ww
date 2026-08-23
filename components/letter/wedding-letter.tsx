@@ -10,8 +10,8 @@ import { Hotels } from '@/components/letter/hotels';
 import { Rsvp } from '@/components/letter/rsvp';
 import { Gifts } from '@/components/letter/gifts';
 import { Faq } from '@/components/letter/faq';
-import { CountdownBand } from '@/components/letter/countdown-band';
 import { OurStory } from '@/components/letter/our-story';
+import { WelcomeBand } from '@/components/letter/welcome-band';
 import { FloralBorderPeonies } from '@/components/letter/floral-border-peonies';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -33,10 +33,10 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) {
   return (
     <div className="letter-theme bg-paper text-ink">
-      {/* The hero owns its viewport-sized backdrop. CountdownBand and OurStory
-          remain sibling sections so their spacing follows the letter rhythm. */}
+      {/* The hero, welcome, and story remain sibling sections so
+          their spacing follows the letter rhythm. */}
       <OpeningBackdrop />
-      <CountdownBand />
+      <WelcomeBand />
       <OurStory />
       {/* <EnvelopeGallery /> parked here — reinsert to bring the keepsake
           envelope back between Our Story and Prenup. */}

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Image from "next/image";
 import { getGuestByToken } from "@/lib/data";
 import { RSVP_DEADLINE_LABEL } from "@/lib/wedding";
 import { cn } from "@/lib/utils";
@@ -6,6 +7,7 @@ import { RsvpForm } from "@/components/letter/rsvp-form";
 import { RsvpReply } from "@/components/letter/rsvp-reply";
 import { SectionHeading } from "@/components/letter/section-heading";
 import { Dome } from "@/components/letter/dome";
+import { RsvpEnvelope } from "@/components/letter/rsvp-envelope";
 import {
   Card,
   CardContent,
@@ -51,7 +53,21 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  */
 export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <section className="relative z-10 -mt-section overflow-hidden bg-ink px-gutter pt-dome pb-section">
+    <section className="relative z-10 -mt-section bg-ink px-gutter pt-dome pb-section">
+      <div
+        aria-hidden
+        data-slot="rsvp-background"
+        className="absolute inset-0 z-0"
+      >
+        <Image
+          src="/rsvp-background.png"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-ink/55" />
+      </div>
       {/* The white dome. Full-bleed and flush with the top edge, so it reads as
           the paper above flowing down rather than as a shape floating on the
           ink. Shared `Dome` (components/letter/dome.tsx) — same curve as the one
@@ -60,18 +76,20 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
       {/* `max-w-2xl` (42rem), the same measure the FAQ cards use — the two are
           the only carded sections in the letter, so a 32rem reply card under a
           42rem FAQ card read as two different systems. */}
-      <div className="relative mx-auto max-w-2xl">
+      <div className="relative z-10 mx-auto max-w-2xl">
         <SectionHeading tone="white" title="Will you join us?" kicker="RSVP" />
 
         {/* Double rule: a 2px white outline held 2px off the card, so the ink
             shows through the gap and the card reads as mounted on the section
             rather than dropped on it. `outline-offset` leaves the gap
             transparent, so it picks up the ink behind on its own. */}
-        <Card className="mt-heading rounded-xl px-2 py-8 shadow-[0_28px_60px_-30px_color-mix(in_srgb,var(--ink)_55%,transparent)] outline-2 outline-offset-2 outline-paper sm:px-6">
-          <Suspense fallback={<RsvpBodyFallback />}>
-            <RsvpBody searchParams={searchParams} />
-          </Suspense>
-        </Card>
+        <RsvpEnvelope>
+          <Card className="rounded-xl px-2 py-8 shadow-[0_28px_60px_-30px_color-mix(in_srgb,var(--ink)_55%,transparent)] outline-2 outline-offset-2 outline-paper sm:px-6">
+            <Suspense fallback={<RsvpBodyFallback />}>
+              <RsvpBody searchParams={searchParams} />
+            </Suspense>
+          </Card>
+        </RsvpEnvelope>
 
         {/* When we hope to hear back. Only shown to a guest who arrived on
             their personal link — without a token the card is asking them to go

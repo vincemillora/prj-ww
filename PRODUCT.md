@@ -115,8 +115,8 @@ imported hi-fi Claude Design files and are settled.
     Everything else drawn in CSS or SVG obeys the two colours plus the granted exceptions above.
 - **The dashboard keeps "wisteria & fig."** The `:root` token set in `app/globals.css` is
   binding for `/dashboard` and `/login` and must not be retuned to match the letter.
-- **Section set and order are locked.** Hero, countdown band, our story, the day itself, attire
-  guide, location, hotels, RSVP, gifts, FAQ.
+- **Section set and order are locked.** Hero, welcome band (date strip and countdown), our story, the day
+  itself, attire guide, location, hotels, RSVP, gifts, FAQ.
 - **Copy is not locked** — all guest-facing content is draft and may be rewritten.
 - **Type stack: two faces, and only two.** `app/layout.tsx` loads Montserrat (`--font-sans`)
   and Parisienne (`--font-script`) — nothing else. Earlier drafts of this file also listed

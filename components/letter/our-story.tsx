@@ -23,7 +23,7 @@ const BLEED_X =
   "w-[calc(100%+var(--spacing-gutter)*2)] -translate-x-gutter overflow-hidden";
 const SPRIG_EDGE_ZONE = 26;
 const LACE_CLASS =
-  "pointer-events-none relative z-30 h-[4.5rem] bg-paper bg-[url('/laces/Untitled-1%20%5BRecovered%5D-14.svg?v=2')] bg-[length:auto_100%] bg-repeat-x sm:h-24";
+  "pointer-events-none relative z-30 h-[4.5rem] bg-paper bg-[url('/laces/Untitled-1%20%5BRecovered%5D-15.svg?v=2')] bg-[length:auto_100%] bg-repeat-x sm:h-24";
 
 export function OurStory() {
   const [active, setActive] = useState<Memory | null>(null);

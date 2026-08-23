@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { MotionImage } from '@/components/letter/motion-image';
 import { MORPH, PhotoLightbox, photoLayoutId } from '@/components/letter/photo-lightbox';
 import { cn } from '@/lib/utils';
@@ -16,32 +16,73 @@ export type Shot = {
 };
 
 /**
- * Client half of the prenup section: the mosaic grid. Tapping a tile morphs
+ * Client half of the prenup section: a vertical-scroll-driven horizontal gallery. Tapping a tile morphs
  * the photo into the shared `PhotoLightbox` (see photo-lightbox.tsx for the
  * fly-to-centre mechanics). Placeholder tiles (no `image`) are inert.
  */
-export function PrenupMosaic({ shots, mobileCount }: { shots: Shot[]; mobileCount: number }) {
+export function PrenupScrollGallery({ shots }: { shots: Shot[] }) {
   const [active, setActive] = useState<Shot | null>(null);
+  const [distance, setDistance] = useState(0);
   const reduce = !!useReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+  const x = useTransform(scrollYProgress, [0, 1], [0, -distance]);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!viewport || !track) return;
+
+    const measure = () => {
+      setDistance(Math.max(track.scrollWidth - viewport.clientWidth, 0));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [shots.length]);
 
   return (
     <>
-      {/* `auto-rows-*` is the shared tile height; `dense` stops a 2-column tile
-          from leaving the column beside it empty. */}
-      {/* `mb-1.5` matches the grid's own `gap-1.5`: the gutter between tiles is
-          6px, so the bottom row met the peony border with no gap at all while
-          every other edge in the mosaic had one. */}
-      <div className="mt-heading mb-1.5 grid auto-rows-[15rem] grid-flow-row-dense grid-cols-2 gap-1.5 sm:auto-rows-[22rem] sm:grid-cols-4">
-        {shots.map((shot, index) => (
-          <Tile
-            key={shot.alt}
-            shot={shot}
-            reduce={reduce}
-            // Past the mobile budget: shown on desktop, dropped on phones.
-            hiddenOnMobile={index >= mobileCount}
-            onOpen={() => setActive(shot)}
-          />
-        ))}
+      <div
+        ref={containerRef}
+        data-testid="prenup-scroll-container"
+        className="relative overflow-x-clip"
+        style={{ height: reduce ? 'auto' : `calc(100svh + ${distance}px)` }}
+      >
+        <div
+          ref={viewportRef}
+          className={cn(
+            'flex items-center',
+            reduce
+              ? 'relative overflow-x-auto overscroll-x-contain'
+              : 'sticky top-0 h-svh overflow-hidden',
+          )}
+          role="region"
+          aria-label="Prenup photos"
+        >
+          <motion.div
+            ref={trackRef}
+            className="flex w-max gap-4 will-change-transform sm:gap-6"
+            style={{ x: reduce ? 0 : x }}
+          >
+            {shots.map((shot) => (
+              <Tile
+                key={shot.alt}
+                shot={shot}
+                reduce={reduce}
+                onOpen={() => setActive(shot)}
+              />
+            ))}
+          </motion.div>
+        </div>
       </div>
 
       <PhotoLightbox
@@ -67,20 +108,20 @@ export function PrenupMosaic({ shots, mobileCount }: { shots: Shot[]; mobileCoun
 function Tile({
   shot,
   reduce,
-  hiddenOnMobile,
   onOpen,
 }: {
   shot: Shot;
   reduce: boolean;
-  hiddenOnMobile: boolean;
   onOpen: () => void;
 }) {
-  const span = shot.w > shot.h ? 'col-span-2' : 'col-span-1';
-  const hidden = hiddenOnMobile && 'max-sm:hidden';
+  const aspectRatio = `${shot.w} / ${shot.h}`;
 
   if (!shot.image) {
     return (
-      <div className={cn('relative overflow-hidden', span, hidden)}>
+      <div
+        className="relative h-[20rem] flex-none overflow-hidden sm:h-[30rem]"
+        style={{ aspectRatio }}
+      >
         <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--ink),var(--ink)_1px,var(--paper)_1px,var(--paper)_10px)]">
           <span className="font-mono text-micro uppercase tracking-[0.14em] text-ink">
             photo · {shot.alt}
@@ -96,10 +137,9 @@ function Tile({
       onClick={onOpen}
       aria-label={`View photo: ${shot.alt}`}
       className={cn(
-        'relative cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink',
-        span,
-        hidden,
+        'relative h-[20rem] flex-none cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink sm:h-[30rem]',
       )}
+      style={{ aspectRatio }}
     >
       <MotionImage
         layoutId={reduce ? undefined : photoLayoutId(`prenup-${shot.alt}`)}
@@ -108,9 +148,7 @@ function Tile({
         alt={shot.alt}
         fill
         sizes={
-          shot.w > shot.h
-            ? '(max-width: 639px) 100vw, 50vw'
-            : '(max-width: 639px) 50vw, 25vw'
+          '(max-width: 639px) 80vw, 35vw'
         }
         className="object-cover"
       />

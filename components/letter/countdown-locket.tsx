@@ -7,7 +7,7 @@ export function CountdownLocket(): React.JSX.Element {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none relative mb-8 aspect-[4/3] w-[clamp(13rem,34vw,18rem)]"
+      className="pointer-events-none relative mb-8 aspect-[4/3] w-[clamp(19rem,50vw,28rem)]"
       data-testid="countdown-locket"
     >
       <img

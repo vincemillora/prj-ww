@@ -114,14 +114,14 @@ export function Countdown({
             simply clipped by the page's `overflow-x-hidden`. */}
         <span
           aria-hidden
-          className="flex items-baseline whitespace-nowrap font-sans text-figure"
+          className="flex items-start whitespace-nowrap font-sans text-figure"
         >
           {units.map((u, i) => (
-            <span key={u.label} className="flex items-baseline">
+            <span key={u.label} className="flex items-start">
               {i > 0 ? (
                 <span
                   className={cn(
-                    "mx-[0.5em] text-[0.4em] opacity-50",
+                    "mx-[0.5em] mt-[0.35em] text-[0.4em] opacity-50",
                     tickClassName,
                   )}
                 >
@@ -130,37 +130,32 @@ export function Countdown({
               ) : null}
               <span
                 className={cn(
-                  "text-center tabular-nums",
+                  "flex flex-col items-center gap-1",
                   i === 0 ? "min-w-[3ch]" : "min-w-[2ch]",
                 )}
               >
-                {u.value ?? "–"}
-              </span>
-              <span
-                className={cn(
-                  // The unit names are the one part of the row NOT sized in
-                  // `em`: at a fixed ratio to the digits they fell to 10px on a
-                  // phone, and any ratio that clears the 12px floor there is
-                  // oversized next to a 48px figure on a desktop. `micro` is
-                  // 12px/13px, so it stays legible at both ends.
-                  //
-                  // The two gaps have to stay ranked or the row stops reading
-                  // as four pairs: the space between a number and its own unit
-                  // must be visibly SMALLER than the space around the
-                  // separators. Tracking is near zero for the same reason — it
-                  // widened the row without making anything easier to read.
-                  "ml-1 font-sans text-micro tracking-[0.02em]",
-                  tickClassName,
-                )}
-              >
-                {u.label}
+                <span className="text-center tabular-nums">
+                  {u.value ?? "–"}
+                </span>
+                <span
+                  className={cn(
+                    // Unit names stay at the same readable role, but now sit
+                    // below their figures as one compact countdown pair.
+                    "font-sans text-micro tracking-[0.02em]",
+                    tickClassName,
+                  )}
+                >
+                  {u.label}
+                </span>
               </span>
             </span>
           ))}
         </span>
-        <span aria-hidden className={cn("mt-5", labelClassName)}>
-          {typeof label === "function" ? label(days.value) : label}
-        </span>
+        {label == null ? null : (
+          <span aria-hidden className={cn("mt-5", labelClassName)}>
+            {typeof label === "function" ? label(days.value) : label}
+          </span>
+        )}
       </div>
     );
   }
