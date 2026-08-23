@@ -7,7 +7,7 @@ import { WEDDING_WEEK } from '@/lib/wedding';
  * The wedding week as a row of weekday/date pairs, with the day itself ringed.
  * Everything is drawn in `currentColor` — the separator dots, the ring and both
  * lines of type — so the caller sets the colour: white over the Hero's photo,
- * ink on white paper.
+ * ink on antique-linen paper.
  *
  * It opens the page under "are getting married!" in the Hero (it used to sit in
  * the countdown band).

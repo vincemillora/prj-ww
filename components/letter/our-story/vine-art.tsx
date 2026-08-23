@@ -34,7 +34,7 @@ const BLOOM: Sprig = {
   src: "/florals/rose-bloom.svg",
   aspect: "aspect-[180/210]",
   stem: { x: 0.4, y: 0.65 },
-  bearing: 9,
+  bearing: 30,
 };
 const LEAF_LARGE: Sprig = {
   src: "/florals/leaf-large.svg",

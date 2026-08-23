@@ -22,8 +22,28 @@ import { cn } from "@/lib/utils";
 const BLEED_X =
   "w-[calc(100%+var(--spacing-gutter)*2)] -translate-x-gutter overflow-hidden";
 const SPRIG_EDGE_ZONE = 26;
-const LACE_CLASS =
-  "pointer-events-none relative z-30 h-[4.5rem] bg-paper bg-[url('/laces/Untitled-1%20%5BRecovered%5D-15.svg?v=2')] bg-[length:auto_100%] bg-repeat-x sm:h-24";
+const LACE_URL = "url('/laces/Untitled-1%20%5BRecovered%5D-15.svg?v=2')";
+const LACE_BAND_CLASS =
+  "pointer-events-none relative z-30 h-[4.5rem] overflow-hidden bg-paper sm:h-24";
+
+function LaceBand({ flipped = false }: { flipped?: boolean }) {
+  return (
+    <div aria-hidden className={`${LACE_BAND_CLASS}${flipped ? " rotate-180" : ""}`}>
+      <div
+        data-slot="our-story-lace"
+        className="size-full bg-ink"
+        style={{
+          maskImage: LACE_URL,
+          WebkitMaskImage: LACE_URL,
+          maskRepeat: "repeat-x",
+          WebkitMaskRepeat: "repeat-x",
+          maskSize: "auto 100%",
+          WebkitMaskSize: "auto 100%",
+        }}
+      />
+    </div>
+  );
+}
 
 export function OurStory() {
   const [active, setActive] = useState<Memory | null>(null);
@@ -31,10 +51,7 @@ export function OurStory() {
 
   return (
     <section className="relative z-10 bg-ink">
-      <div
-        aria-hidden
-        className={LACE_CLASS}
-      />
+      <LaceBand />
       <div className="relative px-gutter py-section text-center">
         <div className="mx-auto max-w-[64rem] lg:max-w-[80rem]">
           <SectionHeading tone="white" title="Our Story" kicker="How it began" />
@@ -136,10 +153,7 @@ export function OurStory() {
         </div>
       </div>
 
-      <div
-        aria-hidden
-        className={`${LACE_CLASS} rotate-180`}
-      />
+      <LaceBand flipped />
 
       <PhotoLightbox
         photo={

@@ -131,7 +131,7 @@ export function Location() {
   const bringToFront = (id: string) => setFrontIndex(DECK.indexOf(id));
 
   return (
-    <section className="px-gutter py-section">
+    <section className="bg-paper px-gutter py-section">
       <div className="mx-auto max-w-[56rem] text-center lg:max-w-[64rem]">
         <SectionHeading tone="ink" title="Where we’ll be" kicker="Location" />
 

@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import Image from "next/image";
 import { getGuestByToken } from "@/lib/data";
 import { RSVP_DEADLINE_LABEL } from "@/lib/wedding";
-import { cn } from "@/lib/utils";
 import { RsvpForm } from "@/components/letter/rsvp-form";
 import { RsvpReply } from "@/components/letter/rsvp-reply";
 import { SectionHeading } from "@/components/letter/section-heading";
@@ -53,7 +52,7 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  */
 export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <section className="relative z-10 -mt-section bg-ink px-gutter pt-dome pb-section">
+    <section className="relative z-10 -mt-section overflow-hidden bg-ink px-gutter pt-dome pb-section">
       <div
         aria-hidden
         data-slot="rsvp-background"
@@ -66,7 +65,6 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-ink/55" />
       </div>
       {/* The white dome. Full-bleed and flush with the top edge, so it reads as
           the paper above flowing down rather than as a shape floating on the
@@ -99,10 +97,6 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
           <RsvpDeadline searchParams={searchParams} />
         </Suspense>
 
-        {/* Hand-drawn bells closing the section, painted white through a mask
-            (the asset ships as pure black). Aspect ratio is the viewBox's
-            (87.2656 x 77.7148). */}
-        <WeddingBells className="mx-auto mt-10 w-20 sm:w-28" />
       </div>
     </section>
   );
@@ -136,27 +130,6 @@ async function RsvpDeadline({ searchParams }: { searchParams: SearchParams }) {
         ? " Please let us know if there are any changes beforehand."
         : ""}
     </p>
-  );
-}
-
-/** The bells, drawn in white through a mask (see the note at its usage). */
-function WeddingBells({ className }: { className?: string }) {
-  const mask = "url('/icons/hand_drawn/wedding_2/wedding-bells.svg')";
-  return (
-    <span
-      aria-hidden
-      className={cn("block aspect-[87.2656/77.7148] bg-paper", className)}
-      style={{
-        maskImage: mask,
-        WebkitMaskImage: mask,
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
-        maskSize: "contain",
-        WebkitMaskSize: "contain",
-        maskPosition: "center",
-        WebkitMaskPosition: "center",
-      }}
-    />
   );
 }
 

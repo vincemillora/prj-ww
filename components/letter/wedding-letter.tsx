@@ -26,13 +26,12 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  * longer wraps this content but is kept for reuse.
  *
  * `letter-theme` (app/globals.css) scopes the home page to its two-colour
- * four-role palette — `--ink` and `--paper` bases, `--botanical` and `--lichen`
- * accents for controls — by re-pointing the shadcn tokens for this
+ * two-colour palette — `--ink` and `--paper` — by re-pointing the shadcn tokens for this
  * subtree only. The dashboard keeps the wisteria & fig palette.
  */
 export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <div className="letter-theme bg-paper text-ink">
+    <div className="letter-theme bg-background text-ink">
       {/* The hero, welcome, and story remain sibling sections so
           their spacing follows the letter rhythm. */}
       <OpeningBackdrop />
@@ -46,7 +45,9 @@ export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) 
       <Location />
       <Hotels />
       <Rsvp searchParams={searchParams} />
-      <FloralBorderPeonies />
+      <div className="bg-paper">
+        <FloralBorderPeonies />
+      </div>
       <Gifts />
       <Faq />
     </div>

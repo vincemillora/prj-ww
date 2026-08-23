@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
  * nine hand-copies drifting apart.
  *
  * `tone` picks the ink for the ground the heading sits on:
- *   script — sage script headline on white paper (the default)
+ *   script — espresso script headline on antique linen (the default)
  *   ink    — headline in full ink, for a section whose imagery brings the
  *            colour instead (Location)
  *   white  — for sections set on the solid ink ground (Our Story, RSVP)

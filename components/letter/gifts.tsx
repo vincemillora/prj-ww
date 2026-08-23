@@ -24,10 +24,8 @@ export async function Gifts() {
         width: 176,
         margin: 1,
         errorCorrectionLevel: 'M',
-        // Deliberately NOT var(--ink): a QR code is machine-read, and scanners
-        // want a near-black/white pair. The letter's green is too light to
-        // guarantee a decode, so this one mark keeps a fixed dark value.
-        color: { dark: '#1e2a18', light: '#ffffff' },
+        // Retain white for this established paper surface and its QR quiet zone.
+        color: { dark: '#3c3422', light: '#ffffff' },
       }),
     })),
   );
@@ -47,10 +45,8 @@ export async function Gifts() {
           {codes.map((c) => (
             <div key={c.method} className="flex flex-col items-center">
               <div
-                className="rounded-md border border-ink bg-white p-2 [&>svg]:block"
-                /* Hard white, matching the QR's own `light` value: the code is
-                   machine-read and its quiet zone has to be the same tone as
-                   its background, so this square opts out of --paper. */
+                className="rounded-md border border-ink bg-paper p-2 [&>svg]:block"
+                /* Match the QR's quiet zone to its surrounding surface. */
                 dangerouslySetInnerHTML={{ __html: c.svg }}
               />
               <p className="mt-4 font-sans text-subhead text-ink">

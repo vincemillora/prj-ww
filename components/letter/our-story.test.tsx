@@ -39,7 +39,8 @@ describe("OurStory", () => {
   it("uses lace 15 for both border bands", () => {
     const { container } = render(<OurStory />);
 
-    expect(container.querySelectorAll("[class*='-15.svg']")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-slot='our-story-lace']")).toHaveLength(2);
+    expect(container.innerHTML).toContain("Untitled-1%20%5BRecovered%5D-15.svg");
   });
 
   it("crops lace 15 to its complete repeat tile", () => {

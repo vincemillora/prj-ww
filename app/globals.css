@@ -11,12 +11,9 @@
   --color-ink: var(--ink);
   /* Guest letter paper — the letter's light base. */
   --color-paper: var(--paper);
-  /* The letter's two accents, one per ground: botanical on light sections,
-     lichen on the ink ones. Links and buttons only — never body text. */
-  --color-botanical: var(--botanical);
-  --color-lichen: var(--lichen);
-  /* Section-heading script colour (sage on white; re-pointed to ink inside
-     .letter-theme — see that block). */
+  /* Guest letter canvas behind the white paper sections. */
+  --color-linen: var(--linen);
+  /* Section-heading script colour (re-pointed to ink inside .letter-theme). */
   --color-script: var(--script);
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -220,19 +217,13 @@
      resolves everywhere, but only the guest letter (.letter-theme) is built on
      it: foreground, script, borders, Our Story + RSVP grounds, and the thinned
      placeholder all derive from this single variable. */
-  --ink: #0a110e;
+  --ink: #3c3422;
 
-  /* Home-page paper — Misty White, the light base and counterpart to --ink.
-     Every light surface, card and on-ink text on the guest letter derives from this
-     one variable (the Our Story photo border is the sole hard-white exception). */
-  --paper: #f4f6f4;
+  /* Home-page canvas — Antique Linen, behind the letter's white surfaces. */
+  --linen: #b9aa93;
 
-  /* Light Accent — links and buttons in the LIGHT sections. Dark enough to
-     carry paper-coloured text on a filled control (about 8:1 on --paper). */
-  --botanical: #2a4a3b;
-  /* Dark Accent — the same job on the INK sections, where botanical would
-     disappear into the ground (about 7:1 on --ink). */
-  --lichen: #84a98c;
+  /* Existing white paper surfaces remain white. */
+  --paper: #ffffff;
 
   /* Stat numbers, progress bars, status dots, and status pills (hi-fi). */
   --stat-going: #5f7a48;
@@ -255,21 +246,14 @@
   --pill-declined-fg: #b06a4f;
 }
 
-/* ── Home page theme: a four-role palette ───────────────────────────
+/* ── Home page theme: linen canvas, white paper, espresso ink ────────
    The guest letter (app/page.tsx -> components/wedding-letter.tsx ->
-   components/letter/*) is built from four values, and nothing else:
+   components/letter/*) keeps its established white surfaces, with linen behind them:
 
-     --ink       Deep Shadow    #0A110E   dark grounds; body text on light ones
-     --paper     Misty White    #F4F6F4   light grounds; body text on dark ones
-     --botanical Botanical Green #2A4A3B  links & buttons on LIGHT sections
-     --lichen    Lichen Sage    #84A98C   links & buttons on DARK sections
-
-   The two bases carry ALL body text; the two accents are reserved for controls,
-   so a green in this document always means "you can act on this". Each accent
-   belongs to one ground and is unreadable on the other, which is why there are
-   two rather than one.
-
-   All four are used at FULL strength — no tints, no thinned ink: hierarchy comes
+     --ink       Espresso Olive #3C3422   dark grounds; body text on light ones
+     --paper     White          #FFFFFF   existing paper surfaces; text on ink
+     --linen     Antique Linen  #B9AA93   canvas behind the letter
+   These colours are used at FULL strength — no tints, no thinned ink: hierarchy comes
    from size, face and weight, not tone. Alpha survives only where it is
    physically a scrim or a shadow (the hero's overlay on the lily photo, the
    frosted lace window, box-shadows). This block re-points the shadcn tokens for that subtree only, so
@@ -279,42 +263,32 @@
    /login. `@theme inline` is what makes this work — utilities emit
    `var(--token)`, so a scoped redefinition wins at use site. */
 .letter-theme {
-  --background: var(--paper);
+  --background: var(--linen);
   --foreground: var(--ink);
   --card: var(--paper);
   --card-foreground: var(--ink);
   --popover: var(--paper);
   --popover-foreground: var(--ink);
-  /* Controls, not text: `--primary` is what shadcn fills buttons and checked
-     states with, so it takes the light-section accent rather than the ink. */
-  --primary: var(--botanical);
+  /* Controls use the same ink as the letter's body text. */
+  --primary: var(--ink);
   --primary-foreground: var(--paper);
   --secondary: var(--paper);
   --secondary-foreground: var(--ink);
   --muted: var(--paper);
-  /* No thinned ink: secondary text is the same #0A110E as primary text, and
+  /* No thinned ink: secondary text is the same #3C3422 as primary text, and
      rank comes from size/face/weight instead of tone. */
   --muted-foreground: var(--ink);
-  /* Hover/active surfaces take the accent rather than a tint of the ground. */
-  --accent: var(--botanical);
+  /* Hover/active surfaces use the same ink as the rest of the letter. */
+  --accent: var(--ink);
   --accent-foreground: var(--paper);
-  /* The one hue outside white + ink, and only for the RSVP form's required marks
-     and error states: a brick red muted towards the ink's olive so it sits in the
-     letter rather than shouting over it. It never carries meaning on its own —
-     required marks are aria-hidden beside a real `required` attribute, and every
-     error is also stated in words through role="alert". */
-  --mark-required: #a4322b;
-  /* Pointed at that red so shadcn's built-in `aria-invalid:border-destructive`
-     and `text-destructive` mark the offending field without per-field colour. */
-  --destructive: var(--mark-required);
-  /* Rules and section edges are structure, so they stay ink; a field's border
-     and the focus ring belong to the control, so they take the accent. */
+  /* Required marks and errors remain understandable without a distinct hue. */
+  --mark-required: var(--ink);
+  --destructive: var(--ink);
+  /* Rules, field borders, and focus rings stay in ink. */
   --border: var(--ink);
-  --input: var(--botanical);
-  --ring: var(--botanical);
-  /* Section headlines are set in the accent on light grounds — the script face
-     carries so little ink that full --ink over-weights it. */
-  --script: var(--botanical);
+  --input: var(--ink);
+  --ring: var(--ink);
+  --script: var(--ink);
 }
 
 /* Letter-scoped sizing for the shadcn primitives. Their own base classes are
@@ -349,7 +323,7 @@
   line-height: var(--text-meta--line-height);
 }
 /* The one place the letter thins its ink. Placeholders inherit
-   `--muted-foreground`, which this theme points at full-strength #0A110E — so
+   `--muted-foreground`, which this theme points at full-strength #3C3422 — so
    a placeholder rendered identically to typed text, and the note field read as
    already answered. Everywhere else rank comes from size/face/weight, but a
    placeholder is not a quieter piece of content: it is the absence of content,
@@ -783,30 +757,30 @@
   }
 }
 
-/* Guest-letter variant. The letter's bases are Misty White #F4F6F4 paper and
-   Deep Shadow #0A110E ink — so the record is pressed in ink rather than warm black,
+/* Guest-letter variant. The letter's bases are Antique Linen #B9AA93 paper and
+   Espresso Olive #3C3422 ink — so the record is pressed in ink rather than warm black,
    the label is paper rather than ivory, and the shadow is tinted with ink instead of
    the dashboard's wisteria. */
 .letter-theme .vinyl {
   background:
     radial-gradient(
       circle at 30% 26%,
-      rgba(255, 255, 255, 0.34),
-      rgba(255, 255, 255, 0) 26%
+      color-mix(in srgb, var(--paper) 34%, transparent),
+      transparent 26%
     ),
     conic-gradient(
       from 210deg at 50% 50%,
-      rgba(255, 255, 255, 0) 0deg,
-      rgba(255, 255, 255, 0.14) 38deg,
-      rgba(255, 255, 255, 0) 92deg,
-      rgba(255, 255, 255, 0) 210deg,
-      rgba(255, 255, 255, 0.07) 246deg,
-      rgba(255, 255, 255, 0) 300deg
+      transparent 0deg,
+      color-mix(in srgb, var(--paper) 14%, transparent) 38deg,
+      transparent 92deg,
+      transparent 210deg,
+      color-mix(in srgb, var(--paper) 7%, transparent) 246deg,
+      transparent 300deg
     ),
     repeating-radial-gradient(
       circle at center,
-      #1a2415 0 1px,
-      #2a3a22 1px 3px
+      color-mix(in srgb, var(--ink) 88%, var(--paper)) 0 1px,
+      var(--ink) 1px 3px
     ),
     var(--ink);
   box-shadow:
@@ -826,17 +800,20 @@
 .letter-theme .vinyl-ring {
   color: var(--ink);
 }
+.letter-theme .vinyl-icon {
+  color: var(--paper);
+}
 
 /* Sections painted with the letter's ink rather than its paper. Everything
-   inside inverts: the ring text is white, and the record keeps its ink wax (a
-   record is dark) but gains a hairline white edge and a lifted shadow, because
+   inside inverts: the ring text is paper, and the record keeps its ink wax (a
+   record is dark) but gains a hairline paper edge and a lifted shadow, because
    ink wax on an ink ground has no silhouette of its own. */
 .letter-theme .letter-on-ink .vinyl-ring {
   color: var(--paper);
 }
 .letter-theme .letter-on-ink .vinyl {
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.45),
+    0 0 0 1px color-mix(in srgb, var(--paper) 45%, transparent),
     0 30px 58px -30px rgba(0, 0, 0, 0.55),
     0 10px 22px -14px rgba(0, 0, 0, 0.35),
     inset 0 0 0 1px rgba(0, 0, 0, 0.35);

@@ -29,7 +29,7 @@ export function Polaroid({
             type="button"
             onClick={onOpen}
             aria-label={`View photo: ${title}`}
-            className="block size-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-lichen"
+            className="block size-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-paper"
           >
             <MotionImage
               layoutId={reduce ? undefined : photoLayoutId(`story-${memory.date}`)}
