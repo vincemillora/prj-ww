@@ -13,6 +13,7 @@ import { Faq } from '@/components/letter/faq';
 import { OurStory } from '@/components/letter/our-story';
 import { WelcomeBand } from '@/components/letter/welcome-band';
 import { FloralBorderPeonies } from '@/components/letter/floral-border-peonies';
+import { FooterLace } from '@/components/letter/footer-lace';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -50,6 +51,7 @@ export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) 
       </div>
       <Gifts />
       <Faq />
+      <FooterLace />
     </div>
   );
 }

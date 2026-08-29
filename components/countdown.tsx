@@ -44,7 +44,7 @@ function subscribeTick(onTick: () => void) {
  * `size="sm"` (default) is the inline four-unit row used in the dashboard
  * header — unchanged. `size="lg"` is the guest letter's countdown band: one
  * serif line of four evenly-weighted units, then `label` finishes the sentence
- * the row starts ("258 days · 1 hr · 42 min · 9 sec" / "until we say I do").
+ * the row starts ("258 days 1 hr 42 min 9 sec" / "until we say I do").
  *
  * The units are deliberately uniform — same size, same colour. Emphasising days
  * by size *and* tone made the line read as four unrelated numbers; hierarchy
@@ -114,20 +114,10 @@ export function Countdown({
             simply clipped by the page's `overflow-x-hidden`. */}
         <span
           aria-hidden
-          className="flex items-start whitespace-nowrap font-sans text-figure"
+          className="flex items-start gap-[1.4em] whitespace-nowrap font-sans text-figure"
         >
           {units.map((u, i) => (
             <span key={u.label} className="flex items-start">
-              {i > 0 ? (
-                <span
-                  className={cn(
-                    "mx-[0.5em] mt-[0.35em] text-[0.4em] opacity-50",
-                    tickClassName,
-                  )}
-                >
-                  ·
-                </span>
-              ) : null}
               <span
                 className={cn(
                   "flex flex-col items-center gap-1",

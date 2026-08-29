@@ -20,7 +20,12 @@ vi.mock('@/components/letter/floral-border-peonies', () => ({
   FloralBorderPeonies: () => null,
 }));
 vi.mock('@/components/letter/gifts', () => ({ Gifts: () => null }));
-vi.mock('@/components/letter/faq', () => ({ Faq: () => null }));
+vi.mock('@/components/letter/faq', () => ({
+  Faq: () => <section data-testid="faq" />,
+}));
+vi.mock('@/components/letter/footer-lace', () => ({
+  FooterLace: () => <footer data-testid="footer-lace" />,
+}));
 
 import { WeddingLetter } from '@/components/letter/wedding-letter';
 
@@ -32,6 +37,17 @@ describe('WeddingLetter', () => {
     const story = screen.getByTestId('story');
 
     expect(welcome.compareDocumentPosition(story)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it('places the decorative footer after the FAQ', () => {
+    render(<WeddingLetter searchParams={Promise.resolve({})} />);
+
+    const faq = screen.getByTestId('faq');
+    const footer = screen.getByTestId('footer-lace');
+
+    expect(faq.compareDocumentPosition(footer)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
   });

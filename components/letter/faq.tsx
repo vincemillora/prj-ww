@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 import { SectionHeading } from '@/components/letter/section-heading';
 
@@ -31,6 +32,10 @@ const FAQS = [
 
 export function Faq() {
   const [openFaqIds, setOpenFaqIds] = useState<string[]>([]);
+  const reduceMotion = !!useReducedMotion();
+  const answerTransition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const };
 
   return (
     <section className="bg-paper px-gutter py-section">
@@ -67,15 +72,24 @@ export function Faq() {
                   />
                 </button>
               </h3>
-              <div
-                id={`faq-answer-${f.id}`}
-                role="region"
-                aria-labelledby={`faq-question-${f.id}`}
-                hidden={!openFaqIds.includes(f.id)}
-                className="max-w-xl pb-7 pr-10 text-body sm:pl-10"
-              >
-                <p>{f.a}</p>
-              </div>
+              <AnimatePresence initial={false}>
+                {openFaqIds.includes(f.id) ? (
+                  <motion.div
+                    id={`faq-answer-${f.id}`}
+                    role="region"
+                    aria-labelledby={`faq-question-${f.id}`}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={answerTransition}
+                    className="overflow-hidden"
+                  >
+                    <div className="max-w-xl pb-7 pr-10 text-body sm:pl-10">
+                      <p>{f.a}</p>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </div>
           ))}
         </div>

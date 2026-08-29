@@ -29,7 +29,7 @@ export function CountdownDetails({ className }: { className?: string }) {
       <Countdown
         align="center"
         size="lg"
-        className="mt-8 text-ink"
+        className="mt-5 text-ink"
         srSuffix="until the wedding day"
         label={null}
         tickClassName="text-ink"
