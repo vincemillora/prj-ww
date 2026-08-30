@@ -97,7 +97,7 @@ describe("updateUserOnLogin", () => {
 
     const query = new PgDialect().sqlToQuery(statement);
     expect(query.sql).toMatch(
-      /insert into "users" \(\s+"users"\."google_sub",\s+"users"\."email",\s+"users"\."name",\s+"users"\."picture",\s+"users"\."role",\s+"users"\."status",\s+"users"\."last_login_at"\s+\)/,
+      /insert into "users" \(\s+"google_sub",\s+"email",\s+"name",\s+"picture",\s+"role",\s+"status",\s+"last_login_at"\s+\)/,
     );
     expect(query.sql).toContain('where not exists (select 1 from "users")');
     expect(query.sql).toContain('on conflict do nothing');

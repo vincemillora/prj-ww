@@ -50,13 +50,13 @@ export async function updateUserOnLogin(profile: GoogleProfile): Promise<User | 
   // into a normal denied login.
   const bootstrap = await db.execute<BootstrapUserRow>(sql`
     insert into ${users} (
-      ${users.googleSub},
-      ${users.email},
-      ${users.name},
-      ${users.picture},
-      ${users.role},
-      ${users.status},
-      ${users.lastLoginAt}
+      ${sql.identifier('google_sub')},
+      ${sql.identifier('email')},
+      ${sql.identifier('name')},
+      ${sql.identifier('picture')},
+      ${sql.identifier('role')},
+      ${sql.identifier('status')},
+      ${sql.identifier('last_login_at')}
     )
     select
       ${profile.sub},
