@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import Image from 'next/image';
-import { motion, useMotionTemplate, useScroll, useTransform } from 'motion/react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import heroLily from '@/public/hero-lily.jpg';
 import { Hero } from '@/components/letter/hero';
 
@@ -17,15 +17,15 @@ export function OpeningBackdrop() {
     offset: ['start start', 'end end'],
   });
   const scale = useTransform(scrollYProgress, [0, 0.6], [1, 1.15]);
-  const blur = useTransform(scrollYProgress, [0, 0.6], [0, 8]);
-  const filter = useMotionTemplate`blur(${blur}px)`;
+  const blurOpacity = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
 
   return (
     <div ref={ref} className="relative h-[150svh] bg-ink">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="sticky top-0 h-dvh overflow-hidden">
-          <motion.div className="absolute inset-0" style={{ filter, scale }}>
+          <motion.div className="absolute inset-0" style={{ scale }}>
             <Image
+              data-slot="hero-background-sharp"
               src={heroLily}
               alt=""
               fill
@@ -34,6 +34,21 @@ export function OpeningBackdrop() {
               sizes="100vw"
               className="object-cover object-center"
             />
+            <motion.div
+              data-slot="hero-background-blur"
+              className="absolute inset-0 blur-[8px]"
+              style={{ opacity: blurOpacity }}
+            >
+              <Image
+                src={heroLily}
+                alt=""
+                fill
+                loading="eager"
+                placeholder="blur"
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </motion.div>
           </motion.div>
         </div>
       </div>

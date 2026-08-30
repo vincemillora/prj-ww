@@ -8,18 +8,29 @@ const { useScrollMock, useTransformMock } = vi.hoisted(() => ({
 
 /* eslint-disable @next/next/no-img-element -- the mock exposes Image output for assertions. */
 vi.mock('next/image', () => ({
-  default: ({ alt, className, src }: { alt: string; className?: string; src: string }) => (
-    <img alt={alt} className={className} src={src} />
-  ),
+  default: ({
+    alt,
+    className,
+    src,
+    'data-slot': dataSlot,
+  }: {
+    alt: string;
+    className?: string;
+    src: string;
+    'data-slot'?: string;
+  }) => <img alt={alt} className={className} data-slot={dataSlot} src={src} />,
 }));
 
 vi.mock('motion/react', () => ({
   motion: {
-    div: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-      <div data-motion-layer {...props}>{children}</div>
+    div: ({
+      children,
+      style,
+      ...props
+    }: React.HTMLAttributes<HTMLDivElement>) => (
+      <div data-motion-layer style={style} {...props}>{children}</div>
     ),
   },
-  useMotionTemplate: () => '',
   useScroll: useScrollMock,
   useTransform: useTransformMock,
 }));
@@ -31,25 +42,38 @@ vi.mock('@/components/letter/hero', () => ({
 import { OpeningBackdrop } from '@/components/letter/opening-backdrop';
 
 describe('OpeningBackdrop', () => {
-  it('finishes the zoom at 60% of the hero scroll without fading the photo', () => {
+  it('crossfades a fixed blur layer while preserving the existing hero zoom', () => {
     const { container } = render(<OpeningBackdrop />);
 
-    const lily = container.querySelector('img[src*="hero-lily"]');
+    const lilies = container.querySelectorAll('img[src*="hero-lily"]');
     const hero = screen.getByTestId('hero-content');
 
-    expect(lily).toHaveClass('object-cover', 'object-center');
-    expect(lily?.compareDocumentPosition(hero)).toBe(
+    expect(lilies).toHaveLength(2);
+    expect(lilies[0]).toHaveClass('object-cover', 'object-center');
+    expect(lilies[0].compareDocumentPosition(hero)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+    expect(
+      container.querySelector('[data-slot="hero-background-sharp"]'),
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-slot="hero-background-blur"]'),
+    ).toHaveClass('blur-[8px]');
     expect(useScrollMock).toHaveBeenCalledWith({
       target: expect.anything(),
       offset: ['start start', 'end end'],
     });
-    expect(useTransformMock).toHaveBeenCalledWith(
+    expect(useTransformMock).toHaveBeenNthCalledWith(
+      1,
       expect.anything(),
       [0, 0.6],
       [1, 1.15],
     );
-    expect(container.querySelector('[data-motion-layer]')).not.toHaveStyle({ opacity: '0' });
+    expect(useTransformMock).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      [0, 0.6],
+      [0, 1],
+    );
   });
 });
