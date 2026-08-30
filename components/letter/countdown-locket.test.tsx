@@ -9,14 +9,24 @@ describe("CountdownLocket", () => {
 
     const locket = screen.getByTestId("countdown-locket");
     expect(locket).toHaveAttribute("aria-hidden", "true");
-    expect(screen.getByTestId("countdown-locket-ribbon")).toHaveAttribute(
-      "src",
-      "/locket/ribbon.png",
+    expect(
+      screen.getByTestId("countdown-locket-ribbon").getAttribute("src"),
+    ).toContain("url=%2Flocket%2Fribbon.png");
+    expect(
+      screen.getByTestId("countdown-locket-frame").getAttribute("src"),
+    ).toContain(
+      "url=%2Flocket%2Flocket-frame.png",
     );
-    expect(screen.getByTestId("countdown-locket-frame")).toHaveAttribute(
-      "src",
-      "/locket/locket-frame.png",
-    );
+    for (const layer of [
+      screen.getByTestId("countdown-locket-ribbon"),
+      screen.getByTestId("countdown-locket-frame"),
+    ]) {
+      expect(layer).toHaveAttribute("loading", "lazy");
+      expect(layer).toHaveAttribute(
+        "sizes",
+        "(max-width: 608px) 19rem, (max-width: 896px) 50vw, 28rem",
+      );
+    }
 
     const photoLayer = screen.getByTestId("countdown-locket-photos");
     expect(photoLayer).toHaveStyle({

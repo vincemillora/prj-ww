@@ -1,7 +1,12 @@
+import Image from "next/image";
+
 const photos = [
   "https://picsum.photos/seed/ww-locket-left/360/420",
   "https://picsum.photos/seed/ww-locket-right/360/420",
 ];
+
+const LOCKET_SIZES =
+  "(max-width: 608px) 19rem, (max-width: 896px) 50vw, 28rem";
 
 export function CountdownLocket(): React.JSX.Element {
   return (
@@ -10,8 +15,11 @@ export function CountdownLocket(): React.JSX.Element {
       className="pointer-events-none relative mb-8 aspect-[4/3] w-[clamp(19rem,50vw,28rem)]"
       data-testid="countdown-locket"
     >
-      <img
+      <Image
         alt=""
+        fill
+        loading="lazy"
+        sizes={LOCKET_SIZES}
         className="absolute inset-0 h-full w-full object-contain"
         data-testid="countdown-locket-ribbon"
         src="/locket/ribbon.png"
@@ -40,8 +48,11 @@ export function CountdownLocket(): React.JSX.Element {
           />
         ))}
       </svg>
-      <img
+      <Image
         alt=""
+        fill
+        loading="lazy"
+        sizes={LOCKET_SIZES}
         className="absolute inset-0 h-full w-full object-contain"
         data-testid="countdown-locket-frame"
         src="/locket/locket-frame.png"
