@@ -1,7 +1,6 @@
 import { SQL } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/neon-http";
+import { PgDialect } from "drizzle-orm/pg-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as schema from "@/db/schema";
 
 const dbMocks = vi.hoisted(() => ({
   execute: vi.fn(),
@@ -85,25 +84,23 @@ describe("updateUserOnLogin", () => {
       status: "active",
     });
 
-    expect(dbMocks.insert).toHaveBeenCalledOnce();
-    expect(dbMocks.execute).not.toHaveBeenCalled();
+    expect(dbMocks.execute).toHaveBeenCalledOnce();
+    expect(dbMocks.insert).not.toHaveBeenCalled();
     expect(dbMocks.transaction).not.toHaveBeenCalled();
   });
 
-  it("uses a raw select that Drizzle can compile for the users insert", async () => {
+  it("uses a conditional insert with matching user columns", async () => {
     await updateUserOnLogin(profile);
 
-    const selection = dbMocks.insertSelect.mock.calls[0]?.[0];
-    expect(selection).toBeInstanceOf(SQL);
-    expect(() =>
-      drizzle
-        .mock({ schema })
-        .insert(schema.users)
-        .select(selection)
-        .onConflictDoNothing()
-        .returning()
-        .toSQL(),
-    ).not.toThrow();
+    const statement = dbMocks.execute.mock.calls[0]?.[0];
+    expect(statement).toBeInstanceOf(SQL);
+
+    const query = new PgDialect().sqlToQuery(statement);
+    expect(query.sql).toMatch(
+      /insert into "users" \(\s+"users"\."google_sub",\s+"users"\."email",\s+"users"\."name",\s+"users"\."picture",\s+"users"\."role",\s+"users"\."status",\s+"users"\."last_login_at"\s+\)/,
+    );
+    expect(query.sql).toContain('where not exists (select 1 from "users")');
+    expect(query.sql).toContain('on conflict do nothing');
   });
 
   it("returns Drizzle-mapped timestamp fields for the bootstrapped user", async () => {
@@ -114,7 +111,7 @@ describe("updateUserOnLogin", () => {
   });
 
   it("denies an unknown user once bootstrap is closed", async () => {
-    dbMocks.returning.mockResolvedValueOnce([]);
+    dbMocks.execute.mockResolvedValueOnce({ rows: [] });
 
     await expect(updateUserOnLogin(profile)).resolves.toBeNull();
     expect(dbMocks.transaction).not.toHaveBeenCalled();
