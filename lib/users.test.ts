@@ -1,8 +1,12 @@
+import { SQL } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/neon-http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as schema from "@/db/schema";
 
 const dbMocks = vi.hoisted(() => ({
   execute: vi.fn(),
   insert: vi.fn(),
+  insertSelect: vi.fn(),
   returning: vi.fn(),
   select: vi.fn(),
   transaction: vi.fn(),
@@ -58,13 +62,14 @@ describe("updateUserOnLogin", () => {
       ],
     });
     dbMocks.select.mockReturnValue({
-      from: () => ({ where: vi.fn() }),
+      from: () => ({ where: () => ({}) }),
     });
     dbMocks.insert.mockReturnValue({
-      select: () => ({
-        onConflictDoNothing: () => ({
-          returning: dbMocks.returning,
-        }),
+      select: dbMocks.insertSelect,
+    });
+    dbMocks.insertSelect.mockReturnValue({
+      onConflictDoNothing: () => ({
+        returning: dbMocks.returning,
       }),
     });
     dbMocks.returning.mockResolvedValue([bootstrapUser]);
@@ -83,6 +88,22 @@ describe("updateUserOnLogin", () => {
     expect(dbMocks.insert).toHaveBeenCalledOnce();
     expect(dbMocks.execute).not.toHaveBeenCalled();
     expect(dbMocks.transaction).not.toHaveBeenCalled();
+  });
+
+  it("uses a raw select that Drizzle can compile for the users insert", async () => {
+    await updateUserOnLogin(profile);
+
+    const selection = dbMocks.insertSelect.mock.calls[0]?.[0];
+    expect(selection).toBeInstanceOf(SQL);
+    expect(() =>
+      drizzle
+        .mock({ schema })
+        .insert(schema.users)
+        .select(selection)
+        .onConflictDoNothing()
+        .returning()
+        .toSQL(),
+    ).not.toThrow();
   });
 
   it("returns Drizzle-mapped timestamp fields for the bootstrapped user", async () => {
