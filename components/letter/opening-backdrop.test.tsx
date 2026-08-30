@@ -42,13 +42,13 @@ vi.mock('@/components/letter/hero', () => ({
 import { OpeningBackdrop } from '@/components/letter/opening-backdrop';
 
 describe('OpeningBackdrop', () => {
-  it('crossfades a fixed blur layer while preserving the existing hero zoom', () => {
+  it('renders one sharp image and only applies the existing hero zoom', () => {
     const { container } = render(<OpeningBackdrop />);
 
     const lilies = container.querySelectorAll('img[src*="hero-lily"]');
     const hero = screen.getByTestId('hero-content');
 
-    expect(lilies).toHaveLength(2);
+    expect(lilies).toHaveLength(1);
     expect(lilies[0]).toHaveClass('object-cover', 'object-center');
     expect(lilies[0].compareDocumentPosition(hero)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
@@ -58,22 +58,16 @@ describe('OpeningBackdrop', () => {
     ).toBeInTheDocument();
     expect(
       container.querySelector('[data-slot="hero-background-blur"]'),
-    ).toHaveClass('blur-[8px]');
+    ).not.toBeInTheDocument();
     expect(useScrollMock).toHaveBeenCalledWith({
       target: expect.anything(),
       offset: ['start start', 'end end'],
     });
-    expect(useTransformMock).toHaveBeenNthCalledWith(
-      1,
+    expect(useTransformMock).toHaveBeenCalledOnce();
+    expect(useTransformMock).toHaveBeenCalledWith(
       expect.anything(),
       [0, 0.6],
       [1, 1.15],
-    );
-    expect(useTransformMock).toHaveBeenNthCalledWith(
-      2,
-      expect.anything(),
-      [0, 0.6],
-      [0, 1],
     );
   });
 });

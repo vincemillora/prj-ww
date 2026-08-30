@@ -17,7 +17,6 @@ export function OpeningBackdrop() {
     offset: ['start start', 'end end'],
   });
   const scale = useTransform(scrollYProgress, [0, 0.6], [1, 1.15]);
-  const blurOpacity = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
 
   return (
     <div ref={ref} className="relative h-[150svh] bg-ink">
@@ -34,21 +33,6 @@ export function OpeningBackdrop() {
               sizes="100vw"
               className="object-cover object-center"
             />
-            <motion.div
-              data-slot="hero-background-blur"
-              className="absolute inset-0 blur-[8px]"
-              style={{ opacity: blurOpacity }}
-            >
-              <Image
-                src={heroLily}
-                alt=""
-                fill
-                loading="eager"
-                placeholder="blur"
-                sizes="100vw"
-                className="object-cover object-center"
-              />
-            </motion.div>
           </motion.div>
         </div>
       </div>
