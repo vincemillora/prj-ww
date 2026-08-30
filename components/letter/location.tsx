@@ -14,6 +14,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { WEDDING_VENUE } from '@/lib/wedding';
+import { DeferredMap } from '@/components/letter/deferred-map';
 import { letterButton } from '@/components/letter/letter-button';
 import { SectionHeading } from '@/components/letter/section-heading';
 import {
@@ -199,19 +200,11 @@ export function Location() {
                         never start on the map itself — it only accepts them
                         while this card is in front, and the card is dragged
                         from the paper around it (or paged with the dots). */}
-                    <div className="mt-4 overflow-hidden rounded-md border border-ink/15">
-                      <iframe
-                        title={`Map — ${VENUE.name}`}
-                        src={VENUE.embed}
-                        className={cn(
-                          'block h-[20rem] w-full border-0 md:h-[24rem]',
-                          front !== 'venue' && 'pointer-events-none',
-                        )}
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        allowFullScreen
-                      />
-                    </div>
+                    <DeferredMap
+                      title={`Map — ${VENUE.name}`}
+                      src={VENUE.embed}
+                      active={front === 'venue'}
+                    />
 
                     {/* Measure-capped so the centred line doesn't run the full
                         width of the widened card on desktop. */}
