@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const dbMocks = vi.hoisted(() => ({
   execute: vi.fn(),
+  insert: vi.fn(),
+  returning: vi.fn(),
+  select: vi.fn(),
   transaction: vi.fn(),
   update: vi.fn(),
 }));
@@ -21,6 +24,20 @@ const profile = {
   picture: "https://example.com/admin.jpg",
 };
 
+const createdAt = new Date("2026-08-30T00:00:00.000Z");
+const lastLoginAt = new Date("2026-08-30T00:01:00.000Z");
+const bootstrapUser = {
+  id: "1eac86f8-3224-4538-bf44-68590b376aef",
+  googleSub: profile.sub,
+  email: profile.email,
+  name: profile.name,
+  picture: profile.picture,
+  role: "superadmin" as const,
+  status: "active" as const,
+  createdAt,
+  lastLoginAt,
+};
+
 describe("updateUserOnLogin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,16 +51,23 @@ describe("updateUserOnLogin", () => {
     dbMocks.execute.mockResolvedValue({
       rows: [
         {
-          id: "1eac86f8-3224-4538-bf44-68590b376aef",
-          googleSub: profile.sub,
-          email: profile.email,
-          name: profile.name,
-          picture: profile.picture,
-          role: "superadmin",
-          status: "active",
+          ...bootstrapUser,
+          createdAt: createdAt.toISOString(),
+          lastLoginAt: lastLoginAt.toISOString(),
         },
       ],
     });
+    dbMocks.select.mockReturnValue({
+      from: () => ({ where: vi.fn() }),
+    });
+    dbMocks.insert.mockReturnValue({
+      select: () => ({
+        onConflictDoNothing: () => ({
+          returning: dbMocks.returning,
+        }),
+      }),
+    });
+    dbMocks.returning.mockResolvedValue([bootstrapUser]);
     dbMocks.transaction.mockRejectedValue(
       new Error("No transactions support in neon-http driver"),
     );
@@ -56,7 +80,36 @@ describe("updateUserOnLogin", () => {
       status: "active",
     });
 
-    expect(dbMocks.execute).toHaveBeenCalledOnce();
+    expect(dbMocks.insert).toHaveBeenCalledOnce();
+    expect(dbMocks.execute).not.toHaveBeenCalled();
+    expect(dbMocks.transaction).not.toHaveBeenCalled();
+  });
+
+  it("returns Drizzle-mapped timestamp fields for the bootstrapped user", async () => {
+    await expect(updateUserOnLogin(profile)).resolves.toMatchObject({
+      createdAt,
+      lastLoginAt,
+    });
+  });
+
+  it("denies an unknown user once bootstrap is closed", async () => {
+    dbMocks.returning.mockResolvedValueOnce([]);
+
+    await expect(updateUserOnLogin(profile)).resolves.toBeNull();
+    expect(dbMocks.transaction).not.toHaveBeenCalled();
+  });
+
+  it("returns an existing user without attempting bootstrap", async () => {
+    dbMocks.update.mockReturnValueOnce({
+      set: () => ({
+        where: () => ({
+          returning: () => Promise.resolve([bootstrapUser]),
+        }),
+      }),
+    });
+
+    await expect(updateUserOnLogin(profile)).resolves.toEqual(bootstrapUser);
+    expect(dbMocks.insert).not.toHaveBeenCalled();
     expect(dbMocks.transaction).not.toHaveBeenCalled();
   });
 });

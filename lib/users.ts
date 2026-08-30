@@ -36,39 +36,25 @@ export async function updateUserOnLogin(profile: GoogleProfile): Promise<User | 
   if (row) return row;
 
   // Bootstrap: first-ever sign-in becomes the superadmin. This stays on the
-  // Neon HTTP driver by using one atomic statement rather than an interactive
-  // transaction. ON CONFLICT also turns a concurrent bootstrap attempt into a
-  // normal denied login.
-  const bootstrap = await db.execute<User>(sql`
-    insert into ${users} (
-      ${users.googleSub},
-      ${users.email},
-      ${users.name},
-      ${users.picture},
-      ${users.role},
-      ${users.status},
-      ${users.lastLoginAt}
-    )
-    select
-      ${profile.sub},
-      ${profile.email},
-      ${profile.name ?? null},
-      ${profile.picture ?? null},
-      'superadmin',
-      'active',
-      now()
-    where not exists (select 1 from ${users})
-    on conflict do nothing
-    returning
-      ${users.id} as "id",
-      ${users.googleSub} as "googleSub",
-      ${users.email} as "email",
-      ${users.name} as "name",
-      ${users.picture} as "picture",
-      ${users.role} as "role",
-      ${users.status} as "status",
-      ${users.createdAt} as "createdAt",
-      ${users.lastLoginAt} as "lastLoginAt"
-  `);
-  return bootstrap.rows[0] ?? null;
+  // Neon HTTP driver by using one atomic conditional insert rather than an
+  // interactive transaction. ON CONFLICT turns a concurrent bootstrap attempt
+  // into a normal denied login, and Drizzle maps the returned row to `User`.
+  const bootstrapValues = db
+    .select({
+      googleSub: sql<string>`${profile.sub}`.as('googleSub'),
+      email: sql<string>`${profile.email}`.as('email'),
+      name: sql<string | null>`${profile.name ?? null}`.as('name'),
+      picture: sql<string | null>`${profile.picture ?? null}`.as('picture'),
+      role: sql<'superadmin'>`'superadmin'`.as('role'),
+      status: sql<'active'>`'active'`.as('status'),
+      lastLoginAt: sql<Date>`now()`.as('lastLoginAt'),
+    })
+    .from(sql`(select 1) as bootstrap`)
+    .where(sql`not exists (select 1 from ${users})`);
+  const [created] = await db
+    .insert(users)
+    .select(bootstrapValues)
+    .onConflictDoNothing()
+    .returning();
+  return created ?? null;
 }
