@@ -4,19 +4,20 @@ import { WEDDING_DAY_LABEL } from '@/lib/wedding';
 
 vi.mock('motion/react', () => ({
   motion: {
-    div: ({
-      children,
-      initial: _initial,
-      whileInView: _whileInView,
-      viewport: _viewport,
-      transition: _transition,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement> & {
+    div: (motionProps: React.HTMLAttributes<HTMLDivElement> & {
       initial?: unknown;
       whileInView?: unknown;
       viewport?: unknown;
       transition?: unknown;
-    }) => <div {...props}>{children}</div>,
+    }) => {
+      const { children, initial, whileInView, viewport, transition, ...props } =
+        motionProps;
+      void initial;
+      void whileInView;
+      void viewport;
+      void transition;
+      return <div {...props}>{children}</div>;
+    },
   },
   useReducedMotion: () => true,
 }));

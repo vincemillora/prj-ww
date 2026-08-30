@@ -1,8 +1,6 @@
-'use client';
-
 import Image from 'next/image';
-import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { SectionHeading } from '@/components/letter/section-heading';
 
 /**
@@ -83,13 +81,13 @@ export function DayItself() {
             // Even rows: illustration left, description right. Odd: swapped.
             const illoRight = i % 2 === 1;
             return (
-              <motion.li
+              <InViewReveal
+                as="li"
                 key={e.what}
                 className="relative flex flex-col items-start gap-3 pb-12 pl-16 last:pb-0 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-x-10 md:pl-0"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
+                distance={24}
+                duration={0.7}
+                ease="easeOut"
               >
                 {/* Connector from the LEFT rail to the title (mobile only) —
                     stops short of the title (small gap) and is vertically
@@ -155,19 +153,18 @@ export function DayItself() {
                   )}
                   <p className="mt-2 text-body text-ink">{e.detail}</p>
                 </div>
-              </motion.li>
+              </InViewReveal>
               );
             })}
           </ol>
 
           {/* Getaway car — where the rail ends. Hidden on mobile for now; on
               md+ it hangs off the bottom of the centre rail. */}
-          <motion.div
+          <InViewReveal
             className="relative hidden pt-8 md:flex md:justify-center"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
+            distance={24}
+            duration={0.7}
+            ease="easeOut"
           >
             <Image
               src="/icons/hand_drawn/wedding_2/wedding-car-couple.svg"
@@ -176,7 +173,7 @@ export function DayItself() {
               height={99}
               className="h-20 w-auto opacity-80 md:h-32"
             />
-          </motion.div>
+          </InViewReveal>
         </div>
       </div>
     </section>

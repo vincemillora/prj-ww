@@ -1,23 +1,13 @@
-'use client';
-
-import { motion, useReducedMotion } from 'motion/react';
 import { CountdownLocket } from '@/components/letter/countdown-locket';
 import { CountdownDetails } from '@/components/letter/countdown-band';
+import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { COUPLE } from '@/lib/wedding';
 
 /** The keepsake welcome section that opens the letter before Our Story. */
 export function WelcomeBand() {
-  const reduceMotion = useReducedMotion();
-
   return (
     <section className="relative z-10 bg-paper px-gutter pt-28 pb-section text-center sm:pt-32">
-      <motion.div
-        className="flex flex-col items-center"
-        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <InViewReveal className="flex flex-col items-center">
         <CountdownLocket />
 
         <div className="max-w-[36rem] text-center text-ink">
@@ -41,7 +31,7 @@ export function WelcomeBand() {
             {COUPLE}
           </p>
         </div>
-      </motion.div>
+      </InViewReveal>
     </section>
   );
 }
