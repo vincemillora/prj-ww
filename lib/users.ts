@@ -4,6 +4,15 @@ import { db } from '@/db';
 import { users, type User } from '@/db/schema';
 import type { GoogleProfile } from '@/lib/oauth';
 
+type BootstrapUserRow = Omit<User, 'createdAt' | 'lastLoginAt'> & {
+  createdAt: string | Date;
+  lastLoginAt: string | Date | null;
+};
+
+function toDate(value: string | Date): Date {
+  return value instanceof Date ? value : new Date(value);
+}
+
 /**
  * Refresh an existing admin's profile on login, or bootstrap the first user.
  *
@@ -14,9 +23,10 @@ import type { GoogleProfile } from '@/lib/oauth';
  * **Bootstrap exception:** while `users` is completely empty, the first Google
  * account to sign in is provisioned as the `superadmin` (active). This is the
  * one self-provisioning path and it closes permanently the instant any row
- * exists — every later unknown account is denied as before. The insert runs in
- * a transaction and the partial unique index `one_superadmin_idx` guarantees a
- * concurrent second login cannot create a second superadmin.
+ * exists — every later unknown account is denied as before. A single
+ * conditional insert handles the bootstrap atomically, and the partial unique
+ * index `one_superadmin_idx` guarantees a concurrent second login cannot
+ * create a second superadmin.
  *
  * For a matched user the profile fields and `lastLoginAt` are refreshed; the
  * existing `role` and `status` are left untouched.
@@ -34,26 +44,47 @@ export async function updateUserOnLogin(profile: GoogleProfile): Promise<User | 
     .returning();
   if (row) return row;
 
-  // Bootstrap: first-ever sign-in becomes the superadmin. Serialized in a
-  // transaction; `one_superadmin_idx` is the hard backstop against a race.
-  return db.transaction(async (tx) => {
-    const [{ count }] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(users);
-    if (count > 0) return null;
+  // Bootstrap: first-ever sign-in becomes the superadmin. This stays on the
+  // Neon HTTP driver by using one atomic conditional insert rather than an
+  // interactive transaction. ON CONFLICT turns a concurrent bootstrap attempt
+  // into a normal denied login.
+  const bootstrap = await db.execute<BootstrapUserRow>(sql`
+    insert into ${users} (
+      ${sql.identifier('google_sub')},
+      ${sql.identifier('email')},
+      ${sql.identifier('name')},
+      ${sql.identifier('picture')},
+      ${sql.identifier('role')},
+      ${sql.identifier('status')},
+      ${sql.identifier('last_login_at')}
+    )
+    select
+      ${profile.sub},
+      ${profile.email},
+      ${profile.name ?? null},
+      ${profile.picture ?? null},
+      'superadmin',
+      'active',
+      now()
+    where not exists (select 1 from ${users})
+    on conflict do nothing
+    returning
+      ${users.id} as "id",
+      ${users.googleSub} as "googleSub",
+      ${users.email} as "email",
+      ${users.name} as "name",
+      ${users.picture} as "picture",
+      ${users.role} as "role",
+      ${users.status} as "status",
+      ${users.createdAt} as "createdAt",
+      ${users.lastLoginAt} as "lastLoginAt"
+  `);
+  const created = bootstrap.rows[0];
+  if (!created) return null;
 
-    const [created] = await tx
-      .insert(users)
-      .values({
-        googleSub: profile.sub,
-        email: profile.email,
-        name: profile.name ?? null,
-        picture: profile.picture ?? null,
-        role: 'superadmin',
-        status: 'active',
-        lastLoginAt: sql`now()`,
-      })
-      .returning();
-    return created ?? null;
-  });
+  return {
+    ...created,
+    createdAt: toDate(created.createdAt),
+    lastLoginAt: created.lastLoginAt ? toDate(created.lastLoginAt) : null,
+  };
 }
