@@ -79,11 +79,13 @@ export function OurStory() {
                 reach={VINE_REACH.mobile}
                 edgeZone={SPRIG_EDGE_ZONE}
                 unitAspect={VINE_UNIT_ASPECT.mobile}
+                media="mobile"
                 className={cn(BLEED_X, "sm:hidden")}
               />
               <VineFlorals
                 rows={MEMORIES.length}
                 reach={VINE_REACH.desktop}
+                media="desktop"
                 className="hidden sm:block"
               />
 

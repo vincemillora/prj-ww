@@ -23,6 +23,8 @@ const VINE_OPPOSITE = { right: "left", left: "right" } as const;
 const VINE_FLATTEN_STEPS = 48;
 const SPRIGS_PER_ROW = 3;
 
+type VineMedia = "mobile" | "desktop";
+
 type Sprig = {
   src: string;
   aspect: string;
@@ -157,30 +159,66 @@ export function VineFlorals({
   reach,
   edgeZone = 0,
   unitAspect = VINE_UNIT_ASPECT.desktop,
+  media,
   className,
 }: {
   rows: number;
   reach: number;
   unitAspect?: number;
   edgeZone?: number;
+  media?: VineMedia;
   className?: string;
 }) {
   const height = vineHeight(rows);
   const reduce = !!useReducedMotion();
   const boxRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<{ w: number; h: number } | null>(null);
+  const [mediaActive, setMediaActive] = useState(true);
 
   useEffect(() => {
     const element = boxRef.current;
     if (!element) return;
 
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height: measuredHeight } = entry.contentRect;
-      setBox({ w: width, h: measuredHeight });
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+    let observer: ResizeObserver | null = null;
+    const startObserver = () => {
+      if (observer) return;
+      observer = new ResizeObserver(([entry]) => {
+        const { width, height: measuredHeight } = entry.contentRect;
+        setBox({ w: width, h: measuredHeight });
+      });
+      observer.observe(element);
+    };
+    const stopObserver = () => {
+      observer?.disconnect();
+      observer = null;
+    };
+    const sync = (active: boolean) => {
+      setMediaActive(active);
+      if (active) {
+        startObserver();
+      } else {
+        stopObserver();
+        setBox(null);
+      }
+    };
+
+    if (!media) {
+      startObserver();
+      return stopObserver;
+    }
+
+    const query = window.matchMedia(
+      media === "mobile" ? "(max-width: 639px)" : "(min-width: 640px)",
+    );
+    const handleChange = (event: MediaQueryListEvent) => sync(event.matches);
+    sync(query.matches);
+    query.addEventListener("change", handleChange);
+
+    return () => {
+      query.removeEventListener("change", handleChange);
+      stopObserver();
+    };
+  }, [media]);
 
   // ResizeObserver updates the rendered-box angle only. The flattened path is
   // invariant for a breakpoint, so avoid rebuilding it on that state update.
@@ -221,8 +259,8 @@ export function VineFlorals({
           <motion.span
             key={`${x}-${y}`}
             className="absolute"
-            initial={reduce ? undefined : { opacity: 0 }}
-            whileInView={reduce ? undefined : { opacity: 1 }}
+            initial={!mediaActive || reduce ? undefined : { opacity: 0 }}
+            whileInView={!mediaActive || reduce ? undefined : { opacity: 1 }}
             viewport={{ once: false, margin: "-9% 0px -9% 0px" }}
             transition={{ duration: 1.1, ease: "easeOut" }}
             style={{
