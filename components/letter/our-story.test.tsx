@@ -43,12 +43,12 @@ describe("OurStory", () => {
     expect(container.innerHTML).toContain("Untitled-1%20%5BRecovered%5D-15.svg");
   });
 
-  it("crops lace 15 to its complete repeat tile", () => {
+  it("uses the complete seven-motif lace strip to minimize repeat seams", () => {
     const lace15 = readFileSync(
       resolve(process.cwd(), "public/laces/Untitled-1 [Recovered]-15.svg"),
       "utf8",
     );
 
-    expect(lace15).toContain('viewBox="31 82.8 94 42"');
+    expect(lace15).toContain('viewBox="31 82.8 658 42"');
   });
 });
