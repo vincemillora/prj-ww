@@ -14,9 +14,10 @@ import type { GoogleProfile } from '@/lib/oauth';
  * **Bootstrap exception:** while `users` is completely empty, the first Google
  * account to sign in is provisioned as the `superadmin` (active). This is the
  * one self-provisioning path and it closes permanently the instant any row
- * exists — every later unknown account is denied as before. The insert runs in
- * a transaction and the partial unique index `one_superadmin_idx` guarantees a
- * concurrent second login cannot create a second superadmin.
+ * exists — every later unknown account is denied as before. A single
+ * conditional insert handles the bootstrap atomically, and the partial unique
+ * index `one_superadmin_idx` guarantees a concurrent second login cannot
+ * create a second superadmin.
  *
  * For a matched user the profile fields and `lastLoginAt` are refreshed; the
  * existing `role` and `status` are left untouched.
@@ -34,26 +35,40 @@ export async function updateUserOnLogin(profile: GoogleProfile): Promise<User | 
     .returning();
   if (row) return row;
 
-  // Bootstrap: first-ever sign-in becomes the superadmin. Serialized in a
-  // transaction; `one_superadmin_idx` is the hard backstop against a race.
-  return db.transaction(async (tx) => {
-    const [{ count }] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(users);
-    if (count > 0) return null;
-
-    const [created] = await tx
-      .insert(users)
-      .values({
-        googleSub: profile.sub,
-        email: profile.email,
-        name: profile.name ?? null,
-        picture: profile.picture ?? null,
-        role: 'superadmin',
-        status: 'active',
-        lastLoginAt: sql`now()`,
-      })
-      .returning();
-    return created ?? null;
-  });
+  // Bootstrap: first-ever sign-in becomes the superadmin. This stays on the
+  // Neon HTTP driver by using one atomic statement rather than an interactive
+  // transaction. ON CONFLICT also turns a concurrent bootstrap attempt into a
+  // normal denied login.
+  const bootstrap = await db.execute<User>(sql`
+    insert into ${users} (
+      ${users.googleSub},
+      ${users.email},
+      ${users.name},
+      ${users.picture},
+      ${users.role},
+      ${users.status},
+      ${users.lastLoginAt}
+    )
+    select
+      ${profile.sub},
+      ${profile.email},
+      ${profile.name ?? null},
+      ${profile.picture ?? null},
+      'superadmin',
+      'active',
+      now()
+    where not exists (select 1 from ${users})
+    on conflict do nothing
+    returning
+      ${users.id} as "id",
+      ${users.googleSub} as "googleSub",
+      ${users.email} as "email",
+      ${users.name} as "name",
+      ${users.picture} as "picture",
+      ${users.role} as "role",
+      ${users.status} as "status",
+      ${users.createdAt} as "createdAt",
+      ${users.lastLoginAt} as "lastLoginAt"
+  `);
+  return bootstrap.rows[0] ?? null;
 }
