@@ -60,11 +60,17 @@ export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
     <div
       ref={envelopeRef}
       data-slot="rsvp-envelope"
-      className="relative left-1/2 isolate mt-heading w-[calc(100%+120.2px)] -translate-x-1/2 sm:mt-[calc(var(--spacing-heading)+10.25rem)]"
+      className="relative left-1/2 isolate mt-[calc(var(--spacing-heading)+3rem)] w-[calc(100%+120.2px)] -translate-x-1/2 sm:mt-[calc(var(--spacing-heading)+12.75rem)]"
     >
-      {/* On wider screens the short no-token/answered cards are shallower than
-          the enlarged envelope overlap. This geometry clearance keeps the
-          paper apex below the heading; taller form states simply use the room. */}
+      {/* The short no-token/answered cards are shallower than the envelope's
+          `-mt-[50%]` pull-up, so the paper rides up under the heading and the
+          lace apex lands on the kicker. Both breakpoints buy that clearance
+          back on top of `--spacing-heading`; taller form states simply use the
+          room. Measured against the kicker's own text box on the worst case
+          (the short card): the lace ink cleared it by only 9px on desktop and
+          was touching on narrow phones. Retune by measuring that gap, not the
+          layers' bounding boxes — the envelope PNGs carry a lot of
+          transparent padding, so their boxes sit far above their ink. */}
       {/* The paper layers are 83.195% of this canvas. Adding 120.2px to the
           canvas adds exactly 100px to their visible width; subtracting that
           same 100px here preserves the card's approved measure. */}
