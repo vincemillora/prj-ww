@@ -3,12 +3,12 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'motion/react';
-import heroLily from '@/public/hero-lily.jpg';
+import footerLace from '@/public/footer-lace.png';
 import { Hero } from '@/components/letter/hero';
 
 /**
- * The hero's scroll-zoom scene. The photo is the only animated layer; the
- * lace remains in Hero's separate sticky layer above it.
+ * The hero's scroll-zoom scene. The background artwork is the only animated
+ * layer; the lace remains in Hero's separate sticky layer above it.
  */
 export function OpeningBackdrop() {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export function OpeningBackdrop() {
           <motion.div className="absolute inset-0" style={{ scale }}>
             <Image
               data-slot="hero-background-sharp"
-              src={heroLily}
+              src={footerLace}
               alt=""
               fill
               preload

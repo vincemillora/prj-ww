@@ -45,12 +45,12 @@ describe('OpeningBackdrop', () => {
   it('renders one sharp image and only applies the existing hero zoom', () => {
     const { container } = render(<OpeningBackdrop />);
 
-    const lilies = container.querySelectorAll('img[src*="hero-lily"]');
+    const backgrounds = container.querySelectorAll('img[src*="footer-lace"]');
     const hero = screen.getByTestId('hero-content');
 
-    expect(lilies).toHaveLength(1);
-    expect(lilies[0]).toHaveClass('object-cover', 'object-center');
-    expect(lilies[0].compareDocumentPosition(hero)).toBe(
+    expect(backgrounds).toHaveLength(1);
+    expect(backgrounds[0]).toHaveClass('object-cover', 'object-center');
+    expect(backgrounds[0].compareDocumentPosition(hero)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(

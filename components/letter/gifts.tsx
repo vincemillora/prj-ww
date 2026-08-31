@@ -25,7 +25,7 @@ export async function Gifts() {
         margin: 1,
         errorCorrectionLevel: 'M',
         // Retain white for this established paper surface and its QR quiet zone.
-        color: { dark: '#3c3422', light: '#ffffff' },
+        color: { dark: '#2c2a1b', light: '#ffffff' },
       }),
     })),
   );

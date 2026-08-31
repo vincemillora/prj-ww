@@ -3,6 +3,7 @@ import {
   Montserrat,
   Parisienne,
 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { cn } from "@/lib/utils";
 import { COUPLE } from "@/lib/wedding";
@@ -14,7 +15,7 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-// Calligraphic accent for the couple's names (design `Parisienne`).
+// Calligraphic accent for the couple's names and letter headings.
 const parisienne = Parisienne({
   variable: "--font-parisienne",
   weight: "400",
@@ -46,6 +47,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-dvh flex-col overflow-x-hidden">
         {children}
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>

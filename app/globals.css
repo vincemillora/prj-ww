@@ -232,7 +232,7 @@
      resolves everywhere, but only the guest letter (.letter-theme) is built on
      it: foreground, script, borders, Our Story + RSVP grounds, and the thinned
      placeholder all derive from this single variable. */
-  --ink: #3c3422;
+  --ink: #2c2a1b;
 
   /* Home-page canvas — Antique Linen, behind the letter's white surfaces. */
   --linen: #b9aa93;
@@ -265,7 +265,7 @@
    The guest letter (app/page.tsx -> components/wedding-letter.tsx ->
    components/letter/*) keeps its established white surfaces, with linen behind them:
 
-     --ink       Espresso Olive #3C3422   dark grounds; body text on light ones
+     --ink       Espresso Olive #2C2A1B   dark grounds; body text on light ones
      --paper     White          #FFFFFF   existing paper surfaces; text on ink
      --linen     Antique Linen  #B9AA93   canvas behind the letter
    These colours are used at FULL strength — no tints, no thinned ink: hierarchy comes
@@ -290,7 +290,7 @@
   --secondary: var(--paper);
   --secondary-foreground: var(--ink);
   --muted: var(--paper);
-  /* No thinned ink: secondary text is the same #3C3422 as primary text, and
+  /* No thinned ink: secondary text is the same #2C2A1B as primary text, and
      rank comes from size/face/weight instead of tone. */
   --muted-foreground: var(--ink);
   /* Hover/active surfaces use the same ink as the rest of the letter. */
@@ -338,7 +338,7 @@
   line-height: var(--text-meta--line-height);
 }
 /* The one place the letter thins its ink. Placeholders inherit
-   `--muted-foreground`, which this theme points at full-strength #3C3422 — so
+   `--muted-foreground`, which this theme points at full-strength #2C2A1B — so
    a placeholder rendered identically to typed text, and the note field read as
    already answered. Everywhere else rank comes from size/face/weight, but a
    placeholder is not a quieter piece of content: it is the absence of content,
@@ -773,7 +773,7 @@
 }
 
 /* Guest-letter variant. The letter's bases are Antique Linen #B9AA93 paper and
-   Espresso Olive #3C3422 ink — so the record is pressed in ink rather than warm black,
+   Espresso Olive #2C2A1B ink — so the record is pressed in ink rather than warm black,
    the label is paper rather than ivory, and the shadow is tinted with ink instead of
    the dashboard's wisteria. */
 .letter-theme .vinyl {

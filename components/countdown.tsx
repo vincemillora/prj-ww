@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { Fragment, useSyncExternalStore, type ReactNode } from "react";
 import { WEDDING_DATE_ISO } from "@/lib/wedding";
 import { cn } from "@/lib/utils";
 
@@ -114,31 +114,36 @@ export function Countdown({
             simply clipped by the page's `overflow-x-hidden`. */}
         <span
           aria-hidden
-          className="flex items-start gap-[1.4em] whitespace-nowrap font-sans text-figure"
+          className="flex items-start whitespace-nowrap font-sans text-figure"
         >
           {units.map((u, i) => (
-            <span key={u.label} className="flex items-start">
-              <span
-                className={cn(
-                  "flex flex-col items-center gap-1",
-                  i === 0 ? "min-w-[3ch]" : "min-w-[2ch]",
-                )}
-              >
-                <span className="text-center tabular-nums">
-                  {u.value ?? "–"}
-                </span>
+            <Fragment key={u.label}>
+              {i > 0 ? (
+                <span className="mx-[0.55em] mt-[0.58em] size-[3px] shrink-0 rounded-full bg-current" />
+              ) : null}
+              <span className="flex items-start">
                 <span
                   className={cn(
-                    // Unit names stay at the same readable role, but now sit
-                    // below their figures as one compact countdown pair.
-                    "font-sans text-micro tracking-[0.02em]",
-                    tickClassName,
+                    "flex flex-col items-center gap-1",
+                    i === 0 ? "min-w-[3ch]" : "min-w-[2ch]",
                   )}
                 >
-                  {u.label}
+                  <span className="text-center tabular-nums">
+                    {u.value ?? "–"}
+                  </span>
+                  <span
+                    className={cn(
+                      // Unit names stay at the same readable role, but now sit
+                      // below their figures as one compact countdown pair.
+                      "font-sans text-micro tracking-[0.02em]",
+                      tickClassName,
+                    )}
+                  >
+                    {u.label}
+                  </span>
                 </span>
               </span>
-            </span>
+            </Fragment>
           ))}
         </span>
         {label == null ? null : (

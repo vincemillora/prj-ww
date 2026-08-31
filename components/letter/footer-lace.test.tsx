@@ -33,7 +33,7 @@ describe('FooterLace', () => {
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     expect(screen.getByText('------')).toBeInTheDocument();
-    expect(screen.getByText('Empty & Hyuwu')).toBeInTheDocument();
+    expect(screen.getByText('Vince & Kc')).toBeInTheDocument();
     expect(screen.getByText('with love')).toBeInTheDocument();
   });
 

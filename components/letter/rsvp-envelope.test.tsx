@@ -92,6 +92,7 @@ describe('RsvpEnvelope', () => {
     const back = container.querySelector('img[src="/envelope/back.png"]');
     const inside = container.querySelector('img[src="/envelope/inside.png"]');
     const front = container.querySelector('img[src="/envelope/front.png"]');
+    const logo = container.querySelector('[data-slot="rsvp-envelope-logo"]');
     const lace = container.querySelector('img[src="/envelope/lace.png"]');
     const card = getByTestId('rsvp-card').parentElement;
 
@@ -99,24 +100,27 @@ describe('RsvpEnvelope', () => {
     expect(back?.parentElement).toHaveClass('rotate-[5deg]');
     expect(inside?.parentElement).toHaveClass('rotate-[5deg]');
     expect(front?.parentElement).toHaveClass('rotate-[5deg]', 'z-30');
+    expect(logo?.parentElement).toBe(front?.parentElement);
     expect(lace).toHaveClass('rotate-[185deg]');
     expect(card).not.toHaveClass('rotate-[5deg]');
   });
 
-  it('stacks the supplied back, inner panel, front, and lace in source order', () => {
+  it('stacks the supplied back, inner panel, front logo, and lace in source order', () => {
     const { container } = renderEnvelope();
     const images = Array.from(container.querySelectorAll('img'));
-    const [back, inside, front, lace] = images;
+    const [back, inside, front, logo, lace] = images;
 
     expect(images.map((image) => image.getAttribute('src'))).toEqual([
       '/envelope/back.png',
       '/envelope/inside.png',
       '/envelope/front.png',
+      '/couple-logo-rustic.svg',
       '/envelope/lace.png',
     ]);
     expect(back.parentElement).toHaveClass('z-10');
     expect(inside.parentElement).toHaveClass('z-10');
     expect(front.parentElement).toHaveClass('z-30');
+    expect(logo.parentElement?.parentElement).toHaveClass('rotate-[5deg]');
     expect(lace).toHaveClass('z-0');
   });
 
