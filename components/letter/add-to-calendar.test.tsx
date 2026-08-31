@@ -10,9 +10,10 @@ describe("AddToCalendar", () => {
 
     render(<AddToCalendar />);
 
-    await user.click(
-      screen.getByRole("button", { name: "Add to calendar", exact: true }),
-    );
+    // `name` is not a text matcher, so it takes no `exact` option: a string
+    // name is already matched against the full, whitespace-normalized
+    // accessible name. `exact: true` was a no-op that failed the typecheck.
+    await user.click(screen.getByRole("button", { name: "Add to calendar" }));
 
     expect(
       await screen.findByRole(

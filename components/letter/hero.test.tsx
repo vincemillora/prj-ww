@@ -8,26 +8,30 @@ vi.mock('next/image', () => ({
   ),
 }));
 
+type MotionProps = {
+  animate?: unknown;
+  initial?: unknown;
+  transition?: unknown;
+  variants?: unknown;
+};
+
+/** Strips the motion-only props so the element renders as plain markup. */
+function stripMotionProps<T>({ animate, initial, transition, variants, ...props }: T & MotionProps) {
+  void animate;
+  void initial;
+  void transition;
+  void variants;
+  return props;
+}
+
 vi.mock('motion/react', () => ({
   motion: {
-    div: ({
-      animate,
-      initial,
-      transition,
-      variants,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement> & {
-      animate?: unknown;
-      initial?: unknown;
-      transition?: unknown;
-      variants?: unknown;
-    }) => {
-      void animate;
-      void initial;
-      void transition;
-      void variants;
-      return <div {...props} />;
-    },
+    div: (props: React.HTMLAttributes<HTMLDivElement> & MotionProps) => (
+      <div {...stripMotionProps(props)} />
+    ),
+    p: (props: React.HTMLAttributes<HTMLParagraphElement> & MotionProps) => (
+      <p {...stripMotionProps(props)} />
+    ),
   },
 }));
 
