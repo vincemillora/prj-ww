@@ -47,10 +47,15 @@ describe('OpeningBackdrop', () => {
 
     const backgrounds = container.querySelectorAll('img[src*="footer-lace"]');
     const hero = screen.getByTestId('hero-content');
-    const backgroundViewport = container.querySelector('[aria-hidden="true"]');
+    const backgroundLayer = container.querySelector('[aria-hidden="true"]');
+    const backgroundViewport = container.querySelector(
+      '[aria-hidden="true"] > div',
+    );
 
     expect(backgrounds).toHaveLength(1);
-    expect(backgroundViewport).toHaveClass('fixed', 'top-0', 'h-lvh');
+    expect(backgroundLayer).toHaveClass('absolute', 'inset-0');
+    expect(backgroundLayer).not.toHaveClass('fixed');
+    expect(backgroundViewport).toHaveClass('sticky', 'top-0', 'h-lvh');
     expect(backgrounds[0]).toHaveClass('object-cover', 'object-center');
     expect(backgrounds[0].compareDocumentPosition(hero)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
