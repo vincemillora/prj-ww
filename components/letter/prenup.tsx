@@ -11,13 +11,13 @@ import { PrenupScrollGallery, type Shot } from '@/components/letter/prenup-galle
  * in place would have slid this paper section up under a section that no longer
  * paints a background — the paper would have shown straight through.
  *
- * Layout: a scroll-linked horizontal gallery of bare images — no frame, no
- * rounding, no shadow, no caption, and no horizontal padding, so it runs to
- * both screen edges. The gallery pins to the viewport while vertical page
- * progress translates the image row sideways. Each image keeps its natural
- * aspect ratio at a shared height. This file stays a server component while
- * the scrolling gallery lives in `prenup-gallery.tsx` (client); a tap morphs
- * the photo into a centered lightbox via motion's shared `layoutId`.
+ * Layout: a scroll-linked horizontal gallery presented as one continuous dark
+ * 35mm film strip. The perforated rails and exposure marks run to both screen
+ * edges while every image keeps its natural aspect ratio at a shared height.
+ * The gallery pins to the viewport as vertical page progress translates the
+ * strip sideways. This file stays a server component while the scrolling
+ * gallery lives in `prenup-gallery.tsx` (client); a tap morphs the photo into a
+ * centered lightbox via motion's shared `layoutId`.
  *
  * Photos are placeholders: seeded picsum stand-ins (same approach as
  * `our-story.tsx`) so each image keeps its identity between loads. Drop real

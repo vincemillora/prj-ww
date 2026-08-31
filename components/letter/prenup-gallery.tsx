@@ -6,6 +6,9 @@ import { MotionImage } from '@/components/letter/motion-image';
 import { MORPH, PhotoLightbox, photoLayoutId } from '@/components/letter/photo-lightbox';
 import { cn } from '@/lib/utils';
 
+const EXPOSURE_HEIGHT =
+  'h-[min(20rem,calc(100svh-8rem))] sm:h-[min(30rem,calc(100svh-9rem))]';
+
 export type Shot = {
   /** Alt text — also labels the striped placeholder when `image` is unset. */
   alt: string;
@@ -70,17 +73,32 @@ export function PrenupScrollGallery({ shots }: { shots: Shot[] }) {
         >
           <motion.div
             ref={trackRef}
-            className="flex w-max gap-4 will-change-transform sm:gap-6"
+            className="relative flex w-max gap-2 bg-film px-2 py-14 will-change-transform sm:gap-3 sm:px-3 sm:py-16"
             style={{ x: reduce ? 0 : x }}
+            role="list"
+            aria-label="Prenup film strip"
           >
-            {shots.map((shot) => (
-              <Tile
+            <SprocketRail position="top" />
+            {shots.map((shot, index) => (
+              <div
                 key={shot.alt}
-                shot={shot}
-                reduce={reduce}
-                onOpen={() => setActive(shot)}
-              />
+                role="listitem"
+                className="relative flex-none border border-paper"
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-micro tabular-nums tracking-[0.12em] text-paper"
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <Tile
+                  shot={shot}
+                  reduce={reduce}
+                  onOpen={() => setActive(shot)}
+                />
+              </div>
             ))}
+            <SprocketRail position="bottom" />
           </motion.div>
         </div>
       </div>
@@ -104,7 +122,34 @@ export function PrenupScrollGallery({ shots }: { shots: Shot[] }) {
   );
 }
 
-/** One photo. No frame, no rounding, no shadow — the image is the whole tile. */
+function SprocketRail({ position }: { position: 'top' | 'bottom' }) {
+  const patternId = `prenup-sprockets-${position}`;
+
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      className={cn(
+        'pointer-events-none absolute inset-x-0 h-4 w-full text-paper',
+        position === 'top' ? 'top-3' : 'bottom-3',
+      )}
+    >
+      <defs>
+        <pattern
+          id={patternId}
+          width="24"
+          height="16"
+          patternUnits="userSpaceOnUse"
+        >
+          <rect x="5" y="2" width="12" height="12" rx="2" fill="currentColor" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
+    </svg>
+  );
+}
+
+/** One exposure. The surrounding film strip owns its frame and markings. */
 function Tile({
   shot,
   reduce,
@@ -119,7 +164,7 @@ function Tile({
   if (!shot.image) {
     return (
       <div
-        className="relative h-[20rem] flex-none overflow-hidden sm:h-[30rem]"
+        className={cn('relative flex-none overflow-hidden', EXPOSURE_HEIGHT)}
         style={{ aspectRatio }}
       >
         <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--ink),var(--ink)_1px,var(--paper)_1px,var(--paper)_10px)]">
@@ -137,7 +182,8 @@ function Tile({
       onClick={onOpen}
       aria-label={`View photo: ${shot.alt}`}
       className={cn(
-        'relative h-[20rem] flex-none cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink sm:h-[30rem]',
+        'relative flex-none cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper',
+        EXPOSURE_HEIGHT,
       )}
       style={{ aspectRatio }}
     >
