@@ -1,3 +1,5 @@
+import { InkFade, InkStroke } from '@/components/letter/letter-reveals';
+import { BEAT } from '@/components/letter/motion-tokens';
 import { cn } from '@/lib/utils';
 
 /**
@@ -21,6 +23,14 @@ import { cn } from '@/lib/utils';
  *
  * The kicker takes a node, not just a string, so a section can keep a longer
  * lead-in sentence (Hotels) — use `kickerClassName` to cap its measure.
+ *
+ * MOTION: the pair is the letter's one repeated entrance, and it is repeated on
+ * purpose. The script headline is stroked in left to right (see `InkStroke`) and
+ * the kicker follows two beats behind. Every section opening is therefore in the
+ * same hand, which is what holds nine sections together as one letter. The
+ * bodies below deliberately differ. This file stays a server component: only the
+ * two reveal spans hydrate, and the `h2`/`p` structure, tones and classes are
+ * unchanged, so a heading still renders as plain text without JS.
  */
 const TONES = {
   script: { title: 'text-script', kicker: 'text-ink' },
@@ -49,7 +59,7 @@ export function SectionHeading({
           TONES[tone].title,
         )}
       >
-        {title}
+        <InkStroke>{title}</InkStroke>
       </h2>
       {kicker != null && (
         <p
@@ -62,7 +72,7 @@ export function SectionHeading({
             kickerClassName,
           )}
         >
-          {kicker}
+          <InkFade delay={BEAT * 2}>{kicker}</InkFade>
         </p>
       )}
     </div>

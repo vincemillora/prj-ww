@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import {
   animate,
   motion,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useTransform,
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { WEDDING_VENUE } from '@/lib/wedding';
 import { DeferredMap } from '@/components/letter/deferred-map';
 import { letterButton } from '@/components/letter/letter-button';
+import { ENTER, TALL_VIEWPORT } from '@/components/letter/motion-tokens';
 import { SectionHeading } from '@/components/letter/section-heading';
 import {
   Card,
@@ -114,11 +116,22 @@ const PAGER_ARROW =
  * deck; venue photos sit behind it, peeking at the bottom edge. Throwing the
  * front card sideways sends it to the back; the dots under the stack are the
  * keyboard/tap equivalent.
+ *
+ * MOTION: the deck is DEALT. Until the stack is in view every card sits squared
+ * up on the front one — one card, as it looks in the hand — and on arrival they
+ * spring out to their peek, shrink and tilt. It is the same spring that already
+ * runs on every shuffle, so the entrance and the interaction are literally the
+ * same motion, and the fan doubles as the affordance: it is what tells a guest
+ * there is more than one card here. No per-card delay is needed; the deeper
+ * cards travel farther, so the spring staggers them for free.
  */
 export function Location() {
   /** Which card in DECK is currently in front. Everything else derives. */
   const [frontIndex, setFrontIndex] = useState(0);
   const front = DECK[frontIndex];
+  /** Fans the deck open once, when the stack reaches the viewport. */
+  const stackRef = useRef<HTMLDivElement>(null);
+  const dealt = useInView(stackRef, TALL_VIEWPORT);
 
   /** How far back in the deck a card is sitting right now. */
   const depthOf = (id: string) => wrap(DECK.indexOf(id) - frontIndex);
@@ -146,14 +159,24 @@ export function Location() {
               which stays in normal flow while every photo card is absolutely
               stretched over it — that keeps all five cards the same box no
               matter which one is currently in front. */}
-          <div style={{ paddingBottom: PEEK_ROOM }}>
+          <motion.div
+            style={{ paddingBottom: PEEK_ROOM }}
+            // Opacity only on the wrapper: the fan below is the entrance, and a
+            // rise on top of it would move every card twice.
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={TALL_VIEWPORT}
+            transition={ENTER}
+          >
             <div
+              ref={stackRef}
               className="relative"
               role="group"
               aria-roledescription="card stack"
               aria-label={`${VENUE.name} — map and photos`}
             >
               <StackCard
+                dealt={dealt}
                 depth={depthOf('venue')}
                 isFront={front === 'venue'}
                 onDismiss={goNext}
@@ -229,6 +252,7 @@ export function Location() {
                 <StackCard
                   key={photo.id}
                   stretch
+                  dealt={dealt}
                   depth={depthOf(photo.id)}
                   isFront={front === photo.id}
                   onDismiss={goNext}
@@ -255,7 +279,7 @@ export function Location() {
                 </StackCard>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Pager. Doubles as the accessible control for the deck: dragging
               is pointer-only, these are not. The deck wraps in both
@@ -305,8 +329,14 @@ export function Location() {
  *
  * `stretch` absolutely fills the stack's box — every card uses it except the
  * venue card, which stays in normal flow and is what gives the box its height.
+ *
+ * `dealt` is the entrance: false means squared up on the front card, true means
+ * out at this card's depth. It feeds the SAME `animate` target the shuffle uses,
+ * so no second transition, no separate reveal, and no chance of the two fighting
+ * over `y`.
  */
 function StackCard({
+  dealt,
   depth,
   isFront,
   onDismiss,
@@ -314,6 +344,8 @@ function StackCard({
   stretch = false,
   children,
 }: {
+  /** False until the stack reaches the viewport — see Location's deal-in note. */
+  dealt: boolean;
   depth: number;
   isFront: boolean;
   onDismiss: () => void;
@@ -370,9 +402,9 @@ function StackCard({
       className={cn(stretch ? 'absolute inset-0' : 'relative')}
       style={{ zIndex: COUNT - depth }}
       animate={{
-        y: depth * PEEK,
-        scale: 1 - depth * SHRINK,
-        rotate: reduce ? 0 : (TILTS[depth] ?? 0),
+        y: dealt ? depth * PEEK : 0,
+        scale: dealt ? 1 - depth * SHRINK : 1,
+        rotate: reduce || !dealt ? 0 : (TILTS[depth] ?? 0),
       }}
       transition={
         reduce

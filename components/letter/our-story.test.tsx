@@ -27,6 +27,17 @@ vi.mock("@/components/letter/our-story/vine-art", () => ({
   Vine: () => null,
   VineFlorals: () => null,
 }));
+// The charms' scroll drift needs useScroll, which the motion mock above does
+// not provide (and jsdom has nothing for it to measure anyway).
+vi.mock("@/components/letter/ornament-drift", () => ({
+  OrnamentDrift: ({
+    children,
+    className,
+  }: {
+    children?: React.ReactNode;
+    className?: string;
+  }) => <div className={className}>{children}</div>,
+}));
 vi.mock("@/components/letter/our-story/vine-geometry", () => ({
   VINE_REACH: { mobile: 0, desktop: 0 },
   VINE_UNIT_ASPECT: { mobile: 0, desktop: 0 },

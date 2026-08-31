@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
+import { InViewReveal } from '@/components/letter/in-view-reveal';
+import { BEAT, EXIT_S, LETTER_EASE } from '@/components/letter/motion-tokens';
 import { SectionHeading } from '@/components/letter/section-heading';
 
 /**
@@ -11,6 +13,13 @@ import { SectionHeading } from '@/components/letter/section-heading';
  * the other sections (SectionHeading), then a stack of
  * question/answer rows, separated by ink rules so the final section feels like
  * part of the letter rather than a separate UI surface. Placeholder copy — edit freely.
+ *
+ * MOTION: the accordion already owns this section's motion — opening and closing
+ * an answer is the interaction, and it is where the feedback belongs. The rows
+ * therefore get only a light stagger on the way in and nothing else; a second
+ * idea layered on top would compete with the thing the guest is actually
+ * operating. Exit is the answer collapsing, which is a real exit and was already
+ * here — it now runs at the letter's shared exit length instead of its own.
  */
 const FAQS = [
   {
@@ -35,7 +44,7 @@ export function Faq() {
   const reduceMotion = !!useReducedMotion();
   const answerTransition = reduceMotion
     ? { duration: 0 }
-    : { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const };
+    : { duration: EXIT_S, ease: LETTER_EASE };
 
   return (
     <section className="bg-paper px-gutter py-section">
@@ -43,8 +52,13 @@ export function Faq() {
         <SectionHeading title="Good to know" kicker="FAQ" />
 
         <div className="mx-auto mt-heading max-w-2xl border-y border-ink text-left">
-          {FAQS.map((f) => (
-            <div key={f.id} className="border-b border-ink last:border-b-0">
+          {FAQS.map((f, i) => (
+            <InViewReveal
+              key={f.id}
+              delay={i * BEAT}
+              distance={12}
+              className="border-b border-ink last:border-b-0"
+            >
               <h3>
                 <button
                   type="button"
@@ -90,7 +104,7 @@ export function Faq() {
                   </motion.div>
                 ) : null}
               </AnimatePresence>
-            </div>
+            </InViewReveal>
           ))}
         </div>
       </div>

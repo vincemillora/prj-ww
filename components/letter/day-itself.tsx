@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
+import { OrnamentDrift } from '@/components/letter/ornament-drift';
 import { SectionHeading } from '@/components/letter/section-heading';
 
 /**
@@ -37,6 +38,12 @@ type EventIllo = keyof typeof ILLOS;
  * Only the first event carries a time. Guests arrive at a fixed hour — that is
  * the one thing they need to plan around; everything after it runs when it
  * runs, so no other row gets a clock. Do NOT add times back to the rest.
+ *
+ * MOTION: each event rises as the rail reaches it — this body is a sequence, so a
+ * per-item entrance IS the content. The getaway car at the end is the only
+ * ornament here, so it is the only thing that also drifts back OUT: it is the
+ * joke at the bottom of the rail, and a joke that lingers after you have scrolled
+ * past it stops being one.
  */
 const EVENTS: {
   time?: string;
@@ -160,11 +167,9 @@ export function DayItself() {
 
           {/* Getaway car — where the rail ends. Hidden on mobile for now; on
               md+ it hangs off the bottom of the centre rail. */}
-          <InViewReveal
+          <OrnamentDrift
             className="relative hidden pt-8 md:flex md:justify-center"
             distance={24}
-            duration={0.7}
-            ease="easeOut"
           >
             <Image
               src="/icons/hand_drawn/wedding_2/wedding-car-couple.svg"
@@ -173,7 +178,7 @@ export function DayItself() {
               height={99}
               className="h-20 w-auto opacity-80 md:h-32"
             />
-          </InViewReveal>
+          </OrnamentDrift>
         </div>
       </div>
     </section>
