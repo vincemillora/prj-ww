@@ -86,7 +86,9 @@ imported hi-fi Claude Design files and are settled.
   - Hover states invert between white and espresso instead of tinting; placeholder fills are hairline stripes
     of one colour on the other, not a wash.
   - **Granted exception — the complete list. Nothing else may be added without the couple's
-    say-so.** The RSVP form's section rules are thinned espresso (`ink/20`). Five
+    say-so.** The prenup gallery uses near-black film stock (`--film: #151512`) so its
+       perforated 35mm silhouette reads as physical film rather than another ink panel. The
+       RSVP form's section rules are thinned espresso (`ink/20`). Five
        full-ink hairlines inside one small card read as heavier than the answers they separate.
        Applies to the rules dividing the form's sections and the companion cards' frames
        (`components/letter/rsvp-form.tsx`, `components/letter/rsvp-reply.tsx`) — not to rules

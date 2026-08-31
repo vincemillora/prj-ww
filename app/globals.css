@@ -28,6 +28,8 @@
   --color-paper: var(--paper);
   /* Guest letter canvas behind the white paper sections. */
   --color-linen: var(--linen);
+  /* Prenup gallery's approved near-black film stock. */
+  --color-film: var(--film);
   /* Section-heading script colour (re-pointed to ink inside .letter-theme). */
   --color-script: var(--script);
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
@@ -268,6 +270,7 @@
      --ink       Espresso Olive #2C2A1B   dark grounds; body text on light ones
      --paper     White          #FFFFFF   existing paper surfaces; text on ink
      --linen     Antique Linen  #B9AA93   canvas behind the letter
+     --film      Near Black     #151512   prenup gallery's physical film stock
    These colours are used at FULL strength — no tints, no thinned ink: hierarchy comes
    from size, face and weight, not tone. Alpha survives only where it is
    physically a scrim or a shadow (the hero's overlay on the lily photo, the
@@ -304,6 +307,11 @@
   --input: var(--ink);
   --ring: var(--ink);
   --script: var(--ink);
+}
+
+/* The couple approved near-black only for the prenup's physical film stock. */
+.letter-theme #prenup {
+  --film: #151512;
 }
 
 /* Letter-scoped sizing for the shadcn primitives. Their own base classes are

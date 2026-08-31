@@ -49,6 +49,24 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('PrenupScrollGallery', () => {
+  it('groups every photo exposure into one labelled film strip', () => {
+    render(
+      <PrenupScrollGallery
+        shots={[
+          { alt: 'portrait', w: 900, h: 1100, image: '/portrait.jpg' },
+          { alt: 'landscape', w: 1400, h: 900, image: '/landscape.jpg' },
+        ]}
+      />,
+    );
+
+    const filmStrip = screen.getByRole('list', { name: 'Prenup film strip' });
+
+    expect(filmStrip).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'View photo: portrait' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'View photo: landscape' })).toBeInTheDocument();
+  });
+
   it('turns the gallery overflow into vertical scroll distance', () => {
     render(
       <PrenupScrollGallery
@@ -69,5 +87,25 @@ describe('PrenupScrollGallery', () => {
     act(() => resize([], {} as ResizeObserver));
 
     expect(container).toHaveStyle({ height: 'calc(100svh + 600px)' });
+  });
+
+  it('caps exposures to the sticky viewport and keeps focus outside the photo', () => {
+    render(
+      <PrenupScrollGallery
+        shots={[
+          { alt: 'photo', w: 900, h: 1100, image: '/photo.jpg' },
+          { alt: 'placeholder', w: 1400, h: 900 },
+        ]}
+      />,
+    );
+
+    const photo = screen.getByRole('button', { name: 'View photo: photo' });
+    const placeholder = screen.getByText('photo · placeholder').parentElement?.parentElement;
+
+    expect(photo).toHaveClass('h-[min(20rem,calc(100svh-8rem))]');
+    expect(photo).toHaveClass('sm:h-[min(30rem,calc(100svh-9rem))]');
+    expect(photo).toHaveClass('focus-visible:outline-offset-4');
+    expect(placeholder).toHaveClass('h-[min(20rem,calc(100svh-8rem))]');
+    expect(placeholder).toHaveClass('sm:h-[min(30rem,calc(100svh-9rem))]');
   });
 });
