@@ -64,7 +64,12 @@ export function Hero() {
               />
             </div>
             {/* Names centered in the window, stacked to fit the square. */}
-            <h1 className="absolute inset-[22%] font-weight-bold flex flex-col items-center justify-center gap-0.5 font-script leading-none text-paper drop-shadow-[0_2px_14px_color-mix(in_srgb,var(--ink)_75%,transparent)]">
+            {/* `font-weight-bold` used to sit in this list. It is not a Tailwind
+                class, emitted no rule, and the names have always rendered at
+                Parisienne's own 400 — which is the approved look. Removed rather
+                than corrected to `font-bold`: faux-bolding a fine script face
+                thickens the strokes into mud. */}
+            <h1 className="absolute inset-[22%] flex flex-col items-center justify-center gap-0.5 font-script leading-none text-paper drop-shadow-[0_2px_14px_color-mix(in_srgb,var(--ink)_75%,transparent)]">
               {/* Sized against the lace window rather than the type scale:
                   the names have to fit the frame they sit in, so they track
                   the frame's own breakpoint, not the document's. */}

@@ -77,4 +77,27 @@ describe('OpeningBackdrop', () => {
       [1, 1.15],
     );
   });
+
+  it('lays a neutral scrim over the backdrop, above the zooming image', () => {
+    const { container } = render(<OpeningBackdrop />);
+
+    const scrim = container.querySelector('[data-slot="hero-scrim"]');
+    const backdrop = container.querySelector(
+      '[data-slot="hero-background-sharp"]',
+    );
+
+    expect(scrim).toBeInTheDocument();
+    // Neutral black, never ink-tinted: a scrim darkens the photograph, it does
+    // not colour it. See PRODUCT.md's Brand Commitments.
+    expect(scrim).toHaveClass('absolute', 'inset-0', 'bg-black/30');
+
+    // It has to sit INSIDE the sticky, overflow-hidden viewport so it tracks the
+    // visible backdrop rather than the full 150svh scene, and AFTER the image so
+    // it paints over it without needing a z-index of its own.
+    const sticky = container.querySelector('.sticky');
+    expect(scrim?.parentElement).toBe(sticky);
+    expect(backdrop?.compareDocumentPosition(scrim!)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
 });
