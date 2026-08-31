@@ -3,11 +3,10 @@
  * date, shared by the dashboard header, the countdown, and the guest-facing
  * wedding letter (components/letter/wedding-letter.tsx).
  *
- * The names are the design's placeholder pair from the dashboard header; swap
- * for the real ones here. The date is the single source of truth for the
+ * The names are the couple's shared display names. The date is the single source of truth for the
  * countdown (hero + dashboard) — change it here and both update.
  */
-export const COUPLE = 'Hyuwu & Empty';
+export const COUPLE = 'Vince & Kc';
 
 /** Individual names, for prose that speaks about one of the couple. */
 export const COUPLE_NAMES = COUPLE.split(' & ') as [string, string];

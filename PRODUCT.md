@@ -69,9 +69,9 @@ imported hi-fi Claude Design files and are settled.
 - **Colors are locked: the home page is antique linen + espresso olive, while existing white
   surfaces stay white.** The guest letter (`app/page.tsx` → `components/letter/wedding-letter.tsx` →
   `components/letter/*`) uses **antique linen `#B9AA93`** for its canvas and **espresso olive
-  `#3C3422`** for text and buttons. Established paper sections, cards, and QR quiet zones remain
-  **white `#FFFFFF`**. Shadows are espresso-tinted (`rgba(60,52,34,…)`), not black.
-  - Implementation: `--linen: #b9aa93`, `--paper: #ffffff`, `--ink: #3c3422`, and their Tailwind theme keys live in `app/globals.css`;
+  `#2C2A1B`** for text and buttons. Established paper sections, cards, and QR quiet zones remain
+  **white `#FFFFFF`**. Shadows are espresso-tinted (`rgba(44,42,27,…)`), not black.
+  - Implementation: `--linen: #b9aa93`, `--paper: #ffffff`, `--ink: #2c2a1b`, and their Tailwind theme keys live in `app/globals.css`;
     the `.letter-theme` scope re-points the shadcn tokens (`foreground`, `primary`, `muted-
     foreground`, `border`, `input`, `ring`, `destructive`, `script`…) onto linen, white, and espresso for that
     subtree, so shadcn components used inside the letter need no per-component colour. Use the
@@ -167,7 +167,7 @@ imported hi-fi Claude Design files and are settled.
 
 - Real: the palette, the section structure, the working RSVP pipeline, the admin dashboard.
 - **Placeholder — never present as fact, never invent replacements:**
-  - Couple names `Hyuwu & Empty` and the date `2027-04-10` (`lib/wedding.ts`).
+  - The date `2027-04-10` (`lib/wedding.ts`).
   - Venue, hotels, and attire content in the letter sections.
   - Our-story text, FAQ answers, gift details.
 - No photographs of the couple exist in the repo yet. Do not fabricate imagery, quotes, vendor

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 
+import { COUPLE } from '@/lib/wedding';
 import footerLace from '@/public/footer-lace.png';
 
 export function FooterLace() {
@@ -34,7 +35,7 @@ export function FooterLace() {
           For any questions, please contact us at:
         </p>
         <p className="mt-6 font-sans text-body">------</p>
-        <p className="mt-6 font-script text-title">Empty &amp; Hyuwu</p>
+        <p className="mt-6 font-script text-title">{COUPLE}</p>
         <p className="mt-2 font-sans text-body">with love</p>
       </address>
     </footer>

@@ -21,13 +21,14 @@ const CARD_REST_Y = 36;
 type PaperLayerProps = {
   className: string;
   src: string;
+  children?: ReactNode;
 };
 
 type RsvpEnvelopeProps = {
   children: ReactNode;
 };
 
-function PaperLayer({ className, src }: PaperLayerProps) {
+function PaperLayer({ children, className, src }: PaperLayerProps) {
   return (
     <div
       className={cn(
@@ -36,6 +37,7 @@ function PaperLayer({ className, src }: PaperLayerProps) {
       )}
     >
       <Image src={src} alt="" fill sizes={PAPER_LAYER_SIZES} />
+      {children}
     </div>
   );
 }
@@ -101,7 +103,20 @@ export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
           <PaperLayer
             src="/envelope/front.png"
             className="z-30 origin-center rotate-[5deg]"
-          />
+          >
+            <div
+              data-slot="rsvp-envelope-logo"
+              className="absolute inset-x-0 bottom-[4%] z-10 mx-auto aspect-square w-[30%]"
+            >
+              <Image
+                src="/couple-logo-rustic.svg"
+                alt=""
+                fill
+                sizes="(max-width: 45rem) 28vw, 12.5rem"
+                className="object-contain"
+              />
+            </div>
+          </PaperLayer>
         </div>
 
         <Image
