@@ -388,6 +388,44 @@ provisioning or disabling an admin directly in the DB), which bypass tag invalid
 change can take up to ~a minute to bite. Dynamic routes keep Suspense fallbacks (`loading.tsx` for
 `/dashboard`, `/dashboard/users`, `/login`, and the landing page) as cacheComponents requires.
 
+### 7b.1 Static assets and fonts (HTTP cache)
+
+The guest-facing site is almost entirely artwork, so the asset layer is where the caching actually
+pays. Two mechanisms are in play and they must not fight each other:
+
+| Layer | Serves | `Cache-Control` | Owner |
+|---|---|---|---|
+| `/_next/static/**` | JS, CSS, `next/font` woff2, **statically imported** images | `public, max-age=31536000, immutable` | Next.js (content-hashed — never override) |
+| `/_next/image?url=<static import>` | optimized variants of hashed sources | `public, max-age=315360000, immutable` | Next.js |
+| `/_next/image?url=/<public path>` | optimized variants of `/public` sources | `public, max-age=2592000, must-revalidate` | derived from the `/public` header below, floored by `images.minimumCacheTTL` |
+| `/public/**` (string `src`) | artwork referenced by literal path | `public, max-age=2592000, stale-while-revalidate=86400` | `headers()` in `next.config.ts` |
+
+**Fonts need no configuration.** `app/layout.tsx` loads Montserrat + Parisienne through
+`next/font/google`, which self-hosts them under `/_next/static/media/` (content-hashed, `immutable`,
+no request to Google) and emits React preload hints for both faces in the streamed RSC payload.
+
+**The `headers()` trap.** A custom header *replaces* the one Next.js sets. An extension rule written
+as `/:file(.*).png` also matches `/_next/static/media/lace.<hash>.png`, which downgrades the
+content-hashed assets from `immutable` to the 30-day `/public` policy — the assets safest to cache
+forever end up with the weakest policy. This shipped once and is invisible unless you inspect live
+response headers. Every extension rule therefore uses `[^/]+` to stay inside one path segment, and
+`next.config.test.ts` fails the build if a rule reintroduces `(.*)` or mentions `_next`.
+
+**30 days, not a year + `immutable`,** because `/public` art is still replaced in place; when you
+swap a file, bump a `?v=` on the reference (`components/letter/our-story.tsx` does this for the lace
+mask). Statically imported images are hashed and need no bump — prefer a static import for any new
+artwork whose path is a literal, and the whole ritual disappears.
+
+**Not cached:** the landing-page HTML. `/` is `◐` Partial Prerender — the RSVP subtree awaits
+`searchParams` for `?id=<token>`, so the response streams and Next sends
+`private, no-cache, no-store`. The prerendered shell still comes from the build (`x-nextjs-prerender:
+1`) and Vercel resumes it at the edge, but the HTML itself is never CDN-cacheable. Making it so would
+mean moving the token read out of the server render, which is a deliberate non-goal here (§ landing
+page in the file plan).
+
+To verify any of this, `next build && next start` and read the real headers — `next dev` sends
+`no-store` on everything. `.claude/launch.json` carries a `prj-ww prod` entry for exactly this.
+
 ---
 
 ## 8. Environment variables

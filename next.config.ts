@@ -11,6 +11,19 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 const nextConfig: NextConfig = {
   cacheComponents: true,
   images: {
+    // The optimizer re-encodes the multi-megabyte artwork once per requested
+    // width, so a cached variant is the expensive artifact to keep. An
+    // optimized image's max-age is `max(minimumCacheTTL, upstream
+    // Cache-Control)`, so pinning the floor at 30 days does two things: it
+    // matches the `/public` policy in `headers()` below without depending on
+    // it, and it covers remote images (picsum) whose own headers we don't
+    // control. Statically imported images bypass this entirely — they are
+    // content-hashed and the optimizer marks them `immutable`.
+    minimumCacheTTL: 2592000, // 30 days
+    // Allowlist the qualities the optimizer will encode. Every `<Image>` here
+    // uses the default 75; pinning it stops a future `quality={90}` from
+    // silently doubling the number of cached variants per image.
+    qualities: [75],
     remotePatterns: [
       {
         protocol: 'https',
@@ -27,19 +40,38 @@ const nextConfig: NextConfig = {
   // Everything under /public is a design asset that only ever changes by being
   // re-exported, and Vercel serves those with `max-age=0, must-revalidate` by
   // default — so every repeat visitor re-requests all ~16 of them on every page
-  // load. These headers are also what the image optimizer reads to decide how
-  // long to keep an optimized variant: its TTL is max(minimumCacheTTL, upstream
-  // Cache-Control), so the same rule stops it re-decoding the multi-megabyte
-  // envelope/RSVP PNGs every 4 hours.
+  // load. These headers are also the "upstream Cache-Control" half of the
+  // optimizer's TTL rule described on `minimumCacheTTL` above, so they keep it
+  // from re-encoding the multi-megabyte envelope/RSVP PNGs on a short cycle.
   //
   // 30 days rather than a year + `immutable`, because these are still being
   // iterated on. When you replace an asset in place, bump a `?v=` on the
   // reference (components/letter/our-story.tsx already does this for the lace
   // mask) — statically imported images are content-hashed and need no bump.
+  //
+  // `stale-while-revalidate` means the day-31 request is served from the stale
+  // copy while the refresh happens in the background, rather than blocking the
+  // paint on a revalidation round trip.
   async headers() {
     const cache = [
-      { key: 'Cache-Control', value: 'public, max-age=2592000' },
+      {
+        key: 'Cache-Control',
+        value: 'public, max-age=2592000, stale-while-revalidate=86400',
+      },
     ];
+
+    // Root-level artwork by extension. The character class is deliberate: a
+    // custom header REPLACES the one Next.js sets, and a bare `(.*)` also
+    // matches `/_next/static/media/lace.<hash>.png`, so the old
+    // `/:file(.*).png` rule was silently downgrading content-hashed assets
+    // from Next's own `max-age=31536000, immutable` to 30 days — i.e. the
+    // assets that are safest to cache forever were getting the weakest
+    // policy. `[^/]+` keeps each rule to a single path segment, so nothing
+    // under `/_next/` is touched. Do not widen these to `(.*)`.
+    const rootFile = (ext: string) => ({
+      source: `/:file([^/]+\\.${ext})`,
+      headers: cache,
+    });
 
     return [
       // Asset directories.
@@ -51,9 +83,10 @@ const nextConfig: NextConfig = {
       { source: '/music/:path*', headers: cache },
       // Root-level artwork, plus the favicon (a metadata route, not a
       // /public file, but it revalidates on every load just the same).
-      { source: '/:file(.*).png', headers: cache },
-      { source: '/:file(.*).jpg', headers: cache },
-      { source: '/:file(.*).svg', headers: cache },
+      rootFile('png'),
+      rootFile('jpg'),
+      rootFile('svg'),
+      rootFile('webp'),
       { source: '/favicon.ico', headers: cache },
     ];
   },
