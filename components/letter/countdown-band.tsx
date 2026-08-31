@@ -45,7 +45,7 @@ export function CountdownBand() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative z-10 bg-paper px-gutter pt-0 pb-section text-center sm:pt-32">
+    <section className="relative z-10 bg-paper px-gutter pt-28 pb-section text-center sm:pt-32">
       <motion.div
         className="flex flex-col items-center"
         initial={reduceMotion ? false : { opacity: 0, y: 20 }}
