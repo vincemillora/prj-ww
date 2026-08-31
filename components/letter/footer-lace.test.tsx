@@ -15,7 +15,11 @@ describe('FooterLace', () => {
     render(<FooterLace />);
 
     const footer = screen.getByRole('contentinfo');
-    const backgrounds = footer.querySelectorAll(':scope > div');
+    // The sign-off and the monogram each sit in their own reveal wrapper now, so
+    // this counts the ABSOLUTE layers rather than every direct child. That is
+    // still the dome check: a Dome renders as an absolute direct child too, so
+    // one absolute layer means the lace and nothing stacked over it.
+    const backgrounds = footer.querySelectorAll(':scope > div.absolute');
     const [background] = backgrounds;
 
     expect(backgrounds).toHaveLength(1);

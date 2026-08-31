@@ -11,6 +11,8 @@ import {
   InkCharm,
   Polaroid,
 } from "@/components/letter/our-story/story-art";
+import { MOTION_REDUCE_SAFE } from "@/components/letter/motion-tokens";
+import { OrnamentDrift } from "@/components/letter/ornament-drift";
 import { Vine, VineFlorals } from "@/components/letter/our-story/vine-art";
 import {
   VINE_REACH,
@@ -57,9 +59,15 @@ export function OurStory() {
           <SectionHeading tone="white" title="Our Story" kicker="How it began" />
 
           <div className="relative mx-auto mt-heading max-w-[52rem] lg:max-w-[64rem] xl:max-w-[72rem]">
-            <div className="flex justify-center">
+            {/* The two charms are the section's ornaments, so they drift in and
+                back out with the scroll (see OrnamentDrift). The VINES and their
+                florals below are deliberately NOT wrapped — they are the
+                section's structure, and they were excluded by request. The two
+                LaceBands are excluded for the same reason: they are the ink
+                section's real top and bottom edges, not decoration on it. */}
+            <OrnamentDrift className="flex justify-center" distance={14}>
               <CameraCharm className="pointer-events-none w-24 sm:w-28" />
-            </div>
+            </OrnamentDrift>
 
             {/* Row height and vine units are paired. If story copy changes,
                 re-measure the tallest memory before adjusting either value. */}
@@ -109,6 +117,11 @@ export function OurStory() {
                         viewport={{ once: true, amount: 0.2 }}
                         transition={{ duration: 0.7, ease: "easeOut" }}
                         className={cn(
+                          // Without this the memory blocks sat at opacity 0 for
+                          // any guest with reduced motion on — see
+                          // MOTION_REDUCE_SAFE. The Polaroid's own tilt is on the
+                          // figure inside, so it survives the transform reset.
+                          MOTION_REDUCE_SAFE,
                           "flex w-[62%] flex-col items-center sm:w-[42%]",
                           onRight
                             ? "ml-[38%] items-start sm:ml-[58%]"
@@ -145,12 +158,15 @@ export function OurStory() {
               <div aria-hidden className="h-[calc(var(--row-h)*0.2)]" />
             </div>
 
-            <div className="relative flex flex-col items-center">
+            <OrnamentDrift
+              className="relative flex flex-col items-center"
+              distance={14}
+            >
               <InkCharm
                 src="/icons/hand_drawn/illustrations/wedding-rings-linework.svg"
                 className="aspect-[211.1815/126.2234] mt-8 w-44 sm:w-52"
               />
-            </div>
+            </OrnamentDrift>
           </div>
         </div>
       </div>

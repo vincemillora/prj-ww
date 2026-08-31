@@ -53,7 +53,17 @@ imported hi-fi Claude Design files and are settled.
   Next 16 conventions differ from older training data — read `node_modules/next/dist/docs/`
   before writing framework code.
 - shadcn/ui (base-ui, `nova` preset) is the component baseline; check shadcn before hand-rolling.
-- `motion` (v12) is available and already used for scroll-reveal animations.
+- `motion` (v12) carries the letter's motion language. Timings, easing and the
+  reduced-motion floor live in `components/letter/motion-tokens.ts`; the shared
+  reveals are `in-view-reveal.tsx` (plain block entrance), `letter-reveals.tsx`
+  (the heading ink-stroke, its kicker, and the attire plate's develop) and
+  `ornament-drift.tsx` (the only scroll-linked enter+exit, ornaments only).
+  **`useReducedMotion()` cannot be trusted on its own in this stack** — it is a
+  one-shot `useState` seeded from module state that is still `null` during the
+  render that matters, so it reports `false` while motion itself declines to
+  animate, leaving content stuck at its server-rendered hidden state. Put
+  `MOTION_REDUCE_SAFE` (or `MOTION_REDUCE_OPEN` for a height collapse) on
+  anything whose resting state comes from motion.
 - The page shell stays statically prerendered (Cache Components / PPR); only the RSVP body
   streams in under Suspense. Design work must not force the shell dynamic.
 - Guest replies: `going` / `not_going` only, with `adults` + `kids` bounded by the party's
@@ -191,4 +201,10 @@ imported hi-fi Claude Design files and are settled.
 Guests span a wide age range and open the page inside chat-app in-app browsers. Tap targets must
 be generous, no essential action may depend on hover or a hidden gesture, and text must stay
 legible over the gradient and floral layers. Respect `prefers-reduced-motion` for the scroll
-reveals and countdown.
+reveals and countdown — and enforce it in CSS, not only in JS, for the reason recorded under
+Capabilities and Constraints.
+
+Verifying scroll-triggered motion needs a browser that is actually compositing frames: both
+automation panes background their tab, so `document.visibilityState` is `hidden`, the render
+lifecycle is paused and `IntersectionObserver` never fires — every reveal reads as stuck at
+opacity 0. Drive a self-launched headless Chrome over CDP instead.
