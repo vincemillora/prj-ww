@@ -16,23 +16,13 @@ const nextConfig: NextConfig = {
     // optimized image's max-age is `max(minimumCacheTTL, upstream
     // Cache-Control)`, so pinning the floor at 30 days does two things: it
     // matches the `/public` policy in `headers()` below without depending on
-    // it, and it covers remote images (picsum) whose own headers we don't
-    // control. Statically imported images bypass this entirely — they are
+    // it. Statically imported images bypass this entirely — they are
     // content-hashed and the optimizer marks them `immutable`.
     minimumCacheTTL: 2592000, // 30 days
     // Allowlist the qualities the optimizer will encode. Every `<Image>` here
     // uses the default 75; pinning it stops a future `quality={90}` from
     // silently doubling the number of cached variants per image.
     qualities: [75],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/seed/**',
-        search: '',
-      },
-    ],
   },
   turbopack: {
     root: projectRoot,

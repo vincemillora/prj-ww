@@ -41,7 +41,8 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  * its full depth below the paper above. Biting 12rem here would pull the ink up
  * over the bottom corners of the Hotels cards — at a card's edge the arch is
  * already ~95px deep, so the shoulders, not the crown, are what decide how far
- * this can safely rise.
+ * this can safely rise. The section intentionally does not clip overflow: the
+ * RSVP envelope's sticky layers must be able to pin against the viewport.
  *
  * Token-driven per docs/rsvp-spec.md: the personal invite link is `?id=<token>`.
  * The card shows one of three states — the form (pending reply), a thank-you
@@ -52,7 +53,7 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  */
 export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <section className="relative z-10 -mt-section overflow-hidden bg-ink px-gutter pt-dome pb-section">
+    <section className="relative z-10 -mt-section bg-ink px-gutter pt-dome pb-section">
       <div
         aria-hidden
         data-slot="rsvp-background"

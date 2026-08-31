@@ -12,7 +12,7 @@
 
 - Scope is the guest letter only; do not modify `/dashboard`, `/login`, countdown timing, section order, or RSVP behavior.
 - Reuse `/public/locket/ribbon.png` and `/public/locket/locket.png`; do not introduce dependencies or new external assets.
-- Use fixed `picsum.photos` seed URLs, consistent with `components/letter/prenup.tsx`, until couple photography is provided.
+- Use visible temporary photo spaces, consistent with `components/letter/prenup.tsx`, until couple photography is provided.
 - Keep the group decorative with `aria-hidden` and empty image `alt` text.
 - Preserve the letter's Montserrat/Parisienne type roles and white/ink visual system.
 - Preserve reduced-motion behavior by keeping the new visual inside the existing countdown reveal rather than introducing autonomous motion.
@@ -26,7 +26,7 @@
 - Create: `components/letter/countdown-locket.test.tsx`
 
 **Interfaces:**
-- Consumes: static asset paths `/locket/ribbon.png` and `/locket/locket.png`; two stable Picsum URLs.
+- Consumes: static asset paths `/locket/ribbon.png` and `/locket/locket.png`; two visible temporary photo spaces.
 - Produces: `CountdownLocket(): React.JSX.Element`, a decorative fixed-aspect-ratio locket composition.
 
 - [ ] **Step 1: Write the failing render-order regression test**
@@ -65,10 +65,7 @@ Expected: FAIL with a module-resolution error for `@/components/letter/countdown
 - [ ] **Step 3: Implement the smallest complete decorative composition**
 
 ```tsx
-const photos = [
-  "https://picsum.photos/seed/ww-locket-left/360/420",
-  "https://picsum.photos/seed/ww-locket-right/360/420",
-];
+const photoWindows = [65, 435];
 
 const windows = [
   "M 207 517 C 167 485 87 421 88 342 C 89 279 148 270 186 299 C 202 240 302 227 344 282 C 393 347 332 467 249 513 Z",
@@ -81,7 +78,7 @@ export function CountdownLocket() {
       <img alt="" className="absolute inset-0 h-full w-full object-contain" data-testid="countdown-locket-ribbon" src="/locket/ribbon.png" />
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 800 600">
         <defs>{windows.map((d, index) => <clipPath id={`countdown-locket-window-${index}`} key={d}><path d={d} /></clipPath>)}</defs>
-        {photos.map((href, index) => <image clipPath={`url(#countdown-locket-window-${index})`} data-testid="countdown-locket-photo" height="320" href={href} key={href} preserveAspectRatio="xMidYMid slice" width="320" x={index === 0 ? 55 : 425} y="225" />)}
+        {photoWindows.map((x, index) => <rect clipPath={`url(#countdown-locket-window-${index})`} data-testid="countdown-locket-photo-placeholder" fill="var(--paper)" height="320" key={x} width="320" x={x} y="225" />)}
       </svg>
       <img alt="" className="absolute inset-0 h-full w-full object-contain" data-testid="countdown-locket-frame" src="/locket/locket.png" />
     </div>
