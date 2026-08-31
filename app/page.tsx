@@ -7,6 +7,7 @@ import { VinylPlayer } from '@/components/letter/vinyl-player';
 // Interactive content remains sized to the visible dynamic viewport.
 export const viewport: Viewport = {
   viewportFit: 'cover',
+  themeColor: '#2c2a1b',
 };
 
 /**
@@ -28,7 +29,7 @@ export default function Home({
 }) {
   return (
     <MotionProvider>
-      <main>
+      <main className="letter-page">
         <WeddingLetter searchParams={searchParams} />
         {/* Floating music player: fixed to the viewport's bottom-right so it
             follows the scroll across every section. Above page content (z-50),

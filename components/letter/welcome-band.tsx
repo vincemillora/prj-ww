@@ -6,7 +6,7 @@ import { COUPLE } from '@/lib/wedding';
 /** The keepsake welcome section that opens the letter before Our Story. */
 export function WelcomeBand() {
   return (
-    <section className="relative z-10 bg-paper px-gutter pt-0 pb-section text-center sm:pt-32">
+    <section className="relative z-10 bg-paper px-gutter pt-28 pb-section text-center sm:pt-32">
       <InViewReveal className="flex flex-col items-center">
         <CountdownLocket />
 

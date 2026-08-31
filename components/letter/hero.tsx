@@ -31,7 +31,7 @@ export function Hero() {
         {/* The lace frame is centred in the full hero viewport. Its `svh` cap
             keeps the ornament clear of mobile browser chrome on short screens. */}
         <motion.div
-          className="flex min-h-0 flex-1 flex-col items-center justify-center pb-0 sm:pb-8"
+          className="flex min-h-0 flex-1 flex-col items-center justify-center pb-8"
           initial="hidden"
           animate="show"
           transition={{ staggerChildren: 0.18, delayChildren: 0.15 }}
