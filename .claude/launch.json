@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "prj-ww dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 3000
+    },
+    {
+      "name": "prj-ww prod",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["start", "--port", "3100"],
+      "port": 3100
+    }
+  ]
+}
