@@ -90,9 +90,15 @@ imported hi-fi Claude Design files and are settled.
   - Alpha survives only where it is physically a scrim or shadow. Otherwise text, rules, fills,
     borders, and icons are full linen, white, or full espresso; the RSVP form's `ink/20` rules and card
     frames are the sole opacity exception.
-  - The one exception to ink-tinting is the hero photo scrim, which is neutral `bg-black/50`:
+  - The one exception to ink-tinting is the hero photo scrim, which is neutral `bg-black/30`:
     ink-tinting it cast a green wash over the lily photograph, and a scrim's job is to darken
-    the image, not to colour it.
+    the image, not to colour it. **The scrim is a legibility requirement, not a mood choice** —
+    the couple's names are white script over drapery whose brightest folds reach 0.54 relative
+    luminance, and with no scrim a tenth of the glyph area measured below 3:1 against the pixels
+    directly behind it (worst case 1.55:1). 30% is the measured floor at which nothing falls
+    below 3:1. The value was `/50`, tuned for the retired lily photo; on the current artwork
+    that darkens the backdrop 4x for no legibility gain. The measurement table lives in
+    `components/letter/opening-backdrop.tsx` — re-measure it if the backdrop image is replaced.
   - Hover states invert between white and espresso instead of tinting; placeholder fills are hairline stripes
     of one colour on the other, not a wash.
   - **Granted exception — the complete list. Nothing else may be added without the couple's
