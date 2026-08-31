@@ -21,7 +21,7 @@ export function OpeningBackdrop() {
   return (
     <div ref={ref} className="relative h-[150svh] bg-ink">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="sticky top-0 h-dvh overflow-hidden">
+        <div className="sticky top-0 h-lvh overflow-hidden">
           <motion.div className="absolute inset-0" style={{ scale }}>
             <Image
               data-slot="hero-background-sharp"

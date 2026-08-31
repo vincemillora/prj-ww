@@ -154,9 +154,9 @@
      `px-5 sm:px-9` pairs.
 
        gutter   the page's side padding — every full-bleed section
-       section  a section's vertical padding. Two of these stack between
-                adjacent sections, so this is HALF the gap you want to see:
-                144px between sections on a phone, 224px on a desktop.
+       section  a section's vertical padding. Phone sections run edge to edge;
+                from `sm` up, two of these stack between adjacent sections,
+                giving 224px between sections on desktop.
        heading  a SectionHeading and the content it introduces
 
      Deliberately NOT covered: the dome overlaps (`-mt-48`, `pb-72`, `pt-76`,
@@ -180,6 +180,14 @@
      the media query below. The `-mt` overlaps in our-story/prenup carry their
      own `sm:` overrides to the same 4rem. */
   --spacing-dome: calc(12rem + var(--spacing-section));
+}
+
+/* The letter is deliberately edge-to-edge vertically on phones. The dome
+   clearance remains structural, so its 12rem curve still has room to render. */
+@media (max-width: 639px) {
+  :root {
+    --spacing-section: 0rem;
+  }
 }
 
 /* Wider screens: shallow the domes to the hero's ~4rem curve. Overriding the

@@ -136,8 +136,9 @@ imported hi-fi Claude Design files and are settled.
   `app/globals.css` — `gutter` (page side padding), `section` (a section's vertical padding)
   and `heading` (a SectionHeading and the content it introduces) — each one fluid between a
   360px phone and a 1280px desktop. Use `px-gutter`, `py-section`, `mt-heading`; do not
-  hand-write `px-5 sm:px-9` or `py-24` again. Two `section` paddings stack between adjacent
-  sections, so the role is half the visible gap: 144px on a phone, 224px on a desktop.
+  hand-write `px-5 sm:px-9` or `py-24` again. The phone base is intentionally zero so the
+  letter is edge-to-edge vertically; from `sm` up, two `section` paddings stack between adjacent
+  sections for a 224px visible gap on desktop.
   - Unlike the type roles these need no tailwind-merge entry: an unrecognised `px-gutter`
     falls into no existing group, so the worst case is a missed de-duplication, not the
     silent drop that unregistered `text-*` roles suffer.
