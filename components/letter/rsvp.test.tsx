@@ -28,10 +28,10 @@ vi.mock('@/components/letter/section-heading', () => ({ SectionHeading: () => nu
 import { Rsvp } from '@/components/letter/rsvp';
 
 describe('Rsvp', () => {
-  it('lets the envelope extend beyond the RSVP section', () => {
+  it('clips the envelope artwork to the RSVP section', () => {
     const { container } = render(<Rsvp searchParams={Promise.resolve({})} />);
 
-    expect(container.firstElementChild).not.toHaveClass('overflow-hidden');
+    expect(container.firstElementChild).toHaveClass('overflow-hidden');
   });
 
   it('layers the supplied floral image behind the RSVP content', () => {
