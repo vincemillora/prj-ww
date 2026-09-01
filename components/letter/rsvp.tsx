@@ -7,6 +7,7 @@ import { RsvpReply } from "@/components/letter/rsvp-reply";
 import { SectionHeading } from "@/components/letter/section-heading";
 import { Dome } from "@/components/letter/dome";
 import { RsvpEnvelope } from "@/components/letter/rsvp-envelope";
+import { BanquetTableScene } from "@/components/letter/banquet-table-scene";
 import {
   Card,
   CardContent,
@@ -87,6 +88,10 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
             <Suspense fallback={<RsvpBodyFallback />}>
               <RsvpBody searchParams={searchParams} />
             </Suspense>
+            {/* Closes every state of the card, so it is here rather than inside
+                RsvpBody: the reply form, the thank-you and the "open your
+                personal link" note all end on the same table. */}
+            <BanquetTableScene />
           </Card>
         </RsvpEnvelope>
 

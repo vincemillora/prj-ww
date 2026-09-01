@@ -49,6 +49,15 @@ describe('RsvpEnvelope', () => {
     );
   });
 
+  it('starts the card above the flap so its first lines are never clipped', () => {
+    // The flap only clears the card's full width above 51.2% of this canvas's
+    // width, so a card starting below that line has its opening lines cut at
+    // both sides before the guest has scrolled at all.
+    const { getByTestId } = renderEnvelope();
+
+    expect(getByTestId('rsvp-card').parentElement).toHaveClass('mt-[30%]');
+  });
+
   it('keeps the visible envelope 100px wider than the RSVP card', () => {
     const { container, getByTestId } = renderEnvelope();
     const card = getByTestId('rsvp-card');

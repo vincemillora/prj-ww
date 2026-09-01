@@ -93,9 +93,15 @@ export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
         </div>
       </div>
 
+      {/* Where the card starts in the pocket. The flap only clears the card's
+          full width above 46.32% of the envelope — 51.2% of this canvas's width
+          — so a card starting at 55% opened with its first lines cut at both
+          sides before a guest had scrolled at all. 30% starts it well above that
+          line, reading as a card already lifting out of the pocket rather than a
+          buried one. */}
       <div
         data-slot="rsvp-envelope-card"
-        className="relative z-20 col-start-1 row-start-1 mx-auto mt-[55%] w-[calc(83.195%-100px)] self-start"
+        className="relative z-20 col-start-1 row-start-1 mx-auto mt-[30%] w-[calc(83.195%-100px)] self-start"
       >
         {children}
       </div>
