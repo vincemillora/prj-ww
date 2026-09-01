@@ -13,6 +13,15 @@
 
 ## 1. Overview
 
+> **Current route status:** The route-specific details in the historical status paragraph above are superseded by this section. The guest letter and RSVP form live at `/rsvp`; `/` is the invitation entry page and preserves a supplied `?id=<token>` when linking onward.
+
+### Public routes
+
+- `/` is a hero-background invitation entry point; its envelope link preserves an incoming
+  `?id=<token>` code as `/rsvp?id=<token>`.
+- `/rsvp` renders the guest-facing wedding letter and RSVP form.
+- `/dashboard` and all dashboard routes are unchanged.
+
 An **invite-only** wedding RSVP website. The couple pre-registers each invitee (a party/household)
 in a Google-authenticated admin dashboard (`/dashboard`), which mints a per-person link
 (`?id=<token>`). Each invitee later opens their personalized link and submits attendance. The
@@ -254,9 +263,10 @@ guest **response** DTO (attendance-form input) is deferred with the form.
 | `lib/dietary.ts` | Allergy presets (keys + labels; the older diet keys are kept in `RETIRED_LABELS` for display only) shared by the form, `rsvpResponseSchema`, the dashboard card, and the CSV export, plus `dietaryList()` for display. |
 | `app/actions/submit-rsvp.ts` + `app/actions/rsvp-logic.ts` | The `submitRsvp` Server Action and its pure FormData parsing / party-validation boundary. The action owns authorization, persistence, and cache invalidation; the logic module is regression-tested without a database. |
 | `lib/action-state.ts` | Shared `ActionState`, successful-state constant, and zod field-error mapping used by RSVP and admin Server Actions. |
-| `app/page.tsx` | Landing / wedding page shell. Renders `<EnvelopeReveal><WeddingLetter/></EnvelopeReveal>` and, as a **sibling below it**, `<Rsvp searchParams={…}/>` (RSVP is kept OUT of the reveal — see below). Forwards the `searchParams` promise (carrying `?id=<token>`) **unawaited** into `Rsvp`, so the page reads nothing request-time and the shell stays statically prerendered (Cache Components / PPR); only the RSVP body streams. |
+| `app/page.tsx` | Invitation entry page. Renders a hero-background envelope link to `/rsvp`, preserving an incoming `?id=<token>` in its URL. |
+| `app/rsvp/page.tsx` | Guest letter / RSVP page shell. Renders `<WeddingLetter searchParams={…} />` and the floating `<VinylPlayer />`; forwards the `searchParams` promise carrying `?id=<token>` to the letter. |
 | `components/letter/rsvp-form.tsx` (+ `rsvp-form/` subcomponents and `rsvp-form/form-state.ts`) | Client RSVP form composed with shadcn `Field`/`FieldSet`/`FieldGroup`/`FieldError`, `Input`, `Textarea`, and `Spinner`; pure companion, capacity, missing-field, and fallback-summary calculations live in the tested `form-state.ts`. Adults/kids are −/+ steppers — the whole **“Who is coming?”** section is hidden when `maxGuests === 1` (nothing to count: the invitee is adult 1 and no one else fits), and `adults`/`kids` post as hidden inputs (`1`/`0`) so the action reads a one-seat reply like any other; the dietary hint drops its “anyone you bring below” clause in that case. An allergies fieldset (preset checkboxes + **Other** → text) posts `dietary`/`dietaryOther`. Attendance radios and allergy checkboxes intentionally remain native inputs: the Base UI controlled checkbox interaction previously scrolled the page inside the envelope reveal. |
-| `components/letter/wedding-letter.tsx` | Server component composing the letter sections from `components/letter/*` (`Hero`, `OurStory`, `DayItself`, `AttireGuide`, `Location`). No props. **`Rsvp` is intentionally NOT here** — it renders outside the reveal (see `app/page.tsx`). Couple names/date come from `lib/wedding.ts`. |
+| `components/letter/wedding-letter.tsx` | Server component composing the guest letter sections from `components/letter/*`, including the closing `Rsvp` section. It accepts and forwards `searchParams` to `Rsvp`. Couple names/date come from `lib/wedding.ts`. |
 | `components/letter/rsvp.tsx` | Server component: the **RSVP** section, rendered OUTSIDE the envelope reveal (normal flow, below the letter — the reveal's percentage-based rise transform would jump the letter on the form's conditional-field height changes). The supplied floral painting at `/rsvp-background.png` fills the RSVP ground without an overlay; its white dome, heading, envelope, and deadline copy remain in the foreground. The section deliberately does **not** clip overflow so the envelope can stick against the viewport. `RsvpEnvelope` keeps the upright card in ordinary document flow, while separate non-interactive sticky back/lining/lace (`z-10`) and front (`z-30`) layers, tilted 5° clockwise with the lace shifted 10px right, let the card (`z-20`) pass through the pocket as the guest scrolls. The envelope canvas remains exactly 100px wider than the card. A 30svh sticky runway lets the Send button just clear the pocket rather than allowing the full card to scroll away; no Motion transforms, measured height, or `ResizeObserver` are used, so reduced-motion has the same static layout. Awaits the forwarded `searchParams` to read `?id=<token>` inside its own `<Suspense>` (dynamic body; striped shell + card frame prerender). Three states: `RsvpForm` (pending), a thank-you (already answered), or a “reply by your personal link” note (no/unknown token). |
 | `lib/wedding.ts` | Single source for the couple's names + wedding date (placeholders for now) — imported by the dashboard header, the countdown, and the wedding letter. |
 | `components/letter/envelope-reveal.tsx` | Client scroll-driven envelope→letter reveal (pinned; see status note). Wine-red CSS envelope, landscape, fluid width `min(92vw, 140dvh)`, **four flaps meeting at the centre** (no seal, sharp corners). Starts centred, then **sinks** by `--env-drop` (half visible; quarter on ≥1024px) while the **top flap rotates open** (`rotateX`; z-index swapped so it stays visible behind the letter); the front flaps (`.env-front` bottom + `.env-face-*` sides, z-index 12) tuck the letter's base. Letter = page content, base-anchored in `.letter-clip` (overflow-hidden); content column = 80% of the letter on `sm+`, with a `24dvh` bottom tuck allowance. Motion: CSS scroll-driven keyframes on the compositor where supported, else eased `--pf`/`--pd`/`--pl` via rAF scroll listener; `.env-cue`; `prefers-reduced-motion` shows the letter statically. CSS in `globals.css` under "Envelope reveal". |
@@ -416,12 +426,13 @@ swap a file, bump a `?v=` on the reference (`components/letter/our-story.tsx` do
 mask). Statically imported images are hashed and need no bump — prefer a static import for any new
 artwork whose path is a literal, and the whole ritual disappears.
 
-**Not cached:** the landing-page HTML. `/` is `◐` Partial Prerender — the RSVP subtree awaits
-`searchParams` for `?id=<token>`, so the response streams and Next sends
-`private, no-cache, no-store`. The prerendered shell still comes from the build (`x-nextjs-prerender:
-1`) and Vercel resumes it at the edge, but the HTML itself is never CDN-cacheable. Making it so would
-mean moving the token read out of the server render, which is a deliberate non-goal here (§ landing
-page in the file plan).
+**Not cached:** the public route HTML. Both `/` and `/rsvp` are `◐` Partial Prerender routes: `/`
+awaits `searchParams` to carry an incoming `?id=<token>` into its invitation link, while `/rsvp`
+forwards the token to the RSVP section. Their request-time responses stream and Next sends `private,
+no-cache, no-store`. The prerendered shell still comes from the build (`x-nextjs-prerender: 1`) and
+Vercel resumes it at the edge, but the HTML itself is never CDN-cacheable. Making it so would mean
+moving the token read out of the server render, which is a deliberate non-goal here (§ public routes
+in the file plan).
 
 To verify any of this, `next build && next start` and read the real headers — `next dev` sends
 `no-store` on everything. `.claude/launch.json` carries a `prj-ww prod` entry for exactly this.
@@ -451,7 +462,7 @@ Google Cloud: Web OAuth client, redirect URI `${APP_URL}/api/auth/callback/googl
 3. Wire Drizzle + Neon client (`db/index.ts`); define `db/schema.ts`; generate & run the
    initial migration.
 4. Write `lib/validation.ts` (DTOs), then `submitRsvp` in `app/actions/submit-rsvp.ts`.
-5. Build the RSVP form (`components/letter/rsvp-form.tsx`) and the landing `app/page.tsx`;
+5. Build the RSVP form (`components/letter/rsvp-form.tsx`) and the guest letter route `app/rsvp/page.tsx`;
    connect form → action. **Done** — `submitRsvp` looks up the invitee by `token`,
    rejects unknown/already-answered replies, bounds `adults + kids` to `maxGuests`,
    and writes `status`/`adults`/`kids`/`guestNote`/`dietary`/`dietaryOther`/`respondedAt`, plus optional
