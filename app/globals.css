@@ -438,14 +438,10 @@
     @apply text-foreground;
     background: #ffffff;
   }
-  /* Safari paints the document canvas behind its browser controls. The public
-     letter's fixed, optimized hero image covers that area; ink is its fallback
-     rather than the dashboard's white canvas. */
-  html:has(.letter-page) {
-    background: var(--ink);
-  }
+  /* Keep the iOS document canvas neutral when browser controls expose it.
+     Individual letter sections still paint their own full-bleed surfaces. */
   body:has(.letter-page) {
-    background: transparent;
+    background: #ffffff;
   }
   .dark body {
     background: linear-gradient(180deg, #241d28 0%, #1c161f 100%) fixed;
