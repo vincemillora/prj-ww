@@ -45,7 +45,7 @@ describe('OpeningBackdrop', () => {
   it('renders one sharp image and only applies the existing hero zoom', () => {
     const { container } = render(<OpeningBackdrop />);
 
-    const backgrounds = container.querySelectorAll('img[src*="footer-lace"]');
+    const backgrounds = container.querySelectorAll('img[src*="lace-bg"]');
     const hero = screen.getByTestId('hero-content');
     const backgroundLayer = container.querySelector('[aria-hidden="true"]');
     const backgroundViewport = container.querySelector(

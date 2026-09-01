@@ -36,7 +36,7 @@ describe('Rsvp', () => {
 
   it('layers the supplied floral image behind the RSVP content', () => {
     const { container } = render(<Rsvp searchParams={Promise.resolve({})} />);
-    const background = container.querySelector('img[src="/rsvp-background.png"]');
+    const background = container.querySelector('img[src="/rsvp-bg.png"]');
 
     expect(background).toHaveAttribute('alt', '');
     expect(background?.parentElement).toHaveAttribute('data-slot', 'rsvp-background');

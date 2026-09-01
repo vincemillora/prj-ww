@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { BEAT } from '@/components/letter/motion-tokens';
 import { COUPLE } from '@/lib/wedding';
-import footerLace from '@/public/footer-lace.png';
+import laceBackground from '@/public/lace-bg.png';
 
 /**
  * The letter's sign-off, over the lace drapery.
@@ -33,7 +33,7 @@ export function FooterLace() {
           fill
           priority={false}
           sizes="100vw"
-          src={footerLace}
+          src={laceBackground}
         />
       </div>
       <InViewReveal className="relative z-10">

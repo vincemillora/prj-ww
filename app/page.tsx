@@ -1,6 +1,6 @@
 import type { Viewport } from 'next';
 import Image from 'next/image';
-import heroBackground from '@/public/footer-lace.png';
+import heroBackground from '@/public/lace-bg.png';
 import envelopeBack from '@/public/index-invitation/back.png';
 import envelopeFront from '@/public/index-invitation/front.png';
 import laceCollar from '@/public/index-invitation/lace.png';

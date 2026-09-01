@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'motion/react';
-import footerLace from '@/public/footer-lace.png';
+import laceBackground from '@/public/lace-bg.png';
 import { Hero } from '@/components/letter/hero';
 
 /**
@@ -46,7 +46,7 @@ export function OpeningBackdrop() {
           <motion.div className="absolute inset-0" style={{ scale }}>
             <Image
               data-slot="hero-background-sharp"
-              src={footerLace}
+              src={laceBackground}
               alt=""
               fill
               preload

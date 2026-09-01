@@ -70,7 +70,7 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
         className="absolute inset-0 z-0"
       >
         <Image
-          src="/rsvp-background.png"
+          src="/rsvp-bg.png"
           alt=""
           fill
           sizes="100vw"
