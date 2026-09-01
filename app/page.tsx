@@ -1,44 +1,77 @@
 import type { Viewport } from 'next';
-import { WeddingLetter } from '@/components/letter/wedding-letter';
-import { MotionProvider } from '@/components/letter/motion-provider';
-import { VinylPlayer } from '@/components/letter/vinyl-player';
+import Image from 'next/image';
+import heroBackground from '@/public/footer-lace.png';
+import envelopeBack from '@/public/index-invitation/back.png';
+import envelopeFront from '@/public/index-invitation/front.png';
+import laceCollar from '@/public/index-invitation/lace.png';
 
-// Let the public hero artwork paint through iPhone's browser and device insets.
-// Interactive content remains sized to the visible dynamic viewport.
 export const viewport: Viewport = {
-  viewportFit: 'cover',
   themeColor: '#2c2a1b',
+  viewportFit: 'cover',
 };
 
-/**
- * Landing page — the wedding site contents, rendered directly.
- *
- * The `searchParams` promise (carrying the `?id=<token>` invite link) is
- * forwarded, unawaited, into the closing RSVP section, which awaits it under
- * its own <Suspense>. The page itself reads nothing request-time, so the shell
- * stays statically prerendered (Cache Components / PPR) and only the RSVP body
- * streams in. See docs/rsvp-spec.md.
- *
- * The envelope intro is retired: components/letter/envelope-reveal.tsx is
- * kept for reuse but no longer wraps the content.
- */
-export default function Home({
+/** A quiet invitation entry point that carries an invite code into the RSVP. */
+export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const { id } = await searchParams;
+  const inviteCode = Array.isArray(id) ? id[0] : id;
+  const rsvpHref = inviteCode ? `/rsvp?id=${encodeURIComponent(inviteCode)}` : '/rsvp';
+
   return (
-    <MotionProvider>
-      <main className="letter-page">
-        <WeddingLetter searchParams={searchParams} />
-        {/* Floating music player: fixed to the viewport's bottom-right so it
-            follows the scroll across every section. Above page content (z-50),
-            clear of the safe-area inset on notched phones. */}
-        <VinylPlayer
-          className="!fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-50"
-          size="min(18vw, 4.5rem)"
-        />
-      </main>
-    </MotionProvider>
+    <main className="relative h-lvh overflow-hidden bg-ink">
+      <Image
+        src={heroBackground}
+        alt=""
+        fill
+        preload
+        placeholder="blur"
+        sizes="100vw"
+        className="object-cover object-center"
+      />
+      <div aria-hidden className="absolute inset-0 bg-black/30" />
+
+      <div className="relative flex h-dvh flex-col items-center justify-center px-gutter text-center">
+        <div className="text-paper">
+          <p className="font-sans text-label uppercase tracking-[0.08em]">you have received a letter from</p>
+          <p className="font-script text-title">Vince and Kc</p>
+        </div>
+        <a
+          href={rsvpHref}
+          aria-label="Open RSVP invitation"
+          className="relative block w-[min(96vw,34rem)] aspect-[468/326] outline-none transition-transform duration-1000 ease-out hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-paper focus-visible:ring-offset-4 focus-visible:ring-offset-ink"
+        >
+          {/* All three source layers scale from this fixed Canva frame. Keep the
+              lace's width and offset percentage-based; breakpoint overrides
+              would break its approved alignment with the front flap. */}
+          <Image src={envelopeBack} alt="" fill className="object-contain" />
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <Image
+              src={laceCollar}
+              alt=""
+              className="absolute -left-[8.5%] -top-[74%] h-auto w-[118%] max-w-none"
+            />
+          </div>
+          <Image
+            src={envelopeFront}
+            alt=""
+            fill
+            className="pointer-events-none object-contain"
+          />
+          <div className="pointer-events-none absolute inset-x-0 top-[15%] z-10 mx-auto aspect-square w-[35%]">
+            <Image
+              src="/couple-logo-rustic.svg"
+              alt=""
+              fill
+              sizes="(max-width: 45rem) 28vw, 12.5rem"
+              className="object-contain"
+            />
+          </div>
+        </a>
+        <p className="mt-6 font-sans text-label text-paper">Tap the envelope to open the letter</p>
+      </div>
+    </main>
   );
 }
