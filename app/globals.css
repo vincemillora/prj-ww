@@ -438,10 +438,17 @@
     @apply text-foreground;
     background: #ffffff;
   }
-  /* Keep the iOS document canvas neutral when browser controls expose it.
-     Individual letter sections still paint their own full-bleed surfaces. */
+  /* Safari may expose the document canvas around its browser controls. Keep
+     the approved ink fallback while the public routes' own artwork paints the
+     full large viewport. The body stays transparent so it cannot insert an
+     opaque strip between that artwork and Safari's bottom controls. */
+  html:has(.invitation-page),
+  html:has(.letter-page) {
+    background: var(--ink);
+  }
+  body:has(.invitation-page),
   body:has(.letter-page) {
-    background: #ffffff;
+    background: transparent;
   }
   .dark body {
     background: linear-gradient(180deg, #241d28 0%, #1c161f 100%) fixed;

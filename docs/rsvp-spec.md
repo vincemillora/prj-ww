@@ -21,6 +21,9 @@
   `?id=<token>` code as `/rsvp?id=<token>`.
 - `/rsvp` renders the guest-facing wedding letter and RSVP form.
 - `/dashboard` and all dashboard routes are unchanged.
+- Both public routes keep `viewport-fit=cover` but deliberately omit `theme-color`, allowing
+  Safari's bottom browser controls to reveal the full-bleed page artwork instead of an opaque
+  forced tint. The document canvas remains ink as a fallback.
 
 An **invite-only** wedding RSVP website. The couple pre-registers each invitee (a party/household)
 in a Google-authenticated admin dashboard (`/dashboard`), which mints a per-person link
