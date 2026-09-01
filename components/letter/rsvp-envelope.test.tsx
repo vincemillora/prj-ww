@@ -25,14 +25,18 @@ describe('RsvpEnvelope', () => {
     const stickyEnvelope = container.querySelector('[data-slot="rsvp-envelope-sticky"]');
 
     expect(container.firstElementChild).toHaveClass(
-      'grid-rows-[auto_30svh]',
+      'grid-rows-[auto_var(--runway)]',
       'mt-[calc(var(--spacing-heading)+6rem)]',
     );
     expect(card.parentElement).toHaveClass('relative', 'z-20');
     expect(card.parentElement).not.toHaveAttribute('style');
+    // The pin offset decides when the glide starts: the layers hold the moment
+    // the envelope's top edge reaches it, so a bigger offset starts the card
+    // moving earlier. What caps it is the far end — the card's tucked edge has
+    // to stay above the fold — hence the arithmetic rather than a flat `top-6`.
     expect(stickyEnvelope).toHaveClass(
       'sticky',
-      'top-6',
+      'top-[var(--pin-top)]',
       'bottom-0',
       'pointer-events-none',
     );
