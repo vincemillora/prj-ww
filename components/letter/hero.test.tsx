@@ -45,10 +45,15 @@ describe('Hero', () => {
     expect(container.querySelector('header')).toHaveClass('sticky', 'top-0', 'h-dvh');
   });
 
-  it('announces the marriage and enlarges the lace on desktop only', () => {
+  it('places the footer monogram inside the lace and enlarges the lace on desktop only', () => {
     const { container } = render(<Hero />);
 
     expect(screen.getByText("We're getting married!")).toBeInTheDocument();
+    expect(container.querySelector('img[src="/couple-logo-white.svg"]')).toHaveClass(
+      'w-[60%]',
+      'left-1/2',
+      '-translate-x-1/2',
+    );
     expect(container.querySelector('[class*="aspect-square"]')).toHaveClass(
       'lg:w-[min(92vw,42rem,60svh)]',
     );

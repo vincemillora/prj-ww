@@ -3,9 +3,6 @@
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import lacePng from '@/public/lace.png';
-import { COUPLE_NAMES } from '@/lib/wedding';
-
-const [NAME_A, NAME_B] = COUPLE_NAMES;
 
 /**
  * Hero type — the names and lace frame. It paints NO background of its
@@ -41,9 +38,8 @@ export function Hero() {
           {/* The lace frame is centred in the full hero viewport. Its `svh` cap
               keeps the ornament clear of mobile browser chrome on short screens. */}
           <motion.div className="flex min-h-0 flex-1 flex-col items-center justify-center pb-8">
-          {/* Names sit inside a square floral lace frame (public/lace.png):
-              a frosted-glass window shows through the lace's open center,
-              with the couple's names stacked to fit the square. */}
+          {/* The footer monogram sits inside the square floral lace frame
+              (public/lace.png), over its frosted-glass window. */}
           <motion.div
             variants={heroItem}
             transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -74,20 +70,14 @@ export function Hero() {
                 className="object-contain"
               />
             </div>
-            {/* Names centered in the window, stacked to fit the square. */}
-            {/* `font-weight-bold` used to sit in this list. It is not a Tailwind
-                class, emitted no rule, and the names have always rendered at
-                Parisienne's own 400 — which is the approved look. Removed rather
-                than corrected to `font-bold`: faux-bolding a fine script face
-                thickens the strokes into mud. */}
-            <h1 className="absolute inset-[22%] flex flex-col items-center justify-center gap-0.5 font-script leading-none text-paper drop-shadow-[0_2px_14px_color-mix(in_srgb,var(--ink)_75%,transparent)]">
-              {/* Sized against the lace window rather than the type scale:
-                  the names have to fit the frame they sit in, so they track
-                  the frame's own breakpoint, not the document's. */}
-              <span className="text-7xl md:text-[5.625rem]">{NAME_A}</span>
-              <span className="text-3xl opacity-75 md:text-[2.25rem]">&amp;</span>
-              <span className="text-7xl md:text-[5.625rem]">{NAME_B}</span>
-            </h1>
+            <Image
+              alt=""
+              className="absolute top-1/2 left-1/2 h-auto w-[60%] -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_2px_14px_color-mix(in_srgb,var(--ink)_75%,transparent)]"
+              height={2000}
+              sizes="(max-width: 768px) 55vw, 325px"
+              src="/couple-logo-white.svg"
+              width={2000}
+            />
             </motion.div>
           </motion.div>
           {/* The announcement line, in the same script hand as the names.
