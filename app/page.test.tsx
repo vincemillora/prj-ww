@@ -9,15 +9,36 @@ vi.mock('next/image', () => ({
     return <img alt={alt} {...props} />;
   },
 }));
+vi.mock('@/components/letter/wedding-letter', () => ({
+  WeddingLetter: () => null,
+}));
+vi.mock('@/components/letter/motion-provider', () => ({
+  MotionProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+vi.mock('@/components/letter/vinyl-player', () => ({
+  VinylPlayer: () => null,
+}));
 
 import Home, { viewport } from '@/app/page';
+import { viewport as rsvpViewport } from '@/app/rsvp/page';
 
 describe('Home', () => {
-  it('extends the invitation hero through iOS device insets', () => {
-    expect(viewport).toMatchObject({
-      themeColor: '#2c2a1b',
+  it('extends the invitation hero without forcing opaque Safari chrome', () => {
+    expect(viewport).toEqual({
       viewportFit: 'cover',
     });
+  });
+
+  it('keeps the RSVP letter edge-to-edge without forcing opaque Safari chrome', () => {
+    expect(rsvpViewport).toEqual({
+      viewportFit: 'cover',
+    });
+  });
+
+  it('keeps the dark document canvas as the full-bleed artwork fallback', async () => {
+    const { container } = render(await Home({ searchParams: Promise.resolve({}) }));
+
+    expect(container.querySelector('main')).toHaveClass('invitation-page', 'bg-ink');
   });
 
   it('introduces the senders above the envelope', async () => {

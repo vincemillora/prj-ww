@@ -7,7 +7,6 @@ import { VinylPlayer } from '@/components/letter/vinyl-player';
 // Interactive content remains sized to the visible dynamic viewport.
 export const viewport: Viewport = {
   viewportFit: 'cover',
-  themeColor: '#2c2a1b',
 };
 
 /**

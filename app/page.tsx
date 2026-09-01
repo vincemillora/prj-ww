@@ -6,7 +6,6 @@ import envelopeFront from '@/public/index-invitation/front.png';
 import laceCollar from '@/public/index-invitation/lace.png';
 
 export const viewport: Viewport = {
-  themeColor: '#2c2a1b',
   viewportFit: 'cover',
 };
 
@@ -21,7 +20,7 @@ export default async function Home({
   const rsvpHref = inviteCode ? `/rsvp?id=${encodeURIComponent(inviteCode)}` : '/rsvp';
 
   return (
-    <main className="relative h-lvh overflow-hidden bg-ink">
+    <main className="invitation-page relative h-lvh overflow-hidden bg-ink">
       <Image
         src={heroBackground}
         alt=""
