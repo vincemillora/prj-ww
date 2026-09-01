@@ -53,8 +53,12 @@ export function SubmitArea({
 
   return (
     // No rule above the action: the button is the end of the page, not
-    // another section of it. Spacing alone carries the separation.
-    <div className="mt-8 flex flex-col gap-4">
+    // another section of it. Spacing alone carries the separation — so it has to
+    // be the FULL 56px a ruled section boundary spans (`mt-7 pt-7`), not the
+    // 32px this used to carry. At 32px the one thing the form exists for sat
+    // closer to the note field than any two sections sat to each other, with
+    // no rule to explain why.
+    <div className="mt-14 flex flex-col gap-4">
       <AnimatePresence initial={false}>
         {error && (
           <motion.div key="error" {...collapse}>
