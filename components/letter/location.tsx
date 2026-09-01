@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Image from 'next/image';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import {
   animate,
@@ -41,32 +40,25 @@ const VENUE = {
 };
 
 /**
- * The photos stacked behind the venue card. Stand-ins for now: seeded
- * picsum shots (same approach as `our-story.tsx` / `prenup.tsx`, so each slot
- * keeps its image between loads). Swap for real files under `/public/venue/`
- * when we have them. The narrow remote pattern in `next.config.ts` allows
- * these seeded placeholders through the Next.js image optimizer meanwhile.
+ * Temporary photo slots stacked behind the venue card. Add real local files
+ * under `/public/venue/` when they are ready.
  */
 const PHOTOS = [
   {
     id: 'shoreline',
     caption: 'the shoreline',
-    image: 'https://picsum.photos/seed/ww-venue-shore/900/1200',
   },
   {
     id: 'pavilion',
     caption: 'the pavilion',
-    image: 'https://picsum.photos/seed/ww-venue-pavilion/900/1200',
   },
   {
     id: 'lawn',
     caption: 'reception lawn',
-    image: 'https://picsum.photos/seed/ww-venue-lawn/900/1200',
   },
   {
     id: 'sunset',
     caption: 'sunset over the bay',
-    image: 'https://picsum.photos/seed/ww-venue-sunset/900/1200',
   },
 ];
 
@@ -267,14 +259,11 @@ export function Location() {
                       'relative size-full overflow-hidden bg-ink select-none',
                     )}
                   >
-                    <Image
-                      src={photo.image}
-                      alt={`${VENUE.name} — ${photo.caption}`}
-                      fill
-                      sizes="(max-width: 768px) 92vw, 48rem"
-                      className="object-cover"
-                      draggable={false}
-                    />
+                    <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--paper),var(--paper)_1px,transparent_1px,transparent_10px)]">
+                      <span className="font-mono text-micro uppercase tracking-[0.14em] text-paper">
+                        photo · {photo.caption}
+                      </span>
+                    </div>
                   </div>
                 </StackCard>
               ))}

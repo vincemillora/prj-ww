@@ -9,7 +9,7 @@ Add the supplied ribbon and locket artwork to the guest letter's countdown band,
 - Place a decorative, non-interactive locket group above the existing `counting down to the day` line.
 - Center the group so the ribbon leads the eye down into the open locket; keep the existing countdown copy and calendar action unchanged.
 - Render the supplied ribbon asset behind the locket and the supplied locket asset as the visible frame.
-- Fill the locket's two photo windows with stable seeded `picsum.photos` images, matching the temporary-image approach used by the prenup gallery.
+- Keep the locket's two temporary photo windows visible, matching the placeholder approach used by the prenup gallery.
 - Treat all three visuals as decorative (`alt=""`, `aria-hidden`) because the countdown's text remains the meaning-bearing content.
 
 ## Responsive and Motion Behavior

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef } from 'react';
-import Image from 'next/image';
 import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 
 /**
@@ -34,20 +33,19 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
  * prefers-reduced-motion: renders a static open state (flap up, a few photos out).
  */
 
-type Card = { image: string; alt: string };
+type Card = { alt: string };
 
-// Eight photos drawn out in order. Placeholders are seeded picsum stand-ins
-// (same convention as our-story.tsx / prenup.tsx) — swap `image` for files under
-// /public/keepsake/ when we have them.
+// Eight temporary photo slots drawn out in order. Add local files under
+// /public/keepsake/ when the final photographs are ready.
 const CARDS: Card[] = [
-  { image: 'https://picsum.photos/seed/ww-keep-1/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-2/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-3/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-4/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-5/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-6/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-7/640/480', alt: 'a kept moment' },
-  { image: 'https://picsum.photos/seed/ww-keep-8/640/480', alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
+  { alt: 'a kept moment' },
 ];
 
 // Corner radius shared by the envelope and the photo cards ("same roundedness
@@ -147,13 +145,11 @@ export function EnvelopeGallery() {
                 style={{ borderRadius: 'var(--env-r)' }}
               >
                 <div className="relative aspect-[4/3] bg-ink">
-                  <Image
-                    src={card.image}
-                    alt={card.alt}
-                    fill
-                    sizes="(max-width: 640px) 92vw, 38rem"
-                    className="size-full object-cover"
-                  />
+                  <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--paper),var(--paper)_1px,transparent_1px,transparent_10px)]">
+                    <span className="font-mono text-micro uppercase tracking-[0.14em] text-paper">
+                      photo · {card.alt}
+                    </span>
+                  </div>
                 </div>
               </figure>
             ))}

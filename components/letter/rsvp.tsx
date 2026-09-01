@@ -7,6 +7,7 @@ import { RsvpReply } from "@/components/letter/rsvp-reply";
 import { SectionHeading } from "@/components/letter/section-heading";
 import { Dome } from "@/components/letter/dome";
 import { RsvpEnvelope } from "@/components/letter/rsvp-envelope";
+import { BanquetTableScene } from "@/components/letter/banquet-table-scene";
 import {
   Card,
   CardContent,
@@ -43,6 +44,16 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  * already ~95px deep, so the shoulders, not the crown, are what decide how far
  * this can safely rise.
  *
+ * `overflow-x-clip` is load-bearing, and is specifically NOT `overflow-hidden`.
+ * The envelope canvas is 120.2px wider than this container by design, so on a
+ * phone it runs ~40px past each edge and the lace layer another ~31px past the
+ * right. That widens the layout viewport, which `body`'s own `overflow-x-hidden`
+ * cannot undo: it leaves a blank strip down the right, and re-anchors every
+ * `position: fixed` control to the wider viewport (the audio button sat ~51px
+ * off-screen). `clip` cures both WITHOUT establishing a scroll container, so the
+ * envelope's sticky layers still pin against the viewport — `hidden` would make
+ * this section their scrollport and break the glide.
+ *
  * Token-driven per docs/rsvp-spec.md: the personal invite link is `?id=<token>`.
  * The card shows one of three states — the form (pending reply), a thank-you
  * (already answered), or a note to open the personal link (no / unknown token).
@@ -52,7 +63,7 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  */
 export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <section className="relative z-10 -mt-section overflow-hidden bg-ink px-gutter pt-dome pb-section">
+    <section className="relative z-10 -mt-section overflow-x-clip bg-ink px-gutter pt-dome pb-section">
       <div
         aria-hidden
         data-slot="rsvp-background"
@@ -86,6 +97,10 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
             <Suspense fallback={<RsvpBodyFallback />}>
               <RsvpBody searchParams={searchParams} />
             </Suspense>
+            {/* Closes every state of the card, so it is here rather than inside
+                RsvpBody: the reply form, the thank-you and the "open your
+                personal link" note all end on the same table. */}
+            <BanquetTableScene />
           </Card>
         </RsvpEnvelope>
 

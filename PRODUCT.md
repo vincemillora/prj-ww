@@ -110,7 +110,7 @@ imported hi-fi Claude Design files and are settled.
        (`components/letter/rsvp-form.tsx`, `components/letter/rsvp-reply.tsx`) — not to rules
        anywhere else in the letter, which stay full espresso on linen. Required marks and error
        states use espresso too, with `required` attributes and textual alerts carrying the meaning.
-  - **Exempt:** photographs (`/hero-lily.jpg`, `/beach-location.jpg`, the picsum stand-ins) and
+  - **Exempt:** photographs (`/hero-lily.jpg`, `/beach-location.jpg`) and
     `public/attire-guide.png`, which is a multi-colour palette illustration and is the content.
     Everything else drawn in CSS or SVG obeys these colours plus the granted opacity exception above.
 - **The dashboard keeps "wisteria & fig."** The `:root` token set in `app/globals.css` is

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 /* eslint-disable @next/next/no-img-element -- the mock exposes Image output for assertions. */
@@ -43,5 +43,14 @@ describe('Hero', () => {
 
     expect(container.firstElementChild).toHaveClass('h-[150svh]');
     expect(container.querySelector('header')).toHaveClass('sticky', 'top-0', 'h-dvh');
+  });
+
+  it('announces the marriage and enlarges the lace on desktop only', () => {
+    const { container } = render(<Hero />);
+
+    expect(screen.getByText("We're getting married!")).toBeInTheDocument();
+    expect(container.querySelector('[class*="aspect-square"]')).toHaveClass(
+      'lg:w-[min(92vw,42rem,60svh)]',
+    );
   });
 });

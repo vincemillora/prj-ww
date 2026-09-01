@@ -53,7 +53,7 @@ export function Hero() {
             // moment the reveal runs. Passed as a motion value, the rotation
             // composes with the reveal's translateY instead of losing to it.
             style={{ rotate: -6 }}
-            className="relative aspect-square w-[min(92vw,30rem,54svh)] md:w-[min(92vw,39rem,54svh)]"
+            className="relative aspect-square w-[min(92vw,30rem,54svh)] md:w-[min(92vw,39rem,54svh)] lg:w-[min(92vw,42rem,60svh)]"
           >
             {/* Frosted glass filling the lace's open window. */}
             <div
@@ -105,7 +105,7 @@ export function Hero() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="pb-[calc(env(safe-area-inset-bottom)+2.5rem)] font-script text-heading text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]"
           >
-            are getting married
+            We&apos;re getting married!
           </motion.p>
           {/* <Countdown
             align="center"

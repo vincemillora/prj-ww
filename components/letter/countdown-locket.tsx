@@ -1,10 +1,5 @@
 import Image from "next/image";
 
-const photos = [
-  "https://picsum.photos/seed/ww-locket-left/360/420",
-  "https://picsum.photos/seed/ww-locket-right/360/420",
-];
-
 const LOCKET_SIZES =
   "(max-width: 608px) 19rem, (max-width: 896px) 50vw, 28rem";
 
@@ -35,15 +30,23 @@ export function CountdownLocket(): React.JSX.Element {
         }}
         viewBox="0 0 800 600"
       >
-        {photos.map((href, index) => (
-          <image
-            data-testid="countdown-locket-photo"
+        <pattern
+          id="countdown-locket-photo-placeholder"
+          width="12"
+          height="12"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <path d="M0 0V12" stroke="var(--ink)" strokeOpacity="0.24" />
+        </pattern>
+        {[65, 435].map((x) => (
+          <rect
+            data-testid="countdown-locket-photo-placeholder"
+            fill="url(#countdown-locket-photo-placeholder)"
             height="300"
-            href={href}
-            key={href}
-            preserveAspectRatio="xMidYMid slice"
+            key={x}
             width="300"
-            x={index === 0 ? 65 : 435}
+            x={x}
             y="230"
           />
         ))}

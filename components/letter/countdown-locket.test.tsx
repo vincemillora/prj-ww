@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { CountdownLocket } from "@/components/letter/countdown-locket";
 
 describe("CountdownLocket", () => {
-  it("renders decorative ribbon, locket frame, and both seeded photo windows", () => {
+  it("renders decorative ribbon, locket frame, and both temporary photo windows", () => {
     render(<CountdownLocket />);
 
     const locket = screen.getByTestId("countdown-locket");
@@ -33,15 +33,7 @@ describe("CountdownLocket", () => {
       maskImage: "url(/locket/locket-window-mask.png)",
     });
 
-    const photos = screen.getAllByTestId("countdown-locket-photo");
-    expect(photos).toHaveLength(2);
-    expect(photos[0]).toHaveAttribute(
-      "href",
-      "https://picsum.photos/seed/ww-locket-left/360/420",
-    );
-    expect(photos[1]).toHaveAttribute(
-      "href",
-      "https://picsum.photos/seed/ww-locket-right/360/420",
-    );
+    expect(screen.getAllByTestId("countdown-locket-photo-placeholder")).toHaveLength(2);
+    expect(screen.queryByTestId("countdown-locket-photo")).not.toBeInTheDocument();
   });
 });

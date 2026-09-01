@@ -19,19 +19,18 @@ import { PrenupScrollGallery, type Shot } from '@/components/letter/prenup-galle
  * gallery lives in `prenup-gallery.tsx` (client); a tap morphs the photo into a
  * centered lightbox via motion's shared `layoutId`.
  *
- * Photos are placeholders: seeded picsum stand-ins (same approach as
- * `our-story.tsx`) so each image keeps its identity between loads. Drop real
- * files in `/public/prenup/`, point `image` at them, and set `w`/`h` to the
- * file's real pixel size so the strip can preserve its proportions.
+ * Photo spaces stay visible while the final images are pending. Drop real files
+ * in `/public/prenup/`, point `image` at them, and set `w`/`h` to the file's
+ * real pixel size so the strip can preserve its proportions.
  */
 
 const SHOTS: Shot[] = [
-  { alt: 'the first look', w: 900, h: 1100, image: 'https://picsum.photos/seed/ww-prenup-1/900/1100' },
-  { alt: 'rain again', w: 1400, h: 900, image: 'https://picsum.photos/seed/ww-prenup-2/1400/900' },
-  { alt: 'the long walk', w: 900, h: 1100, image: 'https://picsum.photos/seed/ww-prenup-3/900/1100' },
-  { alt: 'golden hour', w: 900, h: 1350, image: 'https://picsum.photos/seed/ww-prenup-4/900/1350' },
-  { alt: 'borrowed bicycle', w: 900, h: 1100, image: 'https://picsum.photos/seed/ww-prenup-5/900/1100' },
-  { alt: 'one more, promise', w: 1500, h: 1000, image: 'https://picsum.photos/seed/ww-prenup-6/1500/1000' },
+  { alt: 'the first look', w: 900, h: 1100 },
+  { alt: 'rain again', w: 1400, h: 900 },
+  { alt: 'the long walk', w: 900, h: 1100 },
+  { alt: 'golden hour', w: 900, h: 1350 },
+  { alt: 'borrowed bicycle', w: 900, h: 1100 },
+  { alt: 'one more, promise', w: 1500, h: 1000 },
 ];
 
 export function Prenup() {

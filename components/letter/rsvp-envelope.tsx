@@ -1,8 +1,5 @@
-"use client";
-
-import { useRef, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -15,13 +12,63 @@ const INSIDE_LAYER_SIZES =
 const INSIDE_CLIP_PATH =
   "polygon(50% 0, 44.1% 2.1%, 0 41.2%, 0 100%, 100% 100%, 100% 41.2%, 55.9% 2.1%)";
 const LACE_RAISE = "-translate-y-[16.83%]";
-const CARD_START_Y = 108;
-const CARD_REST_Y = 36;
+
+/**
+ * Every measurement the glide depends on, in one place and in terms of each
+ * other, because they are not independent: move one and the others follow.
+ *
+ * `--envelope-height` is the artwork's own ratio applied to the canvas width, so
+ * it tracks `aspect-[1446/1599]` on the paper boxes below — change one and
+ * change the other. It carries a container unit, so it is only ever consumed by
+ * a CHILD of the canvas: `cqw` read on the canvas itself would be a
+ * self-reference and silently fall back to the viewport.
+ *
+ * `--pin-top` is where the layers hold, and therefore WHEN the glide starts:
+ * they pin the moment the envelope's top edge reaches this line, so a larger
+ * offset starts the card moving earlier, with less of the envelope needing to
+ * arrive first. A flat `top-6` made the guest wait for the envelope to climb the
+ * full height of the screen before anything happened — worst on a phone, where
+ * the envelope is SHORTER than the viewport and so sat fully visible, doing
+ * nothing, for most of a screen.
+ *
+ * What caps it is the far end of the glide, not the near one. The card comes to
+ * rest with its bottom edge `--envelope-height` minus `--runway` below the pin,
+ * so lowering the pin pushes that edge toward the fold, and past a point the
+ * tuck happens off-screen. This is that point less a margin, i.e. the earliest
+ * pin at any size: the fold, plus the runway the rest position is measured back
+ * from, less the envelope's height, less 2.5rem under the card's tucked edge.
+ * `max()` keeps the pin sane on a short viewport, where that can go negative.
+ */
+const ENVELOPE_GEOMETRY = {
+  "--envelope-height": "calc(100cqw * 1599 / 1446)",
+  "--runway": "30svh",
+  "--pin-top":
+    "max(1.5rem, calc(100svh + var(--runway) - var(--envelope-height) - 2.5rem))",
+} as CSSProperties;
+
+/** The box both paper stacks live in — see `--envelope-height` on the ratio. */
+const PAPER_BOX = "relative aspect-[1446/1599] w-full";
+
+/**
+ * Shared by the back and front stacks. Spanning both rows is what lets the
+ * layers stay pinned across the runway; `self-start` keeps them at the top of
+ * that span so the pin has room to travel.
+ */
+const STICKY_LAYER =
+  "pointer-events-none sticky top-[var(--pin-top)] bottom-0 col-start-1 row-start-1 row-end-3 self-start";
 
 type PaperLayerProps = {
   className: string;
   src: string;
   children?: ReactNode;
+};
+
+type StickyPaperProps = {
+  children: ReactNode;
+  /** z-index utility; the card sits at z-20, between the two stacks. */
+  className: string;
+  paperSlot: string;
+  stickySlot: string;
 };
 
 type RsvpEnvelopeProps = {
@@ -42,87 +89,62 @@ function PaperLayer({ children, className, src }: PaperLayerProps) {
   );
 }
 
-/** Decorative envelope that tucks the RSVP card between its paper layers. */
-export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
-  const envelopeRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = !!useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: envelopeRef,
-    offset: ["start 82%", "start 37%"],
-  });
-  const cardY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [CARD_START_Y, CARD_REST_Y],
-  );
-
+function StickyPaper({
+  children,
+  className,
+  paperSlot,
+  stickySlot,
+}: StickyPaperProps) {
   return (
     <div
-      ref={envelopeRef}
-      data-slot="rsvp-envelope"
-      className="relative left-1/2 isolate mt-[calc(var(--spacing-heading)+3rem)] w-[calc(100%+120.2px)] -translate-x-1/2 sm:mt-[calc(var(--spacing-heading)+12.75rem)]"
+      aria-hidden
+      data-slot={stickySlot}
+      className={cn(STICKY_LAYER, className)}
     >
-      {/* The short no-token/answered cards are shallower than the envelope's
-          `-mt-[50%]` pull-up, so the paper rides up under the heading and the
-          lace apex lands on the kicker. Both breakpoints buy that clearance
-          back on top of `--spacing-heading`; taller form states simply use the
-          room. Measured against the kicker's own text box on the worst case
-          (the short card): the lace ink cleared it by only 9px on desktop and
-          was touching on narrow phones. Retune by measuring that gap, not the
-          layers' bounding boxes — the envelope PNGs carry a lot of
-          transparent padding, so their boxes sit far above their ink. */}
+      <div data-slot={paperSlot} className={PAPER_BOX}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Decorative RSVP envelope split into sticky back and front layers. The card
+ * sits in ordinary document flow between them, so scrolling carries it through
+ * the pocket without moving the card itself.
+ */
+export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
+  return (
+    <div
+      data-slot="rsvp-envelope"
+      style={ENVELOPE_GEOMETRY}
+      className="@container relative left-1/2 isolate mt-[calc(var(--spacing-heading)+6rem)] grid w-[calc(100%+120.2px)] grid-cols-1 grid-rows-[auto_var(--runway)] -translate-x-1/2"
+    >
       {/* The paper layers are 83.195% of this canvas. Adding 120.2px to the
           canvas adds exactly 100px to their visible width; subtracting that
-          same 100px here preserves the card's approved measure. */}
-      <motion.div
-        data-slot="rsvp-envelope-card"
-        className="relative z-20 mx-auto w-[calc(83.195%-100px)]"
-        style={{ y: reduceMotion ? CARD_REST_Y : cardY }}
+          same 100px off the card preserves its approved measure. `@container` is
+          what lets the layers read this canvas's width — see ENVELOPE_GEOMETRY. */}
+      <StickyPaper
+        stickySlot="rsvp-envelope-sticky"
+        paperSlot="rsvp-envelope-paper"
+        className="z-10"
       >
-        {children}
-      </motion.div>
+        <PaperLayer
+          src="/envelope/back.png"
+          className="z-10 origin-center rotate-[5deg]"
+        />
 
-      <div
-        aria-hidden
-        data-slot="rsvp-envelope-paper"
-        className="pointer-events-none relative -mt-[50%] aspect-[1446/1599] w-full"
-      >
-        <div className="absolute inset-0">
-          <PaperLayer
-            src="/envelope/back.png"
-            className="z-10 origin-center rotate-[5deg]"
+        <div
+          className="absolute left-1/2 top-[11.91%] z-10 h-[84.33%] w-[72.38%] origin-[50%_45.17%] -translate-x-1/2 -translate-y-[10px] rotate-[5deg] overflow-hidden"
+          style={{ clipPath: INSIDE_CLIP_PATH }}
+        >
+          <Image
+            src="/envelope/inside.png"
+            alt=""
+            fill
+            sizes={INSIDE_LAYER_SIZES}
+            className="scale-[1.02664] object-cover"
           />
-
-          <div
-            className="absolute left-1/2 top-[11.91%] z-10 h-[84.33%] w-[72.38%] origin-[50%_45.17%] -translate-x-1/2 -translate-y-[10px] rotate-[5deg] overflow-hidden"
-            style={{ clipPath: INSIDE_CLIP_PATH }}
-          >
-            <Image
-              src="/envelope/inside.png"
-              alt=""
-              fill
-              sizes={INSIDE_LAYER_SIZES}
-              className="scale-[1.02664] object-cover"
-            />
-          </div>
-
-          <PaperLayer
-            src="/envelope/front.png"
-            className="z-30 origin-center rotate-[5deg]"
-          >
-            <div
-              data-slot="rsvp-envelope-logo"
-              className="absolute inset-x-0 bottom-[4%] z-10 mx-auto aspect-square w-[30%]"
-            >
-              <Image
-                src="/couple-logo-rustic.svg"
-                alt=""
-                fill
-                sizes="(max-width: 45rem) 28vw, 12.5rem"
-                className="object-contain"
-              />
-            </div>
-          </PaperLayer>
         </div>
 
         <Image
@@ -135,7 +157,44 @@ export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
             LACE_RAISE,
           )}
         />
+      </StickyPaper>
+
+      {/* Where the card starts in the pocket. The flap only clears the card's
+          full width above 46.32% of the envelope — 51.2% of this canvas's width
+          — so a card starting at 55% opened with its first lines cut at both
+          sides before a guest had scrolled at all. 30% starts it well above that
+          line, reading as a card already lifting out of the pocket rather than a
+          buried one. */}
+      <div
+        data-slot="rsvp-envelope-card"
+        className="relative z-20 col-start-1 row-start-1 mx-auto mt-[30%] w-[calc(83.195%-100px)] self-start"
+      >
+        {children}
       </div>
+
+      <StickyPaper
+        stickySlot="rsvp-envelope-front-sticky"
+        paperSlot="rsvp-envelope-front-paper"
+        className="z-30"
+      >
+        <PaperLayer
+          src="/envelope/front.png"
+          className="z-30 origin-center rotate-[5deg]"
+        >
+          <div
+            data-slot="rsvp-envelope-logo"
+            className="absolute inset-x-0 bottom-[4%] z-10 mx-auto aspect-square w-[30%]"
+          >
+            <Image
+              src="/couple-logo-rustic.svg"
+              alt=""
+              fill
+              sizes="(max-width: 45rem) 28vw, 12.5rem"
+              className="object-contain"
+            />
+          </div>
+        </PaperLayer>
+      </StickyPaper>
     </div>
   );
 }
