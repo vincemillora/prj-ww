@@ -199,7 +199,7 @@ export function RsvpForm({
         >
           <input type="hidden" name="token" value={token} />
 
-          <Section title="Will you attend?" required>
+          <Section title="Will you attend?" required divider={false}>
             <div
               className="grid gap-2.5"
               aria-describedby={showsError("status") ? "status-error" : undefined}
@@ -252,7 +252,7 @@ export function RsvpForm({
                 <AnimatePresence initial={false}>
                   {dietaryOther && (
                     <Collapse key="dietary-other">
-                      <Field className="gap-2 pt-1">
+                      <Field className="gap-2">
                         <FieldLabel htmlFor="dietaryOther" className={fieldLabel}>
                           Please tell us
                         </FieldLabel>
@@ -279,12 +279,20 @@ export function RsvpForm({
                 </>
               ) : (
                 <Section title="Who is coming?" required>
-                  {/* The gap between the two counters stays wider than the gap
-                    inside each one — without that contrast the four round buttons
-                    read as one run of four rather than as two separate counts. The
-                    pair tightens on a phone because the buttons are 44px tap
-                    targets: at gap-6 the two counters overflowed their column. */}
-                  <div className="grid grid-cols-2 gap-3 sm:gap-6">
+                  {/* One counter per row on a phone, the two abreast from `sm`
+                      up. Side by side they need 268px of hard minimum — 44px a
+                      button, 32px a readout, plus the gaps between them — and
+                      Tailwind's `grid-cols-2` is `minmax(0, 1fr)`, so on a 320px
+                      screen the columns shrank UNDER their content rather than
+                      scrolling, and the card's `overflow-hidden` clipped the
+                      right-hand "+" clean off. Stacked, each counter gets the
+                      whole column at any width.
+
+                      From `sm` the gap BETWEEN the two counters stays wider than
+                      the gap inside each one — without that contrast the four
+                      round buttons read as one run of four rather than as two
+                      separate counts. */}
+                  <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                     <Stepper
                       label="Adults"
                       icon={UserRound}
