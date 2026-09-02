@@ -601,6 +601,58 @@
   body:has(.lace-page) {
     background: transparent;
   }
+  /* ---- Full-screen stage (`/` and `/login`) --------------------------------
+
+     Measured on iPhone 17 Pro / iOS 26.5: screen 874pt, layout viewport 714pt,
+     `env(safe-area-inset-top/bottom)` BOTH `0`. Safari keeps 160pt of screen
+     out of the layout viewport, so no element can be laid out there — but it
+     still composites document pixels into it. Left unpainted, what shows is
+     the document canvas (proven by forcing the canvas magenta: the strips went
+     magenta with it), which reads as a band above and below the artwork.
+
+     So the stage is sized PAST the viewport and the padding puts the centred
+     content back inside it. `viewport-fit=cover` is already set on these routes
+     and does not reclaim the region; nor does an image on the canvas, whose
+     background positioning area is the viewport, so it stops at 714pt.
+
+     This clears the BOTTOM strip. The top ~62pt is Safari's own opaque status
+     bar: doubling the bleed to 400px moved it zero pixels. Nothing here
+     reaches that one.
+
+     Only for pages whose content is a single centred screen. The stage cannot
+     scroll, so anything taller than the viewport would be unreachable. */
+  :root {
+    --viewport-bleed: 200px;
+  }
+  .viewport-bleed-stage {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: calc(-1 * var(--viewport-bleed));
+    height: calc(100dvh + 2 * var(--viewport-bleed));
+    padding-block: var(--viewport-bleed);
+  }
+  /* `clip`, not `hidden`: `hidden` makes the root a scroll container, which
+     clamps the stage back to the layout viewport and brings both bands back.
+     `clip` suppresses the scrollable overflow the bleed adds without that.
+
+     The `.letter-page` rule is NOT redundant — do not "simplify" it away.
+     Tapping the envelope is a client transition with no document load, and
+     iOS Safari left the root scroller locked when the clip rule merely stopped
+     matching: /rsvp would not scroll. Asserting the opposite value from a rule
+     that actively matches is what makes it recompute.
+
+     It has to name the destination. `html:not(:has(.viewport-bleed-stage))`
+     reads as the tidier way to write this and was tried — measured on device,
+     it does NOT trigger the recompute and /rsvp stays locked. The admin routes
+     need no counterpart: /login leaves for Google OAuth and comes back to
+     /dashboard through full document loads. */
+  html:has(.viewport-bleed-stage) {
+    overflow: clip;
+  }
+  html:has(.letter-page) {
+    overflow: visible;
+  }
   .dark body {
     background: linear-gradient(180deg, #241d28 0%, #1c161f 100%) fixed;
   }

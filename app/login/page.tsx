@@ -84,7 +84,12 @@ export default async function LoginPage({
     // ink behind Safari's chrome and let the body go transparent, exactly as
     // `.invitation-page` and `.letter-page` do. `admin-surface` themes
     // selection, caret and scrollbar from the same ink.
-    <main className="lace-page admin-surface relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink p-6">
+    //
+    // `viewport-bleed-stage` sizes the page past the layout viewport so the
+    // drapery covers the strip iOS Safari keeps outside it, and owns the height
+    // (so no `min-h-dvh` here). The stage cannot scroll — fine for one centred
+    // card, but anything taller than the viewport would be unreachable.
+    <main className="lace-page viewport-bleed-stage admin-surface relative flex items-center justify-center overflow-hidden bg-ink p-6">
       <LaceBackdrop />
 
       <div className="relative flex w-full max-w-sm flex-col items-center gap-6">
