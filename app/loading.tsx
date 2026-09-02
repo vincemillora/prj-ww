@@ -1,28 +1,18 @@
-import { COUPLE_NAMES } from '@/lib/wedding';
-
-const [NAME_A, NAME_B] = COUPLE_NAMES;
+import { LetterLoadingScreen } from '@/components/letter/loading-screen';
 
 /**
- * Home loading screen — a quiet preview of the hero: the couple's names in
- * the script face over white paper, breathing softly while a thin ink rule
- * draws itself underneath (keyframes in app/globals.css). CSS-only so it
- * costs nothing to ship and shows instantly.
+ * Home loading screen. It shares the invitation's backdrop rather than the
+ * white paper it used to paint: the entry page is dark artwork, so a white
+ * fallback flashed the wrong colour across the whole viewport before the
+ * envelope arrived. Every other route carries its own loading.tsx, so this one
+ * only ever stands in for `/`.
+ *
+ * "Getting" here, "Opening" on `/rsvp`: this screen precedes the envelope, so
+ * nothing has been opened yet — the letter is still on its way.
+ *
+ * No `viewport` export: Next reads that only from `layout` and `page`, and
+ * `app/page.tsx` already declares the full-bleed viewport this renders into.
  */
 export default function HomeLoading() {
-  return (
-    <main className="letter-theme flex min-h-dvh flex-col items-center justify-center bg-white px-6 text-center text-ink">
-      <h1 className="letter-loading-names flex flex-col items-center gap-1 font-script leading-none">
-        <span className="text-5xl sm:text-6xl">{NAME_A}</span>
-        <span className="text-xl opacity-70 sm:text-2xl">&amp;</span>
-        <span className="text-5xl sm:text-6xl">{NAME_B}</span>
-      </h1>
-      <div
-        aria-hidden
-        className="letter-loading-line mt-8 h-px w-40 bg-[color:var(--ink)]"
-      />
-      <p className="mt-6 font-sans text-xs uppercase tracking-[0.35em]">
-        Opening your invitation
-      </p>
-    </main>
-  );
+  return <LetterLoadingScreen caption="Getting your letter" />;
 }

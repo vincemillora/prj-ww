@@ -70,10 +70,15 @@ export function Hero() {
                 className="object-contain"
               />
             </div>
+            {/* Eager, like the lace frame around it: this is the first thing
+                the guest sees on arriving from the invitation, so it must not
+                wait for the lazy-loading pass. Everything below the hero keeps
+                the default lazy behaviour. */}
             <Image
               alt=""
               className="absolute top-1/2 left-1/2 h-auto w-[60%] -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_2px_14px_color-mix(in_srgb,var(--ink)_75%,transparent)]"
               height={2000}
+              loading="eager"
               sizes="(max-width: 768px) 55vw, 325px"
               src="/couple-logo-white.svg"
               width={2000}

@@ -857,16 +857,151 @@
   outline-color: var(--paper);
 }
 
-/* Home loading screen (app/loading.tsx): the couple's names breathe while a
-   thin ink rule draws itself underneath — same two-colour letter system. */
-.letter-loading-names {
-  animation: letter-loading-breathe 2.6s ease-in-out infinite;
+/* The loading screen's progress indicator (components/letter/loading-screen.tsx).
+
+   A hairline track with a light travelling along it, in place of the rule that
+   used to breathe under the names. The old rule scaled itself in and out on the
+   same 2.6s cycle as the names, which read as decoration rather than as work in
+   progress — a guest could not tell the screen from a static title card. A
+   sweep only ever moves one way, so it reads as something running.
+
+   Indeterminate by design: there is nothing to measure here (a prefetched RSC
+   payload, then hydration), and a fake percentage would be a lie. Only the
+   track animates — the names and the monogram hold still, so the screen has one
+   moving part rather than three competing rhythms.
+
+   2px, not a hairline: at 1px the travelling light sat too close to the track's
+   own value to read as movement against the drapery photograph behind it. */
+.letter-loading-track {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--paper) 18%, transparent);
 }
-.letter-loading-line {
-  transform-origin: center;
-  animation: letter-loading-line 2.6s ease-in-out infinite;
+.letter-loading-sweep {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--paper) 42%,
+    var(--paper) 58%,
+    transparent 100%
+  );
+  /* Carries the light clear of the drapery, which is bright enough in places to
+     swallow a flat white segment. */
+  box-shadow: 0 0 8px color-mix(in srgb, var(--paper) 55%, transparent);
+  /* The segment is two fifths of the track, so -100% starts it fully off the
+     left edge and 250% carries it fully past the right. */
+  animation: letter-loading-sweep 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
-@keyframes letter-loading-breathe {
+@keyframes letter-loading-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* Reduced motion: hold the light in the middle of the track rather than hiding
+   it. The caption still says what is happening, and a bar that vanishes for
+   these guests would leave them with a screen that looks finished. */
+@media (prefers-reduced-motion: reduce) {
+  .letter-loading-sweep {
+    animation: none;
+    transform: translateX(75%);
+  }
+}
+
+/* A soft pool of ink centred behind the loading screen's monogram, so the thin
+   white line art separates from the drapery without flattening it.
+
+   Kept deliberately light. It stacks ON TOP of the same black/30 scrim the hero
+   uses, and that backdrop's median luminance is only 0.121 to begin with (see
+   the measured table in components/letter/opening-backdrop.tsx) — at a 60%
+   pool the combined ~73% darkening crushed the drapery to flat ink. 28% lands
+   at ~50% total in the centre and leaves the edges on the scrim alone. */
+.letter-loading-vignette {
+  background: radial-gradient(
+    farthest-side at 50% 45%,
+    color-mix(in srgb, var(--ink) 28%, transparent) 0%,
+    color-mix(in srgb, var(--ink) 12%, transparent) 45%,
+    transparent 78%
+  );
+}
+
+/* The monogram on the loading screen. It settles in rather than pulsing:
+   the hero it hands off to shows the same mark, so anything rhythmic here would
+   have to stop abruptly the moment the letter arrives. */
+.letter-loading-mark {
+  animation: letter-loading-mark-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes letter-loading-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .letter-loading-mark {
+    animation: none;
+  }
+}
+
+/* Invitation to letter handoff (components/invitation/envelope-invitation.tsx)
+   Tapping the envelope used to be a plain document navigation: nothing on
+   screen acknowledged the tap, and the browser held the old page until the RSVP
+   HTML, its JS and its artwork had all landed, which read as a hang.
+
+   Now the tap starts this sequence while /rsvp (already prefetched) resolves
+   underneath it. The stage carries `data-opening` for one beat (OPEN_BEAT_MS in
+   that file), then the router pushes; app/rsvp/loading.tsx repaints the same
+   LaceBackdrop, so only the foreground ever moves.
+
+   The state lives on the stage rather than on each element, so the whole
+   choreography is one attribute flip and no `:has()` is needed. */
+.invitation-senders,
+.invitation-hint {
+  transition:
+    opacity 420ms ease,
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.invitation-envelope {
+  transition:
+    opacity 540ms ease,
+    transform 780ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.invitation-stage[data-opening] .invitation-senders {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+/* Lifts towards the viewer and dissolves. Nothing is drawn out of the pocket:
+   a stand-in paper sheet next to this artwork only ever read as a plain white
+   rectangle, so the envelope is the whole gesture. */
+.invitation-stage[data-opening] .invitation-envelope {
+  opacity: 0;
+  transform: translateY(-5%) scale(1.14);
+}
+
+/* One line, two states: the idle prompt and the acknowledgement. Swapped here
+   rather than in React so both strings ship in the prerendered HTML. */
+.invitation-hint [data-slot='opening'] {
+  display: none;
+}
+.invitation-stage[data-opening] .invitation-hint [data-slot='idle'] {
+  display: none;
+}
+.invitation-stage[data-opening] .invitation-hint [data-slot='opening'] {
+  display: inline;
+}
+.invitation-stage[data-opening] .invitation-hint {
+  animation: invitation-hint-pulse 1.6s ease-in-out infinite;
+}
+@keyframes invitation-hint-pulse {
   0%,
   100% {
     opacity: 0.55;
@@ -875,18 +1010,22 @@
     opacity: 1;
   }
 }
-@keyframes letter-loading-line {
-  0%,
-  100% {
-    transform: scaleX(0.25);
-  }
-  50% {
-    transform: scaleX(1);
-  }
-}
+
+/* Reduced motion never reaches these rules in practice: the click handler skips
+   the beat entirely and lets the link navigate. They are the belt-and-braces
+   half, in case the attribute is ever set another way. */
 @media (prefers-reduced-motion: reduce) {
-  .letter-loading-names,
-  .letter-loading-line {
+  .invitation-senders,
+  .invitation-hint,
+  .invitation-envelope {
+    transition: none;
+  }
+  .invitation-stage[data-opening] .invitation-senders,
+  .invitation-stage[data-opening] .invitation-envelope {
+    transform: none;
+  }
+  .invitation-stage[data-opening] .invitation-hint {
     animation: none;
+    opacity: 1;
   }
 }
