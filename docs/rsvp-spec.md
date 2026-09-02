@@ -59,9 +59,44 @@
     in our CSS moves this band — not the canvas colour, not `theme-color`, not
     `viewport-fit`, not `env(safe-area-inset-*)` (both insets are `0px` in portrait
     Safari), not `overscroll-behavior`, not swapping `vh` for `dvh`/`svh` (already done
-    throughout), not moving `overflow` off the sticky. All measured. Re-open only if a
+    throughout), not moving `overflow` off the sticky. All measured. **Scope note
+    (2026-09-02):** this paragraph is about the LETTER's sticky band only. It was
+    read as covering every route, which is wrong — see the `/` and `/login` bullet
+    below, where the band is our canvas and the bottom half of it does move. Re-open only if a
     future iOS changes the sticky behaviour; the removal spike is preserved on branch
     `spike/ios26-no-painted-sticky` (commit `16e6c10`) if it ever needs re-evaluating.
+  - **`/` and `/login` are a DIFFERENT band, and it is half fixed (2026-09-02).**
+    Neither route has a painted sticky, so the mechanism above never applied to
+    them. What showed there was our own document canvas, not Safari's chrome:
+    forcing the canvas to `#ff00ff` turned both strips magenta (the letter's
+    sticky band stays white under the same test — that is how the two are told
+    apart). Measured on iPhone 17 Pro / iOS 26.5, scroll locked: screen 874pt,
+    layout viewport 714pt, `env(safe-area-inset-top/bottom)` both `0`. Safari
+    keeps 160pt of screen outside the layout viewport, so nothing can be laid
+    out there — but it still composites document pixels into it, so the strips
+    are simply UNPAINTED, not reserved.
+    - **Fix, shipped:** `.viewport-bleed-stage` (app/globals.css) sizes the page
+      `100dvh + 2 × 200px`, offset up by one bleed, with `padding-block` putting
+      the centred content back in the visible viewport. This clears the BOTTOM
+      strip on both routes. The top ~62pt does NOT move — doubling the bleed to
+      400px changed it by zero pixels — so that one is Safari's own opaque
+      status bar, as described above.
+    - **The root must use `overflow: clip`, never `hidden`.** `hidden` makes the
+      root a scroll container, which clamps the stage back to 714pt and brings
+      both bands back. Measured: `height: 1114px !important` still computed 714
+      under `hidden`.
+    - **`html:has(.letter-page) { overflow: visible }` is load-bearing.** Tapping
+      the envelope is a client transition with no document load, and Safari left
+      the root scroller locked when the clip rule merely stopped matching —
+      /rsvp would not scroll. The opposite value must be asserted by a rule that
+      actively matches. `html:not(:has(.viewport-bleed-stage))` is the obvious
+      tidier spelling and was measured on device: it does NOT work.
+    - Not viable, all measured: an image on the canvas (its background
+      positioning area is the layout viewport, so it stops at 714pt),
+      `background-attachment: fixed` (also viewport-relative), and cancelling
+      the bleed's scrollable overflow with a negative `margin-bottom`.
+    - The stage cannot scroll, so it suits only single-screen routes. Anything
+      taller than the viewport would be unreachable.
   - Unrelated to the band, `FooterLace` declares `bg-lace` (`--lace: #877863`, the
     measured average of `public/lace-bg.png`) rather than `bg-paper`, so the frame before
     the drapery decodes does not flash white under the white sign-off type.

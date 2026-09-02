@@ -17,7 +17,10 @@ export default async function Home({
   const rsvpHref = inviteCode ? `/rsvp?id=${encodeURIComponent(inviteCode)}` : '/rsvp';
 
   return (
-    <main className="invitation-page relative h-lvh overflow-hidden bg-ink">
+    /* `viewport-bleed-stage` sizes this past the layout viewport so the drapery
+       covers the strip iOS Safari keeps outside it — see app/globals.css. It
+       owns the height, hence no height utility here. */
+    <main className="invitation-page viewport-bleed-stage relative overflow-hidden bg-ink">
       <LaceBackdrop />
       <EnvelopeInvitation href={rsvpHref} />
     </main>

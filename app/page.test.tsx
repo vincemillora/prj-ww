@@ -48,6 +48,18 @@ describe('Home', () => {
     expect(container.querySelector('main')).toHaveClass('invitation-page', 'bg-ink');
   });
 
+  it('bleeds the stage past the layout viewport so iOS Safari has nothing to band',
+    async () => {
+      const { container } = render(await Home({ searchParams: Promise.resolve({}) }));
+
+      // `viewport-bleed-stage` owns the height (app/globals.css). A height
+      // utility here would fight it and bring the band back — see
+      // docs/rsvp-spec.md §1.
+      const main = container.querySelector('main');
+      expect(main).toHaveClass('viewport-bleed-stage');
+      expect(main?.className).not.toMatch(/\bh-(lvh|dvh|svh|screen|full)\b/);
+    });
+
   it('introduces the senders above the envelope', async () => {
     render(await Home({ searchParams: Promise.resolve({}) }));
 

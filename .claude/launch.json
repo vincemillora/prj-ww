@@ -5,7 +5,8 @@
       "name": "prj-ww dev",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
-      "port": 3000
+      "port": 3000,
+      "autoPort": true
     },
     {
       "name": "prj-ww prod",
