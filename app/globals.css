@@ -242,6 +242,12 @@
   /* Existing white paper surfaces remain white. */
   --paper: #ffffff;
 
+  /* Average tone of the lace drapery artwork (public/lace-bg.png, measured).
+     A section the drapery covers declares THIS as its background rather than
+     the paper underneath, so the frame before the image decodes matches the
+     artwork instead of flashing white under white type. */
+  --lace: #877863;
+
   /* Stat numbers, progress bars, status dots, and status pills (hi-fi). */
   --stat-going: #5f7a48;
   --stat-going-bar: #7a9a5c;
@@ -441,7 +447,12 @@
   /* Safari may expose the document canvas around its browser controls. Keep
      the approved ink fallback while the public routes' own artwork paints the
      full large viewport. The body stays transparent so it cannot insert an
-     opaque strip between that artwork and Safari's bottom controls. */
+     opaque strip between that artwork and Safari's bottom controls.
+
+     NOT a fix for the iOS 26 address-bar band: that band is Safari's own
+     opaque chrome and ignores this value entirely. Colouring it was tried and
+     measured as ineffective — see docs/rsvp-spec.md §1 before touching this in
+     the hope of moving that band. */
   html:has(.invitation-page),
   html:has(.letter-page) {
     background: var(--ink);
