@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Image from "next/image";
+import rsvpBackground from "@/public/rsvp-bg.png";
 import { getGuestByToken } from "@/lib/data";
 import { RSVP_DEADLINE_LABEL } from "@/lib/wedding";
 import { RsvpForm } from "@/components/letter/rsvp-form";
@@ -64,18 +65,49 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
   return (
     <section className="relative z-10 -mt-section overflow-x-clip bg-ink px-gutter pt-dome pb-section">
+      {/* The floral backdrop, painted ONE VIEWPORT AT A TIME.
+
+          `object-cover` scales the artwork to the larger of the two ratios it
+          is asked to fill, so a layer spanning the whole section made the
+          section's HEIGHT the governing dimension: at ~1800px tall on a phone
+          the 1448x1086 source was blown up 1.66x to 2400px wide, of which only
+          the middle 390 were ever on screen. That is both the crop (16% of the
+          image) and the softness (the browser was handed a 1200px-wide variant
+          to cover 7200 device pixels).
+
+          A `sticky top-0 h-lvh` viewport is the same device the hero uses (see
+          opening-backdrop.tsx): the painted box is one screen tall no matter
+          how far the section runs, so the cover scale stays under 1 and the
+          artwork holds still while the card scrolls past it. Sticky, not
+          `fixed` — the layer belongs to this section and must stop at its
+          edges. The section's `overflow-x-clip` is what keeps this working;
+          `overflow-hidden` would make the section a scrollport and pin the
+          backdrop to it instead of to the viewport.
+
+          `sizes` has to describe the PAINTED width, not the container's. Below
+          the image's own 4:3 the height governs, so that width is
+          `vh * 1448/1086` = ~134vh — on a 390x844 phone that is 288vw, and
+          plain `100vw` under-asked by nearly 3x. Above 4:3 the width governs
+          and 100vw is exact. Statically imported so the file is
+          content-hashed, immutable-cached and carries its own blur-up. */}
       <div
         aria-hidden
         data-slot="rsvp-background"
-        className="absolute inset-0 z-0"
+        className="pointer-events-none absolute inset-0 z-0"
       >
-        <Image
-          src="/rsvp-bg.png"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
+        <div
+          data-slot="rsvp-background-viewport"
+          className="sticky top-0 h-lvh"
+        >
+          <Image
+            src={rsvpBackground}
+            alt=""
+            fill
+            placeholder="blur"
+            sizes="(max-aspect-ratio: 4/3) 134vh, 100vw"
+            className="object-cover object-center"
+          />
+        </div>
       </div>
       {/* The white dome. Full-bleed and flush with the top edge, so it reads as
           the paper above flowing down rather than as a shape floating on the
