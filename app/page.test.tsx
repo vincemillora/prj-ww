@@ -2,6 +2,13 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
+// The envelope is a client component that pushes the route itself (see
+// components/invitation/envelope-invitation.tsx). jsdom has no mounted app
+// router, so
+// stub the hook; the opening choreography has its own test beside it.
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), prefetch: vi.fn() }),
+}));
 vi.mock('next/image', () => ({
   default: ({ alt = '', ...props }: React.ComponentProps<'img'>) => {
     // The route test only needs the accessible link, not Image optimization.
