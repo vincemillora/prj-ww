@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { LaceBackdrop } from '@/components/letter/lace-backdrop';
+import { CardSprayBottomLeft, CardSprayTopRight } from '@/components/dashboard/florals';
 
 type LoginSearchParams = { pending?: string; error?: string };
 
@@ -93,12 +94,16 @@ export default async function LoginPage({
       <LaceBackdrop />
 
       <div className="relative flex w-full max-w-sm flex-col items-center gap-6">
-        {/* No botanical frame here, unlike the dashboard's cards. The drapery is
-            already the ornament, and a vine of drawn leaves over a photograph of
-            fabric and flowers read as noise against it rather than as a frame.
-            The shadow does the framing instead: deep enough to lift a white card
-            off a mid-tone photograph. */}
+        {/* Same corner vines as the dashboard's cards, hugging this card's own
+            border. Scaled down from the dashboard's tall-lane proportions
+            (h-[125%]/-12.5%) to h-[50%]/-5% — same self-hugging formula
+            (offset = 10% of the frame's OWN height), just sized for this
+            card's wider, shorter shape so the two corners don't collide in
+            the middle. Card sits at z-10 above them so only the sliver that
+            grows past the card's own edge shows, not a wash over its face. */}
         <div className="relative w-full">
+          <CardSprayTopRight className="pointer-events-none absolute -top-[5%] right-0 z-0 h-[50%] w-auto translate-x-[11.667%] text-ink-faint opacity-70" />
+          <CardSprayBottomLeft className="pointer-events-none absolute -bottom-[5%] left-0 z-0 h-[50%] w-auto -translate-x-[11.667%] text-ink-faint opacity-70" />
           <Card className="w-full shadow-[0_4px_10px_color-mix(in_srgb,var(--ink)_22%,transparent),0_24px_60px_color-mix(in_srgb,var(--ink)_35%,transparent)]">
             <CardHeader className="text-center">
               {/* The couple's real monogram, at the size the letter gives it —
@@ -112,7 +117,7 @@ export default async function LoginPage({
                 width={2000}
                 height={2000}
                 priority
-                className="mx-auto mb-2 h-24 w-24"
+                className="mx-auto mb-2 h-56 w-56"
               />
               <CardTitle className="text-xl font-medium">Admin sign in</CardTitle>
               <CardDescription>Sign in to manage guest responses.</CardDescription>

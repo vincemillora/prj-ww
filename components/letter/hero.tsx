@@ -98,10 +98,28 @@ export function Hero() {
           <motion.p
             variants={heroItem}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="pb-[calc(env(safe-area-inset-bottom)+2.5rem)] font-script text-heading text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]"
+            className="font-script text-heading text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]"
           >
             We&apos;re getting married!
           </motion.p>
+          {/* Rose bouquet ornament, recoloured to solid white via filter
+              (brightness-0 invert) rather than re-authoring the artwork's own
+              fill colours — the asset is a multi-colour illustration, not a
+              currentColor silhouette like the Spray plants. Owns the
+              safe-area bottom spacing now that it's the last element. */}
+          <motion.div
+            variants={heroItem}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="mt-4 pb-[calc(env(safe-area-inset-bottom)+2.5rem)]"
+          >
+            <Image
+              alt=""
+              src="/florals/rose-bouquet-ornament.svg"
+              width={2000}
+              height={775}
+              className="mx-auto h-auto w-[min(70vw,20rem)] brightness-0 invert drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]"
+            />
+          </motion.div>
           {/* <Countdown
             align="center"
             className="mt-10 text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]"
