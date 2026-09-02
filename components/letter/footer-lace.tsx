@@ -20,7 +20,11 @@ import laceBackground from '@/public/lace-bg.png';
 export function FooterLace() {
   return (
     <footer
-      className="relative isolate overflow-hidden bg-paper py-section"
+      // `bg-lace`, not `bg-paper`: the drapery below covers this surface
+      // completely, so the declared background should be the drapery's own
+      // tone — otherwise the frame before the image decodes flashes white under
+      // the white sign-off type.
+      className="relative isolate overflow-hidden bg-lace py-section"
       aria-label="Decorative wedding drapery"
     >
       <div
