@@ -134,7 +134,7 @@ export function GuestsBoard({
         <div className="relative z-1 flex flex-col gap-3">
         <ColumnStats size="sm" cards={byStatus[tab]} showCounts={tab === "going"} />
         {byStatus[tab].length === 0 ? (
-          <div className="py-8 text-center text-[12.5px] italic" style={{ color: "#c4b7a0" }}>
+          <div className="py-8 text-center text-xs text-ink-faint italic">
             {filterActive ? "No matches" : "No guests here yet"}
           </div>
         ) : (

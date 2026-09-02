@@ -17,7 +17,10 @@ Guests arrive to answer one question ("are you coming?") and to look up practica
 (when, where, what to wear, where to stay) repeatedly over the months before the wedding.
 
 **Secondary: the couple and their admins**, who use the Google-authenticated dashboard at
-`/dashboard`. **Out of scope for design work — see Capabilities and Constraints.**
+`/dashboard`. They work on a phone or a laptop, in short bursts, over the same nine months —
+checking who has replied, chasing the ones who have not, and reading dietary and companion
+detail off a board. Since 2026-09-02 these surfaces share the guest letter's visual world; see
+Brand Commitments.
 
 ## Product Purpose
 
@@ -45,9 +48,17 @@ its own page. Personal correspondence that happens to collect data.
 
 ## Capabilities and Constraints
 
-**Design scope is the top page only** (`app/page.tsx` → `components/letter/wedding-letter.tsx` and
-everything under `components/letter/`). **Do not touch `/dashboard` or `/login`** — those follow
-imported hi-fi Claude Design files and are settled.
+Design work covers both the guest letter (`app/page.tsx` → `components/letter/wedding-letter.tsx`
+and everything under `components/letter/`) and the admin surfaces (`/login`, `/dashboard`,
+`/dashboard/users`, `components/dashboard/`). They are now one visual world — see Brand
+Commitments — but they are not interchangeable: the letter is a document to be read, the admin
+is a task surface, and the rules that differ between them are recorded there.
+
+**Superseded:** until 2026-09-02 this section read "Design scope is the top page only … do not
+touch `/dashboard` or `/login` — those follow imported hi-fi Claude Design files and are
+settled." The imported files (`Wedding RSVP Dashboard.dc.html`, `Wedding RSVP - Kanban*.dc.html`)
+are no longer the visual authority for those routes; their layout and interaction survive, their
+palette and type do not.
 
 - Next.js 16 App Router (root `app/`, no `src/`), React 19, Tailwind v4, TypeScript, pnpm.
   Next 16 conventions differ from older training data — read `node_modules/next/dist/docs/`
@@ -113,8 +124,42 @@ imported hi-fi Claude Design files and are settled.
   - **Exempt:** photographs (`/hero-lily.jpg`, `/beach-location.jpg`) and
     `public/attire-guide.png`, which is a multi-colour palette illustration and is the content.
     Everything else drawn in CSS or SVG obeys these colours plus the granted opacity exception above.
-- **The dashboard keeps "wisteria & fig."** The `:root` token set in `app/globals.css` is
-  binding for `/dashboard` and `/login` and must not be retuned to match the letter.
+- **One world across guest and admin. "Wisteria & fig" is retired.** The admin used to run a
+  second identity — plum `#4a2f3a` on white with a `#8a76b0` wisteria accent and a sage script,
+  imported from a hi-fi design file. Beside the letter it read as a different product. The
+  `:root` token set in `app/globals.css` is now built on the letter's own materials, and the
+  admin surfaces inherit it.
+  - **The admin's ground is white, not linen.** The unity is the ink, the type, the botanicals
+    and the pigments — not the canvas. An admin is in a task, reading a dense board of names,
+    counts and notes, and that wants the quietest ground available; antique linen stays the
+    letter's, where it is the paper the invitation is written on.
+  - **`/login` stands on the guest drapery.** It reuses `components/letter/lace-backdrop.tsx` —
+    the same artwork as `/` (the envelope invitation), the loading screen and the letter's hero —
+    with the couple's real monogram on a white card. A door, not a desk. It carries no floral
+    frame of its own: the photograph is already the ornament.
+  - **The admin gets a tonal ladder the letter forbids itself.** A guest card ranks a name, label
+    chips, a head-count, a contact table, dietary notes and a control row inside a postcard, and
+    size/face/weight alone cannot do that. Three quieter inks, each tinted FROM the espresso and
+    never grayed: `--ink-2 #5c584a` (7.12:1 on white), `--ink-3 #6b6754` (5.69:1), `--ink-faint
+    #77725c` (4.83:1). All three also clear 4.5:1 on the three status washes. None of them are
+    legible on antique linen (2.50:1 and below), which is one more reason the admin ground is
+    white. `.letter-theme` flattens all three back to full ink.
+  - **The kanban's three status hues are earth pigments, used only as state.** Raw sienna for
+    awaiting, olive for attending, clay for declined, each with a wash, a drag-over wash, an
+    edge, a mark and a darkened `-ink` that passes on its own wash. They replaced the imported
+    wisteria-gold / sage / dusty-rose set. Colour on the admin is reserved for state; primary
+    actions are espresso, like the letter's buttons.
+  - **The admin's botanicals are the letter's real assets.** `components/dashboard/florals.tsx`
+    keeps the imported design's stem geometry (edge-anchored on real component borders) but draws
+    every leaf and bloom from `/florals/{rose-bloom,leaf-large,leaf-small}.svg` — the same three
+    plants Our Story grows — masked to a flat colour so the call site picks the pigment. The
+    hand-drawn blossoms, ellipse leaves and cartoon bride-and-groom of the imported design, and
+    the 81 hardcoded hexes behind them, are gone.
+  - **The admin's type scale is FIXED rem, not the letter's fluid roles.** Product UI is read at
+    a fixed distance and a clamped heading that shrinks inside a kanban column looks worse, not
+    better. The admin uses Tailwind's built-in ladder plus two additions: `--text-2xs` (11px,
+    registered in `lib/utils.ts` like every other role) and `.label-caps`, the tracked micro-caps
+    role that eleven call sites used to hand-write at 9px/10px/10.5px.
 - **Section set and order are locked.** Hero, welcome band (date strip and countdown), our story, the day
   itself, attire guide, location, hotels, RSVP, gifts, FAQ.
 - **Copy is not locked** — all guest-facing content is draft and may be rewritten.
@@ -123,9 +168,8 @@ imported hi-fi Claude Design files and are settled.
   DM Sans, Gilda Display, Playwrite US Modern and Beth Ellen; DM Sans was the sans face until
   2026-07-27, and the other three were never loaded at all. Adding a third face needs a role
   only it can perform, and a `next/font` entry to go with it.
-  - `--font-sans` is global, so Montserrat is also the dashboard's face. `docs/rsvp-spec.md`
-    still describes /dashboard and /login as following an imported hi-fi design set in DM
-    Sans; that part of the import no longer holds.
+  - `--font-sans` is global, so Montserrat is also the dashboard's face. The imported hi-fi
+    design's DM Sans / Gilda Display pairing is not loaded and never was.
   - Montserrat is materially WIDER than DM Sans, and the countdown row is the tightest line
     in the letter — four number+unit pairs across a 360px phone. `--text-figure`'s floor is
     set by that row, not by taste: every 1px of figure costs about 5px of row width. Re-measure
@@ -198,8 +242,9 @@ imported hi-fi Claude Design files and are settled.
 2. **One letter, not a site.** Continuity between sections beats navigational chrome.
 3. **Provisional to us, never to the guest.** Design around the real shape of the content;
    never invent facts to fill a layout.
-4. **Guest page only.** The dashboard is a separate, finished visual world; do not bleed changes
-   across.
+4. **One world, two registers.** Guest and admin share the ink, the type family, the botanicals
+   and the pigments. They do not share the ground, the type scale, or the tonal rules — the
+   letter is read, the admin is worked in. When the two conflict, the surface's mode decides.
 5. **Mobile is the design, desktop is the adaptation** — not the reverse.
 
 ## Accessibility & Inclusion

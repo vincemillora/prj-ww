@@ -1,6 +1,8 @@
 import type { ComponentProps } from 'react';
 import type { Metadata, Viewport } from 'next';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
+import { COUPLE } from '@/lib/wedding';
 import { getCurrentUser } from '@/lib/dal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -11,13 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  CardSprayBottomLeft,
-  CardSprayTopRight,
-  CoupleFigures,
-  PageFloralBottomRight,
-  PageFloralTopLeft,
-} from '@/components/dashboard/florals';
+import { LaceBackdrop } from '@/components/letter/lace-backdrop';
 
 type LoginSearchParams = { pending?: string; error?: string };
 
@@ -77,25 +73,43 @@ export default async function LoginPage({
   const errorMessage = params.error ? ERROR_MESSAGES[params.error] ?? 'Something went wrong.' : null;
 
   return (
-    <main className="relative flex min-h-dvh items-center justify-center p-6">
-      {/* Page-corner floral sprays on the wisteria gradient, clipped to the
-          viewport in their own layer — same shell as the dashboard. */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <PageFloralTopLeft />
-        <PageFloralBottomRight />
-      </div>
+    // The same drapery the guests see. `/` (the envelope invitation), the
+    // loading screen and the letter's hero all stand on this one artwork, and
+    // the admin door now stands on it too — same house, staff entrance. It is
+    // also the reason this page needs no corner florals of its own: the
+    // photograph is the decoration, and the card's own vine is the only
+    // botanical the composition can carry without becoming busy.
+    //
+    // `lace-page` is what tells app/globals.css to paint the document canvas in
+    // ink behind Safari's chrome and let the body go transparent, exactly as
+    // `.invitation-page` and `.letter-page` do. `admin-surface` themes
+    // selection, caret and scrollbar from the same ink.
+    <main className="lace-page admin-surface relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink p-6">
+      <LaceBackdrop />
 
       <div className="relative flex w-full max-w-sm flex-col items-center gap-6">
-        {/* Botanical frame around the card, same as the dashboard guest-list card. */}
+        {/* No botanical frame here, unlike the dashboard's cards. The drapery is
+            already the ornament, and a vine of drawn leaves over a photograph of
+            fabric and flowers read as noise against it rather than as a frame.
+            The shadow does the framing instead: deep enough to lift a white card
+            off a mid-tone photograph. */}
         <div className="relative w-full">
-          <CardSprayTopRight />
-          <CardSprayBottomLeft />
-          <Card className="w-full">
+          <Card className="w-full shadow-[0_4px_10px_color-mix(in_srgb,var(--ink)_22%,transparent),0_24px_60px_color-mix(in_srgb,var(--ink)_35%,transparent)]">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2 font-sans text-xl">
-                <CoupleFigures className="h-[36px] w-auto shrink-0" />
-                Admin sign in
-              </CardTitle>
+              {/* The couple's real monogram, at the size the letter gives it —
+                  this is the one ceremonial moment in the admin, and the mark
+                  needs room to read. A pair of cartoon figures in the old
+                  wisteria palette used to sit inline with the title at 36px,
+                  where neither the drawing nor the letter's hand survived. */}
+              <Image
+                src="/couple-logo-rustic.svg"
+                alt={COUPLE}
+                width={2000}
+                height={2000}
+                priority
+                className="mx-auto mb-2 h-24 w-24"
+              />
+              <CardTitle className="text-xl font-medium">Admin sign in</CardTitle>
               <CardDescription>Sign in to manage guest responses.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
@@ -123,13 +137,18 @@ export default async function LoginPage({
                 <GoogleIcon data-icon="inline-start" />
                 Continue with Google
               </Button>
+              {/* Inside the card, not under it. This line used to sit on the
+                  page ground, which is now a photograph: white 12px type over
+                  drapery is exactly the case the hero's measured scrim table
+                  says not to trust (worst case 3.15:1, and that was for large
+                  script). On paper it is the tertiary ink at 5.69:1. */}
+              <p className="border-t border-rule pt-3 text-center text-xs text-muted-foreground">
+                Access is restricted to approved administrators.
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        <p className="max-w-xs text-center text-xs text-muted-foreground">
-          Access is restricted to approved administrators.
-        </p>
       </div>
     </main>
   );

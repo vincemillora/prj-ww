@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ColumnStats } from "@/app/(protected)/dashboard/board/column-stats";
 import { ColumnVine } from "@/app/(protected)/dashboard/board/column-vine";
 import { GuestCard } from "@/app/(protected)/dashboard/board/guest-card";
-import { INK, PAGE, type BoardColumn } from "@/app/(protected)/dashboard/board/tokens";
+import { PAGE, type BoardColumn } from "@/app/(protected)/dashboard/board/tokens";
 import type { GuestRow } from "@/app/(protected)/dashboard/board/types";
 
 // Desktop / tablet kanban column: a tinted drag-and-drop status lane.
@@ -62,9 +62,7 @@ export function StatusColumn({
           className="size-[9px] flex-none rounded-full"
           style={{ background: col.dot }}
         />
-        <h2 className="font-sans text-[19px] leading-none" style={{ color: INK }}>
-          {col.label}
-        </h2>
+        <h2 className="text-lg leading-none text-foreground">{col.label}</h2>
       </div>
       <div
         className="mx-1 mt-2 mb-3 h-0.5 rounded-full opacity-50"
@@ -89,10 +87,7 @@ export function StatusColumn({
         ))}
       </div>
       {cards.length === 0 ? (
-        <div
-          className="py-7 text-center text-[12.5px] italic"
-          style={{ color: "#c4b7a0" }}
-        >
+        <div className="py-7 text-center text-xs text-ink-faint italic">
           {filterActive ? "No matches" : canEdit ? "Drop guests here" : "No guests"}
         </div>
       ) : null}

@@ -18,15 +18,6 @@ import { DeleteGuestButton } from "@/app/(protected)/dashboard/guests/delete-gue
 import { CopyLinkButton } from "@/app/(protected)/dashboard/guests/copy-link-button";
 import { CardMeta } from "@/app/(protected)/dashboard/board/card-meta";
 import { partyBreakdown, partySize } from "@/app/(protected)/dashboard/board/headcount";
-import {
-  CARD_BORDER,
-  CHIP_BORDER,
-  CHIP_TEXT,
-  FAINT,
-  INK,
-  MUT,
-  RULE,
-} from "@/app/(protected)/dashboard/board/tokens";
 import type { GuestRow } from "@/app/(protected)/dashboard/board/types";
 
 function guestDialogData(row: GuestRow) {
@@ -85,22 +76,27 @@ export function GuestCard({
       className={cn(
         // No overflow-hidden: the corner frame's stem sits on the border line
         // with a slight outward bleed (like the design) and must not be clipped.
-        "relative rounded-[13px] border bg-card p-3.5 shadow-[0_1px_3px_rgba(61,51,43,0.06)] transition-opacity",
+        "relative rounded-[13px] border bg-card p-3.5 transition-opacity",
+        // Espresso-tinted, two-part: a tight contact shadow so the card sits ON
+        // its lane, and a wider one so it lifts off it. The old value was a
+        // single flat rgba(61,51,43,.06) from the imported design — a colour
+        // with no relationship to the ink now under it.
+        "shadow-[0_1px_1px_color-mix(in_srgb,var(--ink)_8%,transparent),0_3px_8px_color-mix(in_srgb,var(--ink)_5%,transparent)]",
         draggable && "cursor-grab active:cursor-grabbing",
         dragging && "opacity-40",
       )}
-      style={{ borderColor: CARD_BORDER }}
     >
       {vineCorner ? <CardCornerFrame corner={vineCorner} /> : null}
       <div className="relative z-1">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold" style={{ color: INK }}>
-            {row.name}
-          </div>
+          <div className="truncate text-sm font-semibold text-foreground">{row.name}</div>
         </div>
+        {/* Full ink, not the attending green it used to carry: the lane already
+            says what the status is, and a going-coloured count on a declined
+            card was saying the opposite. */}
         <div
-          className="flex-none font-sans text-[15px] text-stat-going"
+          className="flex-none text-base tabular-nums text-foreground"
           title={answered ? "Party size" : "Seat allotment"}
         >
           ×{partySize(row)}
@@ -112,8 +108,7 @@ export function GuestCard({
           {row.labels.map((l) => (
             <span
               key={l.id}
-              className="rounded-md border px-2 py-0.5 text-[10.5px]"
-              style={{ borderColor: CHIP_BORDER, color: CHIP_TEXT }}
+              className="rounded-md border border-chip-edge px-2 py-0.5 text-2xs text-secondary-foreground"
             >
               {l.name}
             </span>
@@ -122,14 +117,12 @@ export function GuestCard({
       ) : null}
 
       {breakdown || row.respondedAt ? (
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px]">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-2xs">
           {/* Reply head-count, spelled out (zero/none parts stay hidden). */}
-          <span className="font-medium" style={{ color: CHIP_TEXT }}>
-            {breakdown}
-          </span>
+          <span className="font-medium text-secondary-foreground">{breakdown}</span>
           {row.respondedAt ? (
-            <span style={{ color: FAINT }}>
-              <span className="font-semibold tracking-wider uppercase">Replied</span>{" "}
+            <span className="text-ink-faint">
+              <span className="label-caps">Replied</span>{" "}
               <span className="tabular-nums">{row.respondedAt.slice(0, 10)}</span>
             </span>
           ) : null}
@@ -138,36 +131,31 @@ export function GuestCard({
 
       {hasContact ? (
         <CardMeta title="Contact">
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[11.5px]">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-2xs">
             {row.phone ? (
               <>
-                <dt style={{ color: MUT }}>Phone</dt>
-                <dd className="truncate" style={{ color: INK }}>
-                  {row.phone}
-                </dd>
+                <dt className="text-muted-foreground">Phone</dt>
+                <dd className="truncate text-foreground">{row.phone}</dd>
               </>
             ) : null}
             {row.email ? (
               <>
-                <dt style={{ color: MUT }}>Email</dt>
-                <dd className="truncate" style={{ color: INK }}>
-                  {row.email}
-                </dd>
+                <dt className="text-muted-foreground">Email</dt>
+                <dd className="truncate text-foreground">{row.email}</dd>
               </>
             ) : null}
             {snsEntries.map(({ platform, handle }) => {
               const cfg = SNS_CONFIG[platform];
               return (
                 <Fragment key={platform}>
-                  <dt style={{ color: MUT }}>{cfg.label}</dt>
+                  <dt className="text-muted-foreground">{cfg.label}</dt>
                   <dd className="truncate">
                     <a
                       href={cfg.url(handle)}
                       target="_blank"
                       rel="noopener noreferrer"
                       title={`${cfg.label}: ${handle}`}
-                      className="inline-flex max-w-full items-center gap-1 truncate hover:underline"
-                      style={{ color: INK }}
+                      className="inline-flex max-w-full items-center gap-1 truncate text-foreground underline-offset-2 hover:underline"
                     >
                       <SnsIcon platform={platform} className="size-3 shrink-0" />
                       <span className="truncate">{handle}</span>
@@ -182,7 +170,7 @@ export function GuestCard({
 
       {row.dietary.length || row.dietaryOther ? (
         <CardMeta title="Dietary (invitee)">
-          <p className="text-[11.5px] leading-relaxed" style={{ color: INK }}>
+          <p className="text-2xs leading-relaxed text-foreground">
             {dietaryList(row.dietary, row.dietaryOther).join(", ")}
           </p>
         </CardMeta>
@@ -198,16 +186,14 @@ export function GuestCard({
               const diet = companionDietary(c);
               return (
                 <li key={`${c.kind}-${c.position}`}>
-                  <p className="text-[11.5px] leading-relaxed" style={{ color: INK }}>
+                  <p className="text-2xs leading-relaxed text-foreground">
                     {c.name}
-                    <span className="ml-1.5 text-[10px] tracking-[0.08em] uppercase" style={{ color: MUT }}>
+                    <span className="label-caps ml-1.5 text-muted-foreground">
                       {companionLabel(c.kind, c.position)}
                     </span>
                   </p>
                   {diet ? (
-                    <p className="text-[11px] leading-relaxed" style={{ color: CHIP_TEXT }}>
-                      {diet}
-                    </p>
+                    <p className="text-2xs leading-relaxed text-secondary-foreground">{diet}</p>
                   ) : null}
                 </li>
               );
@@ -218,24 +204,17 @@ export function GuestCard({
 
       {row.guestNote ? (
         <CardMeta title="Guest note">
-          <p className="text-[11.5px] leading-relaxed italic" style={{ color: INK }}>
-            “{row.guestNote}”
-          </p>
+          <p className="text-2xs leading-relaxed text-foreground italic">“{row.guestNote}”</p>
         </CardMeta>
       ) : null}
 
       {row.adminNote ? (
         <CardMeta title="Admin note">
-          <p className="text-[11.5px] leading-relaxed" style={{ color: CHIP_TEXT }}>
-            {row.adminNote}
-          </p>
+          <p className="text-2xs leading-relaxed text-secondary-foreground">{row.adminNote}</p>
         </CardMeta>
       ) : null}
 
-      <div
-        className="mt-2.5 flex items-center justify-end gap-1 border-t pt-2"
-        style={{ borderColor: RULE }}
-      >
+      <div className="mt-2.5 flex items-center justify-end gap-1 border-t border-rule pt-2">
         <CopyLinkButton token={row.token} baseUrl={baseUrl} />
         {canEdit ? (
           <>

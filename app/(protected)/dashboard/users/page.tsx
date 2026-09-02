@@ -25,7 +25,7 @@ const ROLE_VARIANT: Record<string, 'default' | 'outline'> = {
   admin: 'outline',
 };
 
-const TH = 'text-[10.5px] font-semibold tracking-wider text-muted-foreground uppercase';
+const TH = 'label-caps text-muted-foreground';
 
 export default async function UsersPage() {
   const current = await requireSuperadmin();
@@ -35,20 +35,20 @@ export default async function UsersPage() {
     <div className="flex flex-col gap-4">
       <Link
         href="/dashboard"
-        className="self-start text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="self-start text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
         ← Back to dashboard
       </Link>
       <div className="flex flex-col gap-1">
-        <h1 className="font-sans text-2xl font-semibold tracking-tight">Users</h1>
+        <h1 className="text-3xl font-medium text-foreground">Users</h1>
         <p className="text-sm text-muted-foreground">
           Approve pending admins so they can sign in. You cannot change your own account.
         </p>
       </div>
-      <Card className="gap-0 overflow-hidden rounded-[18px] py-0">
+      <Card className="gap-0 overflow-hidden rounded-[18px] py-0 shadow-[0_1px_1px_color-mix(in_srgb,var(--ink)_7%,transparent),0_4px_14px_color-mix(in_srgb,var(--ink)_5%,transparent)]">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 pt-5 pb-4 sm:px-6">
-          <h2 className="font-sans text-[21px] leading-none text-foreground">Admin accounts</h2>
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
+          <h2 className="text-xl leading-none text-foreground">Admin accounts</h2>
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-secondary-foreground">
             {rows.length}
           </span>
         </div>

@@ -168,7 +168,10 @@ export function Countdown({
           <span className="font-weight-bold leading-none tabular-nums sm:text-sm">
             {u.value ?? "–"}
           </span>
-          <span className="text-xs leading-none opacity-80">{u.label}</span>
+          {/* The tertiary ink rather than the 80% opacity it used to carry:
+              rank is a token now, so it moves with the theme instead of being
+              an alpha applied to whatever colour the row inherited. */}
+          <span className="text-xs leading-none text-muted-foreground">{u.label}</span>
         </div>
       ))}
     </div>

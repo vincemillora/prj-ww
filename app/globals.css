@@ -32,6 +32,14 @@
   --color-film: var(--film);
   /* Section-heading script colour (re-pointed to ink inside .letter-theme). */
   --color-script: var(--script);
+  /* Admin-only ink steps. The letter forbids thinned ink (hierarchy there comes
+     from size, face and weight); a guest card ranks seven things inside a
+     postcard and cannot. Both are tinted FROM the espresso, never gray. */
+  --color-ink-faint: var(--ink-faint);
+  /* Hairline inside a card, and the edge of a small chip. Lighter than
+     `--border`, which is the edge of a whole sheet. */
+  --color-rule: var(--rule);
+  --color-chip-edge: var(--chip-edge);
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-script: var(--font-parisienne), ui-serif, cursive;
@@ -108,6 +116,17 @@
    needs it). Letter-spacing stays at the call site: only the tracked-caps
    roles want any, and they want three different amounts. */
 @theme {
+  /* The admin's one addition to the built-in ladder. Product UI is read at a
+     fixed distance, so /login and /dashboard use Tailwind's FIXED rem sizes
+     rather than the letter's fluid roles below — a clamped heading that shrinks
+     inside a kanban column looks worse, not better. The built-in scale bottoms
+     out at 12px (`text-xs`), and a guest card genuinely needs one step under
+     that for its chips and meta rows; without it those call sites go back to
+     the arbitrary 9px/10.5px/11.5px pixel values this pass removed.
+     Registered in lib/utils.ts too — see the note there. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.45;
+
   --text-micro: clamp(0.75rem, 0.726rem + 0.11vw, 0.8125rem);
   --text-micro--line-height: 1.1;
   --text-label: clamp(0.8125rem, 0.788rem + 0.11vw, 0.875rem);
@@ -192,55 +211,59 @@
   }
 }
 
-/* Light “wisteria & fig” palette — hi-fi Wedding RSVP Dashboard design (Montserrat / Parisienne). */
+/* ── One world: espresso olive on white paper ────────────────────────
+   This palette now serves the guest letter AND the admin surfaces. The admin
+   used to run a second identity — “wisteria & fig”, plum #4a2f3a on white with
+   a #8a76b0 accent, imported from a hi-fi design file — and next to the letter
+   it read as a different product. That is the disconnect this block closes.
+
+   Three materials:
+
+     --ink    Espresso Olive #2C2A1B   text, rules, controls, the primary button
+     --linen  Antique Linen  #B9AA93   the letter's canvas
+     --paper  White          #FFFFFF   every sheet
+
+   The admin's GROUND is white, not the letter's linen. The unity is the ink,
+   the type, the botanicals and the pigments — not the canvas. An admin is in a
+   task, reading a dense board of names, counts and notes, and it wants the
+   quietest possible ground under that; the letter's linen belongs to the letter,
+   where it is the paper the invitation is written on. `/login` still stands on
+   the letter's own drapery artwork, because that is a door rather than a desk.
+
+   The letter keeps the purest form of the world: `.letter-theme` below re-points
+   every token and forbids thinned ink, because there hierarchy comes from size,
+   face and weight alone.
+
+   The admin needs one thing the letter does not: a tonal ladder. A guest card
+   carries a name, label chips, a head-count, a contact table, dietary notes and
+   a control row inside a postcard, and size/face/weight cannot rank seven things
+   that small. So the root keeps three quieter inks, each tinted FROM the
+   espresso rather than grayed (measured against white paper):
+
+     --foreground   #2c2a1b  full espresso — names, headings, data     14.44:1
+     --ink-2        #5c584a  chip text, read-back values                7.12:1
+     --ink-3        #6b6754  field labels, meta captions                5.69:1
+     --ink-faint    #77725c  timestamps, empty-lane prompts             4.83:1
+
+   Each also clears 4.5:1 on all three status washes (the tightest is #6b6754 on
+   the clay wash at 4.58:1), so the ladder holds inside a lane as well as on the
+   page. It does NOT hold on the linen — #6b6754 there is 2.50:1 — which is one
+   more reason the admin ground is white. */
 :root {
-  --background: #ffffff;
-  --foreground: #4a2f3a;
-  --card: #ffffff;
-  --card-foreground: #3a2c34;
-  --popover: #ffffff;
-  --popover-foreground: #3a2c34;
-  --primary: #8a76b0;
-  --primary-foreground: #ffffff;
-  --secondary: #f3edf1;
-  --secondary-foreground: #8a7d86;
-  --muted: #f7f2f6;
-  --muted-foreground: #9a8b96;
-  --accent: #f3edf1;
-  --accent-foreground: #4a2f3a;
-  --destructive: #b06a4f;
-  --border: #ece3ea;
-  --input: #e2d8e0;
-  --ring: #8a76b0;
-  --chart-1: #8a76b0;
-  --chart-2: #7a9a5c;
-  --chart-3: #dcb25f;
-  --chart-4: #c9a1ad;
-  --chart-5: #b07d8c;
-  --radius: 0.7rem;
-  --sidebar: #f7f2f6;
-  --sidebar-foreground: #4a2f3a;
-  --sidebar-primary: #8a76b0;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f3edf1;
-  --sidebar-accent-foreground: #4a2f3a;
-  --sidebar-border: #ece3ea;
-  --sidebar-ring: #8a76b0;
-
-  /* Couple-name script accent (sage) — dashboard only. */
-  --script: #556D47;
-
-  /* Home-page ink — the letter's ONE colour. Declared at the root so `text-ink`
-     resolves everywhere, but only the guest letter (.letter-theme) is built on
-     it: foreground, script, borders, Our Story + RSVP grounds, and the thinned
-     placeholder all derive from this single variable. */
+  /* Espresso Olive — the letter's ink, and now the admin's. Declared first so
+     the ladder and every semantic token below can derive from it. */
   --ink: #2c2a1b;
 
-  /* Home-page canvas — Antique Linen, behind the letter's white surfaces. */
+  /* Antique Linen — the letter's canvas. Not used as a ground in the admin. */
   --linen: #b9aa93;
 
-  /* Existing white paper surfaces remain white. */
+  /* White paper surfaces, and the admin's ground. */
   --paper: #ffffff;
+
+  /* The admin's tonal ladder. Not available inside `.letter-theme`. */
+  --ink-2: #5c584a;
+  --ink-3: #6b6754;
+  --ink-faint: #77725c;
 
   /* Average tone of the lace drapery artwork (public/lace-bg.png, measured).
      A section the drapery covers declares THIS as its background rather than
@@ -248,25 +271,97 @@
      artwork instead of flashing white under white type. */
   --lace: #877863;
 
-  /* Stat numbers, progress bars, status dots, and status pills (hi-fi). */
-  --stat-going: #5f7a48;
-  --stat-going-bar: #7a9a5c;
-  --stat-declined: #b06a4f;
-  --stat-declined-bar: #c9a1ad;
-  --stat-pending: #a9832f;
-  --stat-pending-bar: #dcb25f;
-  --stat-invited: #8a76b0;
-  --stat-invited-bar: #b6a6d6;
-  --dot-going: #7a9a5c;
-  --dot-declined: #c58fa0;
-  --dot-pending: #d9b25f;
-  --dot-invited: #8a76b0;
-  --pill-going-bg: #eaf0e2;
-  --pill-going-fg: #5f7a48;
-  --pill-pending-bg: #faf1dc;
-  --pill-pending-fg: #a9832f;
-  --pill-declined-bg: #f5e7e3;
-  --pill-declined-fg: #b06a4f;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  /* Primary actions are espresso on paper, exactly as the letter's buttons are.
+     No accent hue: on an Operate surface colour is reserved for state. */
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: #f1ece2;
+  --secondary-foreground: var(--ink-2);
+  --muted: #f3efe6;
+  --muted-foreground: var(--ink-3);
+  --accent: #ece6da;
+  --accent-foreground: var(--ink);
+  /* Clay — the destructive end of the same earth family, not a signal red. */
+  --destructive: #8a4a33;
+  /* The edge of a whole sheet. `--rule` below is the hairline inside one. */
+  --border: #ded5c4;
+  --input: #cfc4ae;
+  --ring: var(--ink);
+  --rule: #ece5d8;
+  --chip-edge: #d8cdb8;
+  --radius: 0.7rem;
+  --chart-1: #6f8149;
+  --chart-2: #b8912f;
+  --chart-3: #a4614a;
+  --chart-4: #8a8168;
+  --chart-5: var(--ink);
+  --sidebar: #f3efe6;
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: #ece6da;
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: #ded5c4;
+  --sidebar-ring: var(--ink);
+
+  /* The couple's nameplate. One world means one hand: the script is written in
+     the same ink as the rest, the way `.letter-theme` writes it. It used to be
+     a sage #556D47 that appeared nowhere else in the product. */
+  --script: var(--ink);
+
+  /* ── Status: three earth pigments off the linen ──────────────────────
+     The board is the one place colour is allowed to speak, and only about
+     state. The imported design coded the three lanes in wisteria-gold, sage and
+     dusty rose; those are re-mixed here as pigments that live next to linen and
+     espresso — raw sienna for awaiting, olive for attending, clay for declined —
+     so three lanes still read apart at a glance without importing a second
+     palette. Each pigment has four jobs: a wash (the lane, a tinted sheet on the
+     linen desk), a drag-over wash, an edge, and a mark (the dot and the bar).
+     `-ink` is the pigment darkened until its own label passes on its own wash
+     (5.98:1, 6.98:1, 6.11:1). */
+  --going-wash: #e9eddc;
+  --going-wash-over: #e0e6cd;
+  --going-edge: #cbd5b0;
+  --going-mark: #6f8149;
+  --going-ink: #44532e;
+  --pending-wash: #f4ecd8;
+  --pending-wash-over: #ede1c4;
+  --pending-edge: #ded0a9;
+  --pending-mark: #b8912f;
+  --pending-ink: #715417;
+  --declined-wash: #f3e4da;
+  --declined-wash-over: #ecd8ca;
+  --declined-edge: #dfc4b2;
+  --declined-mark: #a4614a;
+  --declined-ink: #7d4531;
+
+  /* Stat numbers, progress bars, status dots and pills, all resolved from the
+     three pigments above. `invited` is the total — it is not a state, so it is
+     ink rather than a fourth hue. */
+  --stat-going: #4e5c33;
+  --stat-going-bar: var(--going-mark);
+  --stat-declined: #8a4a33;
+  --stat-declined-bar: var(--declined-mark);
+  --stat-pending: #8a6a22;
+  --stat-pending-bar: var(--pending-mark);
+  --stat-invited: var(--ink);
+  --stat-invited-bar: #8a8168;
+  --dot-going: var(--going-mark);
+  --dot-declined: var(--declined-mark);
+  --dot-pending: var(--pending-mark);
+  --dot-invited: #8a8168;
+  --pill-going-bg: var(--going-wash);
+  --pill-going-fg: var(--going-ink);
+  --pill-pending-bg: var(--pending-wash);
+  --pill-pending-fg: var(--pending-ink);
+  --pill-declined-bg: var(--declined-wash);
+  --pill-declined-fg: var(--declined-ink);
 }
 
 /* ── Home page theme: linen canvas, white paper, espresso ink ────────
@@ -282,10 +377,16 @@
    physically a scrim or a shadow (the hero's overlay on the lily photo, the
    frosted lace window, box-shadows). This block re-points the shadcn tokens for that subtree only, so
    any shadcn component used inside the letter (Card, Button, Input, Separator…)
-   inherits the two-colour system without per-component overrides. The wisteria
-   & fig palette in :root above is untouched and still owns /dashboard and
-   /login. `@theme inline` is what makes this work — utilities emit
-   `var(--token)`, so a scoped redefinition wins at use site. */
+   inherits the two-colour system without per-component overrides. `@theme inline`
+   is what makes this work — utilities emit `var(--token)`, so a scoped
+   redefinition wins at use site.
+
+   The root palette is now the SAME world (it used to be the admin's separate
+   “wisteria & fig”), so most of what follows is confirmation rather than
+   correction. Two things it still has to do: pin every semantic token to one of
+   the three materials so a future root change cannot leak into the letter, and
+   flatten the admin's tonal ladder back to full ink — the letter's rule is that
+   hierarchy comes from size, face and weight, never tone. */
 .letter-theme {
   --background: var(--linen);
   --foreground: var(--ink);
@@ -313,6 +414,14 @@
   --input: var(--ink);
   --ring: var(--ink);
   --script: var(--ink);
+  /* The admin's three quieter inks collapse to one here. Nothing in the letter
+     reads them today; pinning them keeps it that way if a shared component ever
+     moves between the two worlds. */
+  --ink-2: var(--ink);
+  --ink-3: var(--ink);
+  --ink-faint: var(--ink);
+  --rule: var(--ink);
+  --chip-edge: var(--ink);
 }
 
 /* The couple approved near-black only for the prenup's physical film stock. */
@@ -381,59 +490,84 @@
   padding-inline: 0.75rem;
 }
 
-/* Dark wisteria variant (no in-app toggle yet, but kept coherent). */
+/* Dark variant (no in-app toggle yet, but kept coherent). The night version of
+   the same world: the espresso becomes the ground, the linen becomes the ink,
+   and the three pigments are lifted until they carry on a dark sheet. It used
+   to be a dark wisteria, which had nothing left to be coherent with. */
 .dark {
-  --background: #241d28;
-  --foreground: #f0e9f0;
-  --card: #2b2430;
-  --card-foreground: #f0e9f0;
-  --popover: #2b2430;
-  --popover-foreground: #f0e9f0;
-  --primary: #b6a6d6;
-  --primary-foreground: #241d28;
-  --secondary: #352c3b;
-  --secondary-foreground: #f0e9f0;
-  --muted: #322a37;
-  --muted-foreground: #b3a7b8;
-  --accent: #3a2f40;
-  --accent-foreground: #f4eef6;
-  --destructive: #c9836a;
+  --background: #24231a;
+  --foreground: #ede7d8;
+  --card: #302e22;
+  --card-foreground: #ede7d8;
+  --popover: #302e22;
+  --popover-foreground: #ede7d8;
+  --primary: #d9cfb8;
+  --primary-foreground: #24231a;
+  --secondary: #3a382a;
+  --secondary-foreground: #ede7d8;
+  --muted: #353326;
+  --muted-foreground: #b6ae97;
+  --accent: #3f3d2e;
+  --accent-foreground: #f4efe3;
+  --destructive: #c98a70;
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #b6a6d6;
-  --chart-1: #b6a6d6;
-  --chart-2: #8fae6f;
-  --chart-3: #e0bd73;
-  --chart-4: #cbab9f;
-  --chart-5: #a98cc0;
-  --sidebar: #2b2430;
-  --sidebar-foreground: #f0e9f0;
-  --sidebar-primary: #b6a6d6;
-  --sidebar-primary-foreground: #241d28;
-  --sidebar-accent: #3a2f40;
-  --sidebar-accent-foreground: #f4eef6;
+  --ring: #d9cfb8;
+  --rule: oklch(1 0 0 / 8%);
+  --chip-edge: oklch(1 0 0 / 14%);
+  --ink-2: #cdc5ae;
+  --ink-3: #b6ae97;
+  --ink-faint: #9a9280;
+  --chart-1: #9ab074;
+  --chart-2: #d9b25f;
+  --chart-3: #cc8f74;
+  --chart-4: #b6ae97;
+  --chart-5: #ede7d8;
+  --sidebar: #302e22;
+  --sidebar-foreground: #ede7d8;
+  --sidebar-primary: #d9cfb8;
+  --sidebar-primary-foreground: #24231a;
+  --sidebar-accent: #3f3d2e;
+  --sidebar-accent-foreground: #f4efe3;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: #b6a6d6;
+  --sidebar-ring: #d9cfb8;
 
-  --stat-going: #9bc07a;
-  --stat-going-bar: #7a9a5c;
-  --stat-declined: #d3927a;
-  --stat-declined-bar: #c9a99d;
-  --stat-pending: #e0bd73;
-  --stat-pending-bar: #dcb25f;
-  --stat-invited: #b6a6d6;
-  --stat-invited-bar: #8a76b0;
-  --script: #91A17C;
-  --dot-going: #8fae6f;
-  --dot-declined: #d3927a;
-  --dot-pending: #e0bd73;
-  --dot-invited: #b6a6d6;
-  --pill-going-bg: #2f3a26;
-  --pill-going-fg: #b6d69a;
-  --pill-pending-bg: #3a3320;
-  --pill-pending-fg: #e6c983;
-  --pill-declined-bg: #3a2823;
-  --pill-declined-fg: #e0a892;
+  --script: #ede7d8;
+
+  --going-wash: #2e3722;
+  --going-wash-over: #37432a;
+  --going-edge: #4a5836;
+  --going-mark: #9ab074;
+  --going-ink: #c3d6a2;
+  --pending-wash: #3a3320;
+  --pending-wash-over: #463d27;
+  --pending-edge: #5c5030;
+  --pending-mark: #d9b25f;
+  --pending-ink: #ecca86;
+  --declined-wash: #3a2a23;
+  --declined-wash-over: #46332b;
+  --declined-edge: #5c4238;
+  --declined-mark: #cc8f74;
+  --declined-ink: #e6ab92;
+
+  --stat-going: #b1c78c;
+  --stat-going-bar: var(--going-mark);
+  --stat-declined: #dfa287;
+  --stat-declined-bar: var(--declined-mark);
+  --stat-pending: #e5c37a;
+  --stat-pending-bar: var(--pending-mark);
+  --stat-invited: #ede7d8;
+  --stat-invited-bar: #b6ae97;
+  --dot-going: var(--going-mark);
+  --dot-declined: var(--declined-mark);
+  --dot-pending: var(--pending-mark);
+  --dot-invited: #b6ae97;
+  --pill-going-bg: var(--going-wash);
+  --pill-going-fg: var(--going-ink);
+  --pill-pending-bg: var(--pending-wash);
+  --pill-pending-fg: var(--pending-ink);
+  --pill-declined-bg: var(--declined-wash);
+  --pill-declined-fg: var(--declined-ink);
 }
 
 @layer base {
@@ -442,7 +576,10 @@
   }
   body {
     @apply text-foreground;
-    background: #ffffff;
+    /* Was a flat #ffffff, from when the root palette was the admin's white
+       “wisteria & fig”. The root ground is now the linen desk, and the public
+       routes still paint over it through the two `:has()` rules below. */
+    background: var(--background);
   }
   /* Safari may expose the document canvas around its browser controls. Keep
      the approved ink fallback while the public routes' own artwork paints the
@@ -454,11 +591,13 @@
      measured as ineffective — see docs/rsvp-spec.md §1 before touching this in
      the hope of moving that band. */
   html:has(.invitation-page),
-  html:has(.letter-page) {
+  html:has(.letter-page),
+  html:has(.lace-page) {
     background: var(--ink);
   }
   body:has(.invitation-page),
-  body:has(.letter-page) {
+  body:has(.letter-page),
+  body:has(.lace-page) {
     background: transparent;
   }
   .dark body {
@@ -471,6 +610,47 @@
        URL bar toggles on a long-press / edge touch). */
     overscroll-behavior-y: none;
   }
+}
+
+/* ── Admin surfaces: the parts of the page we did not draw ──────────────
+   Selection, caret and scrollbar ship with browser defaults that belong to no
+   design system, and they are the cheapest tell that a page was assembled
+   rather than built. Scoped to the admin rather than global: the letter sets
+   white type on solid ink in three sections, where an ink selection would erase
+   the words it is meant to highlight. */
+.admin-surface {
+  caret-color: var(--ink);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink) 30%, transparent) transparent;
+}
+.admin-surface ::selection,
+.admin-surface::selection {
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  color: var(--ink);
+}
+/* Portalled overlays (dialogs, dropdowns, the guest editor) render outside the
+   admin subtree, so they never inherit the rules above — the same reason the
+   letter needs `.letter-menu`. Colours reach them through `:root`; only these
+   browser surfaces have to be repeated. */
+[data-slot='dialog-content'] ::selection,
+[data-slot='alert-dialog-content'] ::selection,
+[data-slot='dropdown-menu-content'] ::selection {
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  color: var(--ink);
+}
+
+/* Tracked micro-caps: the admin's one repeated typographic role. It labels a
+   card's meta block, a table head, a column's unit and the header's date line —
+   eleven call sites that each hand-wrote their own size, tracking and weight
+   (9px / 10px / 10.5px, 0.08em / 0.14em / `tracking-wider`). Sized in rem, not
+   fluid: a product UI is read at a fixed distance, and a label that grows with
+   the viewport only widens the row it has to fit inside. */
+.label-caps {
+  font-size: 0.65rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
 /* Wind: individual leaves & blossoms rustle around their own centers while
