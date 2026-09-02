@@ -52,7 +52,55 @@ export default async function UsersPage() {
             {rows.length}
           </span>
         </div>
-        <div className="overflow-x-auto border-t">
+        {/* Phones get stacked records, not the table.
+
+            A five-column admin table cannot fit 390px, and horizontal scroll is
+            not a responsive answer for this page in particular: role and status
+            truncated mid-word and the Activate/Deactivate control — the only
+            reason to open the page — sat off-screen behind a scroll with no
+            affordance pointing at it. Each record becomes a labelled block with
+            its action full-width; the table returns at `sm`. Both render the
+            same rows from the same source. */}
+        <ul className="flex flex-col divide-y border-t sm:hidden">
+          {rows.map((u) => {
+            const locked = u.id === current.id || u.role === 'superadmin';
+            return (
+              <li key={u.id} className="flex flex-col gap-2.5 px-5 py-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm font-semibold break-all text-foreground">{u.email}</span>
+                  <span className="text-xs text-muted-foreground">{u.name ?? 'No name on file'}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge variant={ROLE_VARIANT[u.role]}>{u.role}</Badge>
+                  <Badge variant={STATUS_VARIANT[u.status]}>{u.status}</Badge>
+                </div>
+                {locked ? (
+                  <p className="text-xs text-muted-foreground">
+                    {u.id === current.id
+                      ? 'This is your own account.'
+                      : 'Superadmins cannot be changed here.'}
+                  </p>
+                ) : u.status === 'active' ? (
+                  <form action={deactivateUser}>
+                    <input type="hidden" name="userId" value={u.id} />
+                    <Button type="submit" variant="outline" size="sm" className="w-full">
+                      Deactivate
+                    </Button>
+                  </form>
+                ) : (
+                  <form action={activateUser}>
+                    <input type="hidden" name="userId" value={u.id} />
+                    <Button type="submit" size="sm" className="w-full">
+                      Activate
+                    </Button>
+                  </form>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="hidden overflow-x-auto border-t sm:block">
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>

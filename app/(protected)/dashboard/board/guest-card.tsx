@@ -12,7 +12,6 @@ import {
 import { SnsIcon } from "@/components/dashboard/sns-icon";
 
 import { cn } from "@/lib/utils";
-import { CardCornerFrame, type Corner } from "@/components/dashboard/florals";
 import { GuestDialog } from "@/app/(protected)/dashboard/guests/guest-dialog";
 import { DeleteGuestButton } from "@/app/(protected)/dashboard/guests/delete-guest-button";
 import { CopyLinkButton } from "@/app/(protected)/dashboard/guests/copy-link-button";
@@ -44,7 +43,6 @@ export function GuestCard({
   canEdit,
   dragging,
   draggable,
-  vineCorner,
   onDragStart,
   onDragEnd,
 }: {
@@ -54,8 +52,6 @@ export function GuestCard({
   canEdit: boolean;
   dragging?: boolean;
   draggable?: boolean;
-  /** When set (mobile list), draw an alternating corner vine on the card. */
-  vineCorner?: Corner;
   onDragStart?: (e: DragEvent) => void;
   onDragEnd?: () => void;
 }) {
@@ -74,8 +70,6 @@ export function GuestCard({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       className={cn(
-        // No overflow-hidden: the corner frame's stem sits on the border line
-        // with a slight outward bleed (like the design) and must not be clipped.
         "relative rounded-[13px] border bg-card p-3.5 transition-opacity",
         // Espresso-tinted, two-part: a tight contact shadow so the card sits ON
         // its lane, and a wider one so it lifts off it. The old value was a
@@ -86,7 +80,6 @@ export function GuestCard({
         dragging && "opacity-40",
       )}
     >
-      {vineCorner ? <CardCornerFrame corner={vineCorner} /> : null}
       <div className="relative z-1">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">

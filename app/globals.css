@@ -243,12 +243,13 @@
      --foreground   #2c2a1b  full espresso — names, headings, data     14.44:1
      --ink-2        #5c584a  chip text, read-back values                7.12:1
      --ink-3        #6b6754  field labels, meta captions                5.69:1
-     --ink-faint    #77725c  timestamps, empty-lane prompts             4.83:1
+     --ink-faint    #77725c  timestamps, inactive figures               4.83:1
 
-   Each also clears 4.5:1 on all three status washes (the tightest is #6b6754 on
-   the clay wash at 4.58:1), so the ladder holds inside a lane as well as on the
-   page. It does NOT hold on the linen — #6b6754 there is 2.50:1 — which is one
-   more reason the admin ground is white. */
+   MEASURED LIMIT on the faintest step: it is for WHITE GROUNDS ONLY. On the
+   three status washes #77725c measures 4.10 / 4.05 / 3.89:1 — under the floor.
+   Text on a lane takes `--ink-3`, which clears it on all three (4.83 / 4.77 /
+   4.58:1). Neither step holds on the letter's antique linen (2.50:1 and below),
+   which is one more reason the admin ground is white. */
 :root {
   /* Espresso Olive — the letter's ink, and now the admin's. Declared first so
      the ladder and every semantic token below can derive from it. */

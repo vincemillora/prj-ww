@@ -39,6 +39,13 @@ import { cn } from "@/lib/utils";
  *
  * All of it is decorative: `aria-hidden`, `pointer-events-none`, rendered on the
  * server, no interactivity.
+ *
+ * CURRENTLY RENDERED: `PageFloralBottomRight` (one page corner, sm and up),
+ * `NameSprig` (the masthead), `AccountGarland`, and the two `ColumnVine*` lane
+ * frames. `PageFloralTopLeft` and `CardCornerFrame` are kept and exported but
+ * nothing draws them: the top-left page corner is where the masthead lives, and
+ * the per-card frame needs more room than a phone's 16px gutter has. Both are
+ * one line away from returning if the layout ever gives them space.
  */
 
 // ── Stem geometry ──────────────────────────────────────────────────────────
@@ -591,9 +598,14 @@ export function ColumnVineBottomLeft() {
   );
 }
 
+// Declined runs a step quieter than Awaiting at the same size. Not a luminance
+// correction — measured against their own washes the two pigments are within
+// 0.03 of each other (1.83 vs 1.86 at opacity 40). It is placement: this frame's
+// dense corner cluster lands beside the lane title and its rule, where Awaiting's
+// sits in empty space at the bottom of the lane.
 export function ColumnVineTopRight() {
   return (
-    <CardSprayTopRight className="pointer-events-none absolute -top-[23px] -right-[23px] z-0 h-[230px] w-auto text-(--declined-ink) opacity-40" />
+    <CardSprayTopRight className="pointer-events-none absolute -top-[23px] -right-[23px] z-0 h-[230px] w-auto text-(--declined-ink) opacity-30" />
   );
 }
 

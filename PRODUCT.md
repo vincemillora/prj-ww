@@ -140,10 +140,14 @@ palette and type do not.
   - **The admin gets a tonal ladder the letter forbids itself.** A guest card ranks a name, label
     chips, a head-count, a contact table, dietary notes and a control row inside a postcard, and
     size/face/weight alone cannot do that. Three quieter inks, each tinted FROM the espresso and
-    never grayed: `--ink-2 #5c584a` (7.12:1 on white), `--ink-3 #6b6754` (5.69:1), `--ink-faint
-    #77725c` (4.83:1). All three also clear 4.5:1 on the three status washes. None of them are
-    legible on antique linen (2.50:1 and below), which is one more reason the admin ground is
-    white. `.letter-theme` flattens all three back to full ink.
+    never grayed: `--ink-2 #5c584a` (7.12:1 on white), `--ink-3 #6b6754` (5.69:1),
+    `--ink-faint #77725c` (4.83:1).
+    - **`--ink-faint` is for white grounds only.** On the three status washes it
+      measures 4.10 / 4.05 / 3.89:1, under the floor. Text on a lane takes
+      `--ink-3`, which clears it on all three (4.83 / 4.77 / 4.58:1). An earlier
+      draft of this file claimed all three steps passed on every wash; they do not.
+    - None of them are legible on antique linen (2.50:1 and below), which is one more
+      reason the admin ground is white. `.letter-theme` flattens all three back to full ink.
   - **The kanban's three status hues are earth pigments, used only as state.** Raw sienna for
     awaiting, olive for attending, clay for declined, each with a wash, a drag-over wash, an
     edge, a mark and a darkened `-ink` that passes on its own wash. They replaced the imported

@@ -1,10 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 
-import {
-  PageFloralBottomRight,
-  PageFloralTopLeft,
-} from "@/components/dashboard/florals";
+import { PageFloralBottomRight } from "@/components/dashboard/florals";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -35,13 +32,23 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
     // `admin-surface` themes the parts of the page we did not draw — selection,
     // caret, scrollbar — from the same ink. See app/globals.css.
     <div className="admin-surface relative flex-1">
+      {/* ONE page spray, bottom-right, and both halves of that are deliberate.
+
+          The imported design put a second spray in the top-left corner and a
+          mirrored one at the phone's top-right. On this page that corner is the
+          masthead: at any usable opacity the blooms crossed the letterforms of
+          the couple's name and of “Manage RSVP”, and ornament over display type
+          is ornament competing with the task. The nameplate already carries its
+          own botanical — `NameSprig`, sized for type and set in the same ink —
+          so the corner spray was redundant there as well as in the way.
+
+          The offsets are small (16/20px, not the imported 46/52) because this
+          layer clips: a stem may run off the page, but a bloom cut in half by
+          the clip edge reads as broken art. At these offsets only the stem's
+          tail crosses. Phones get no page spray at all — a 16px gutter has
+          nowhere to put outward-growing leaves. */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <PageFloralTopLeft />
-        <PageFloralBottomRight />
-        {/* Phone layout uses a single mirrored spray at the top-right instead.
-            Colour is set here as well as on the defaults: without it the frame
-            inherits the page's full ink and reads as a dark scribble. */}
-        <PageFloralBottomRight className="pointer-events-none absolute -top-[24px] -right-[40px] h-[170px] w-[170px] -scale-x-100 text-ink-faint opacity-30 md:hidden" />
+        <PageFloralBottomRight className="pointer-events-none absolute -right-[16px] -bottom-[20px] hidden h-[300px] w-[300px] -scale-x-100 text-ink-faint opacity-25 sm:block" />
       </div>
       <div className="relative mx-auto w-full max-w-[1300px] px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
         {children}
