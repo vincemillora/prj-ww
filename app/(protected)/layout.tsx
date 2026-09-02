@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import {
   PageFloralBottomRight,
@@ -9,6 +9,15 @@ import {
 export const metadata: Metadata = {
   title: "Admin Dashboard",
   description: "Manage wedding guests, invitations, and RSVP responses.",
+};
+
+// Matches the public routes so all four opt into the full screen rather than
+// two of them declaring it and two not. No measured effect in portrait on
+// iPhone 17 Pro / iOS 26.5 — `env(safe-area-inset-*)` are `0px` there either
+// way — so this is for landscape insets and consistency, NOT a fix for the
+// address-bar band. See docs/rsvp-spec.md §1 for why that band cannot be moved.
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 /**

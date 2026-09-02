@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/dal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -27,6 +27,11 @@ const ERROR_MESSAGES: Record<string, string> = {
   unverified: 'Your Google email is not verified.',
   auth: 'We could not sign you in. Please try again.',
   denied: 'This Google account is not an authorized admin.',
+};
+
+// See the note on the same export in app/(protected)/layout.tsx.
+export const viewport: Viewport = {
+  viewportFit: 'cover',
 };
 
 export const metadata: Metadata = {

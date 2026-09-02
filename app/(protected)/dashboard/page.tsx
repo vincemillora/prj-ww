@@ -98,7 +98,11 @@ export default async function DashboardPage() {
 
       {/* Mobile: fixed bottom action bar (per hi-fi mobile design) */}
       {canEdit(user.role) ? (
-        <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background via-background/90 to-transparent px-5 pt-5 pb-6 sm:hidden">
+        // `pb-[max(...)]` rather than a flat `pb-6`: this is the one element
+        // anchored to a screen edge, so once the route declares
+        // `viewport-fit=cover` it has to clear the home indicator itself, the
+        // way the letter's VinylPlayer does.
+        <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background via-background/90 to-transparent px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:hidden">
           <GuestDialog mode="create" labels={allLabels} />
         </div>
       ) : null}
