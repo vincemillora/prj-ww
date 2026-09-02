@@ -21,8 +21,10 @@ export const viewport: Viewport = {
 };
 
 /**
- * Sidebar-less admin shell (imported single-page design): a full-width, centered
- * container on the wisteria gradient background. The page-corner floral sprays
+ * Sidebar-less admin shell: a full-width, centred container on plain white. The
+ * dashboard is a task surface and takes the quietest ground there is; what makes
+ * it the guest letter's sibling is the espresso ink, the type, the earth-pigment
+ * status lanes, and the letter's own botanicals. The page-corner floral sprays
  * live in their own `overflow-hidden` layer so their bleed is clipped WITHOUT
  * clipping page chrome — the content wrapper stays overflow-visible so small
  * decorative flourishes (e.g. the account-chip sprigs) aren't cut at the edges.
@@ -30,12 +32,16 @@ export const viewport: Viewport = {
  */
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="relative flex-1">
+    // `admin-surface` themes the parts of the page we did not draw — selection,
+    // caret, scrollbar — from the same ink. See app/globals.css.
+    <div className="admin-surface relative flex-1">
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <PageFloralTopLeft />
         <PageFloralBottomRight />
-        {/* Phone layout uses a single mirrored spray at the top-right instead. */}
-        <PageFloralBottomRight className="pointer-events-none absolute -top-[24px] -right-[40px] h-[170px] w-[170px] -scale-x-100 opacity-[0.42] md:hidden" />
+        {/* Phone layout uses a single mirrored spray at the top-right instead.
+            Colour is set here as well as on the defaults: without it the frame
+            inherits the page's full ink and reads as a dark scribble. */}
+        <PageFloralBottomRight className="pointer-events-none absolute -top-[24px] -right-[40px] h-[170px] w-[170px] -scale-x-100 text-ink-faint opacity-30 md:hidden" />
       </div>
       <div className="relative mx-auto w-full max-w-[1300px] px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
         {children}

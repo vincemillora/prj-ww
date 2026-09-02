@@ -82,7 +82,7 @@ export function GuestDialog({
       <DialogTrigger
         render={
           mode === 'create' ? (
-            <Button className="shadow-[0_4px_14px_rgba(138,118,176,0.32)]">
+            <Button className="shadow-[0_2px_4px_color-mix(in_srgb,var(--ink)_18%,transparent),0_8px_20px_color-mix(in_srgb,var(--ink)_22%,transparent)]">
               <Plus data-icon="inline-start" /> Add guest
             </Button>
           ) : (
@@ -338,7 +338,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <span className="text-[10.5px] font-semibold tracking-wider text-muted-foreground uppercase">
+        <span className="label-caps text-muted-foreground">
           {title}
         </span>
         <Separator className="flex-1" />

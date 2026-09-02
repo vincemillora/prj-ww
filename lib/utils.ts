@@ -22,6 +22,8 @@ const twMerge = extendTailwindMerge({
       "font-size": [
         {
           text: [
+            // The admin's extra small step (fixed rem, not a letter role).
+            "2xs",
             "micro",
             "label",
             "kicker",

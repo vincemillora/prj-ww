@@ -1,7 +1,7 @@
 import { requireUser, canEdit } from "@/lib/dal";
 import { getGuestsWithLabels, getAllLabels } from "@/lib/data";
 import { AccountMenu } from "@/components/dashboard/account-menu";
-import { AccountGarland, CoupleFigures, NameSprig } from "@/components/dashboard/florals";
+import { AccountGarland, NameSprig } from "@/components/dashboard/florals";
 import { GuestsBoard, type GuestRow } from "./guests-board";
 import { ExportGuestsButton } from "./export-guests-button";
 import { GuestDialog } from "./guests/guest-dialog";
@@ -48,21 +48,25 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-5 pb-16 sm:gap-6 sm:pb-0">
       {/* Header */}
+      {/* The couple's name leads and the page title follows, which inverts the
+          imported design: Parisienne carries roughly half the visual weight of
+          its nominal size, so a 38px script under a 42px sans read as a caption
+          for the dashboard rather than as the letterhead it is. The script is
+          now the larger of the two and still the quieter. A cartoon bride and
+          groom used to stand beside it, drawn in the old wisteria palette;
+          the letter's own sprig does that job in the letter's own hand. */}
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <CoupleFigures />
-            <div className="font-script text-[30px] leading-none text-(--script) sm:text-[38px]">
+            <div className="font-script text-4xl leading-none text-(--script) sm:text-5xl">
               {COUPLE}
             </div>
             <NameSprig />
           </div>
-          <h1 className="mt-1 font-sans text-[28px] leading-[1.02] text-foreground sm:text-[42px]">
+          <h1 className="mt-1 text-3xl leading-[1.02] font-medium text-foreground sm:text-4xl">
             Manage RSVP
           </h1>
-          <div className="mt-2.5 text-[10.5px] tracking-[0.14em] text-muted-foreground uppercase sm:text-xs">
-            {OCCASION}
-          </div>
+          <div className="label-caps mt-3 text-muted-foreground">{OCCASION}</div>
           <Countdown />
         </div>
         <div className="flex flex-col items-end gap-3.5">

@@ -1,7 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { headcount } from "@/app/(protected)/dashboard/board/headcount";
-import { COLUMNS, INK, MUT } from "@/app/(protected)/dashboard/board/tokens";
+import { COLUMNS } from "@/app/(protected)/dashboard/board/tokens";
 import type { GuestRow, GuestStatus } from "@/app/(protected)/dashboard/board/types";
 
 // Mobile tab order leads with Attending (per the mobile design).
@@ -30,8 +31,10 @@ export function MobileStatusTabs({
             aria-pressed={on}
             className="rounded-xl border px-1.5 pt-2.5 pb-2 text-center transition-colors"
             style={{
-              background: on ? col.bg : "#fdfaf3",
-              borderColor: on ? col.border : "#e6ddcc",
+              // An unselected tab is a plain white sheet on the linen ground;
+              // only the selected one is washed in its lane's pigment.
+              background: on ? col.bg : "var(--card)",
+              borderColor: on ? col.border : "var(--border)",
             }}
           >
             <span className="flex items-center justify-center gap-1.5">
@@ -40,15 +43,17 @@ export function MobileStatusTabs({
                 style={{ background: col.dot }}
               />
               <span
-                className="text-xs font-semibold"
-                style={{ color: on ? col.activeText : MUT }}
+                className={cn("text-xs font-semibold", !on && "text-muted-foreground")}
+                style={on ? { color: col.activeText } : undefined}
               >
                 {col.short}
               </span>
             </span>
             <span
-              className="mt-1 block font-sans text-2xl leading-none"
-              style={{ color: on ? INK : "#c4b7a0" }}
+              className={cn(
+                "mt-1 block text-2xl leading-none tabular-nums",
+                on ? "text-foreground" : "text-ink-faint",
+              )}
             >
               {headcount(byStatus[key])}
             </span>

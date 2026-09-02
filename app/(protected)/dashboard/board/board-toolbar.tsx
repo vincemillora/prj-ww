@@ -34,14 +34,18 @@ export function BoardToolbar({
   onQueryChange: (value: string) => void;
 }) {
   return (
+    // No rail or card of its own. On the white ground every control in here
+    // already reads at its own tone against the page, and a bordered strip would
+    // be chrome between the header and the board — the three tinted lanes below
+    // are the only enclosure this screen needs.
     <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
       {canEdit ? (
-        <div className="hidden items-center gap-2 text-[12.5px] text-muted-foreground md:flex">
+        <div className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
           <Sparkle className="size-3.5 text-(--dot-pending)" />
           Drag a guest between columns to update their RSVP
         </div>
       ) : null}
-      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
+      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-secondary-foreground">
         {filterActive
           ? `${filteredCount} of ${totalCount}`
           : `${totalCount} invited · ${pct}% replied`}

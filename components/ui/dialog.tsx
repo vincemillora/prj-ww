@@ -31,7 +31,10 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        // Espresso, not neutral black: a scrim is one of the few places this
+        // product allows alpha, and it is still tinted from the world's ink so
+        // the dimmed linen underneath warms rather than greys.
+        "fixed inset-0 isolate z-50 bg-ink/25 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props}

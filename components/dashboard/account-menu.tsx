@@ -62,23 +62,21 @@ export function AccountMenu({
             <button
               type="button"
               aria-label="Account menu"
-              className="flex items-center gap-2.5 rounded-full border bg-card p-[3px] text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none sm:py-[5px] sm:pr-3.5 sm:pl-[5px]"
+              className="flex items-center gap-2.5 rounded-full border bg-card p-[3px] text-left shadow-[0_1px_1px_color-mix(in_srgb,var(--ink)_7%,transparent),0_3px_10px_color-mix(in_srgb,var(--ink)_5%,transparent)] transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none sm:py-[5px] sm:pr-3.5 sm:pl-[5px]"
             >
               <Avatar className="size-8">
                 {user.picture ? (
                   <AvatarImage src={user.picture} alt={user.name ?? user.email} />
                 ) : null}
-                <AvatarFallback className="bg-[#ece6f3] text-xs font-semibold text-[#6f5b95]">
+                <AvatarFallback className="bg-muted text-xs font-semibold text-secondary-foreground">
                   {initials(user.name, user.email)}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden max-w-40 flex-col leading-tight sm:flex">
-                <span className="truncate text-[12.5px] font-semibold text-foreground">
+                <span className="truncate text-xs font-semibold text-foreground">
                   {user.name ?? "Admin"}
                 </span>
-                <span className="truncate text-[11px] text-muted-foreground">
-                  {user.email}
-                </span>
+                <span className="truncate text-2xs text-muted-foreground">{user.email}</span>
               </span>
               <ChevronDown className="hidden size-3 text-muted-foreground sm:block" />
             </button>
@@ -91,7 +89,7 @@ export function AccountMenu({
                 {user.picture ? (
                   <AvatarImage src={user.picture} alt={user.name ?? user.email} />
                 ) : null}
-                <AvatarFallback className="bg-[#ece6f3] text-sm font-semibold text-[#6f5b95]">
+                <AvatarFallback className="bg-muted text-sm font-semibold text-secondary-foreground">
                   {initials(user.name, user.email)}
                 </AvatarFallback>
               </Avatar>

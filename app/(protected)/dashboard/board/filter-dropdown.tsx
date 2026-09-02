@@ -51,9 +51,9 @@ export function FilterDropdown({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 rounded-full border-input px-3.5 text-[12.5px] font-normal text-muted-foreground"
+            className="h-7 rounded-full border-input px-3.5 text-xs font-normal text-muted-foreground"
           >
-            <span className="font-medium text-foreground/70">{prefix}:</span>
+            <span className="font-medium text-secondary-foreground">{prefix}:</span>
             <span className="max-w-40 truncate">{summary}</span>
             <ChevronDown className="size-3.5" />
           </Button>
