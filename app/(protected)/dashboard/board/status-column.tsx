@@ -87,7 +87,11 @@ export function StatusColumn({
         ))}
       </div>
       {cards.length === 0 ? (
-        <div className="py-7 text-center text-xs text-ink-faint italic">
+        // `muted-foreground`, not `ink-faint`: this prompt is the one place a
+        // quiet ink sits on a tinted lane rather than on white, and the faintest
+        // step measures 4.10 / 4.05 / 3.89:1 on the three washes. The tertiary
+        // step clears 4.5 on all three (4.83 / 4.77 / 4.58).
+        <div className="py-7 text-center text-xs text-muted-foreground italic">
           {filterActive ? "No matches" : canEdit ? "Drop guests here" : "No guests"}
         </div>
       ) : null}

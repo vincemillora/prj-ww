@@ -10,7 +10,6 @@ import {
 import type { Label as LabelRow } from "@/db/schema";
 
 import { Button } from "@/components/ui/button";
-import { type Corner } from "@/components/dashboard/florals";
 import {
   filterGuests,
   groupGuestsByStatus,
@@ -30,9 +29,6 @@ import type { GuestRow, GuestStatus } from "@/app/(protected)/dashboard/board/ty
 import { moveGuestStatus } from "./guests/actions";
 
 export type { GuestRow, GuestStatus } from "@/app/(protected)/dashboard/board/types";
-
-// Corner cycled per mobile card so each item's vine alternates around the stack.
-const CARD_VINE_CYCLE: Corner[] = ["tl", "tr", "br", "bl"];
 
 /**
  * Kanban guest board (imported design): desktop/tablet get three drag-and-drop
@@ -128,8 +124,15 @@ export function GuestsBoard({
       {/* Mobile: status tabs */}
       <MobileStatusTabs tab={tab} onTabChange={setTab} byStatus={byStatus} />
 
-      {/* Mobile: active tab card list — vines live on the cards themselves
-          (CardCornerFrame per item), never floating on this borderless list. */}
+      {/* Mobile: active tab card list.
+
+          No per-card corner vine here any more. The frame's stem sits ON the
+          card's border and its leaves grow outward from it, which needs more
+          room than the phone's 16px page gutter has — every left- and
+          right-hand leaf was sliced flat by the viewport edge. The board keeps
+          its botanicals on the desktop lanes, where the vine has somewhere to
+          grow. `CardCornerFrame` is still exported for reuse if the gutter ever
+          widens. */}
       <div className="relative flex flex-col gap-3 md:hidden">
         <div className="relative z-1 flex flex-col gap-3">
         <ColumnStats size="sm" cards={byStatus[tab]} showCounts={tab === "going"} />
@@ -140,14 +143,13 @@ export function GuestsBoard({
         ) : (
           byStatus[tab]
             .slice(0, limits[tab])
-            .map((row, i) => (
+            .map((row) => (
               <GuestCard
                 key={row.id}
                 row={row}
                 labels={labels}
                 baseUrl={baseUrl}
                 canEdit={canEdit}
-                vineCorner={CARD_VINE_CYCLE[i % CARD_VINE_CYCLE.length]}
               />
             ))
         )}

@@ -41,7 +41,9 @@ export function BoardToolbar({
     <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
       {canEdit ? (
         <div className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
-          <Sparkle className="size-3.5 text-(--dot-pending)" />
+          {/* Ink, not a lane pigment. The three pigments say “state” on this
+              surface, and a hint about dragging is not a state. */}
+          <Sparkle className="size-3.5 text-muted-foreground" />
           Drag a guest between columns to update their RSVP
         </div>
       ) : null}
