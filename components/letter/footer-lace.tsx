@@ -35,6 +35,13 @@ export function FooterLace() {
           alt=""
           className="object-cover"
           fill
+          // Blurred, but still LAZY. The drapery is the last thing on a long
+          // page, so making it eager would have it compete with the hero for
+          // bandwidth on the screen that matters most (AttireGuide and the RSVP
+          // backdrop stay lazy for the same reason). The LQIP is what closes the
+          // gap: it paints immediately, so the white sign-off type has real
+          // artwork behind it from the first frame instead of the flat fallback.
+          placeholder="blur"
           priority={false}
           sizes="100vw"
           src={laceBackground}

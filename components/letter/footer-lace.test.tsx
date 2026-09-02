@@ -3,8 +3,26 @@ import { describe, expect, it, vi } from 'vitest';
 
 /* eslint-disable @next/next/no-img-element -- expose Next Image output in JSDOM. */
 vi.mock('next/image', () => ({
-  default: ({ alt, className, src }: { alt: string; className?: string; src: string }) => (
-    <img alt={alt} className={className} src={src} />
+  default: ({
+    alt,
+    className,
+    src,
+    placeholder,
+    priority,
+  }: {
+    alt: string;
+    className?: string;
+    src: string;
+    placeholder?: string;
+    priority?: boolean;
+  }) => (
+    <img
+      alt={alt}
+      className={className}
+      src={src}
+      data-placeholder={placeholder}
+      data-priority={String(!!priority)}
+    />
   ),
 }));
 
@@ -24,6 +42,22 @@ describe('FooterLace', () => {
 
     expect(backgrounds).toHaveLength(1);
     expect(background).toHaveClass('absolute', 'inset-0');
+  });
+
+  it('blurs the drapery in while leaving it lazy', () => {
+    render(<FooterLace />);
+
+    const drapery = screen
+      .getByRole('contentinfo')
+      .querySelector('img[src*="lace-bg"]');
+
+    // The LQIP is load-bearing, not decoration: the sign-off is white type and
+    // this image is the only thing behind it, so without a placeholder the
+    // opening frame falls back to the flat `bg-lace` tone. Blur puts real
+    // artwork there immediately.
+    expect(drapery).toHaveAttribute('data-placeholder', 'blur');
+    // Deliberately NOT eager — see the note at the call site.
+    expect(drapery).toHaveAttribute('data-priority', 'false');
   });
 
   it('places the contact sign-off after the couple logo', () => {
