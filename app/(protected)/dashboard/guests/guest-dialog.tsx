@@ -62,10 +62,16 @@ export function GuestDialog({
   mode,
   labels,
   guest,
+  compact,
 }: {
   mode: GuestFormMode;
   labels: LabelRow[];
   guest?: GuestData;
+  /**
+   * Create mode only: a round icon trigger instead of the labelled button, for
+   * the phone toolbar where it sits beside the round search button.
+   */
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   // Bump the key on each open so the inner form (and its useActionState) remounts fresh.
@@ -82,9 +88,20 @@ export function GuestDialog({
       <DialogTrigger
         render={
           mode === 'create' ? (
-            <Button className="shadow-[0_2px_4px_color-mix(in_srgb,var(--ink)_18%,transparent),0_8px_20px_color-mix(in_srgb,var(--ink)_22%,transparent)]">
-              <Plus data-icon="inline-start" /> Add guest
-            </Button>
+            compact ? (
+              // 44px, which is both the round shape the phone toolbar wants and
+              // the touch target this action deserves.
+              <Button
+                className="size-11 rounded-full p-0 shadow-[0_2px_4px_color-mix(in_srgb,var(--ink)_18%,transparent),0_8px_20px_color-mix(in_srgb,var(--ink)_22%,transparent)]"
+                aria-label="Add guest"
+              >
+                <Plus className="size-[18px]" />
+              </Button>
+            ) : (
+              <Button className="shadow-[0_2px_4px_color-mix(in_srgb,var(--ink)_18%,transparent),0_8px_20px_color-mix(in_srgb,var(--ink)_22%,transparent)]">
+                <Plus data-icon="inline-start" /> Add guest
+              </Button>
+            )
           ) : (
             <Button variant="ghost" size="icon-sm" aria-label={`Edit ${guest?.name ?? ''}`}>
               <Pencil />

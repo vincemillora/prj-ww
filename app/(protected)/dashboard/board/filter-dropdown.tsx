@@ -51,7 +51,9 @@ export function FilterDropdown({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 rounded-full border-input px-3.5 text-xs font-normal text-muted-foreground"
+            // 44px on a phone, where it sits between two round 44px buttons and
+            // is itself a touch target; the desktop keeps the design's 28px chip.
+            className="h-11 rounded-full border-input px-4 text-sm font-normal text-muted-foreground sm:h-7 sm:px-3.5 sm:text-xs"
           >
             <span className="font-medium text-secondary-foreground">{prefix}:</span>
             <span className="max-w-40 truncate">{summary}</span>

@@ -8,8 +8,22 @@ import {
   FilterDropdown,
   type Selection,
 } from "@/app/(protected)/dashboard/board/filter-dropdown";
+import { SearchPopover } from "@/app/(protected)/dashboard/board/search-popover";
+import { GuestDialog } from "@/app/(protected)/dashboard/guests/guest-dialog";
 
-// Toolbar: drag hint + summary + label filter + search
+/**
+ * Toolbar: reply summary, label filter, search, and — on phones only — the add
+ * button.
+ *
+ * The two breakpoints want different things from the same controls. A desktop
+ * has room for a labelled search field sitting open, and its add button belongs
+ * in the header beside Export CSV. A phone has neither: a full-width field ate
+ * a third of the toolbar before anyone had searched for anything, and the add
+ * button used to be a fixed bar pinned across the bottom of the screen, which
+ * covered the last guest card and followed the admin down every scroll. Both
+ * become round 44px buttons in one row, and the search field lives inside its
+ * own popover until it is asked for.
+ */
 export function BoardToolbar({
   canEdit,
   filterActive,
@@ -53,7 +67,10 @@ export function BoardToolbar({
           : `${totalCount} invited · ${pct}% replied`}
       </span>
       <div className="flex-1" />
-      <div className="flex flex-wrap items-center gap-2">
+      {/* `ml-auto` as well as the spacer: on a phone the summary chip and the
+          controls do not fit on one line, and without it the group lands
+          left-aligned on the second row with the whole right half empty. */}
+      <div className="ml-auto flex items-center gap-2">
         {labels.length > 0 ? (
           <FilterDropdown
             prefix="Tags"
@@ -62,7 +79,19 @@ export function BoardToolbar({
             onToggle={onToggleLabel}
           />
         ) : null}
-        <div className="relative w-full sm:w-56">
+
+        {/* Phones: search behind a round button, then add. */}
+        <div className="sm:hidden">
+          <SearchPopover query={query} onQueryChange={onQueryChange} />
+        </div>
+        {canEdit ? (
+          <div className="sm:hidden">
+            <GuestDialog mode="create" labels={labels} compact />
+          </div>
+        ) : null}
+
+        {/* Desktop: the field is open, and add lives in the page header. */}
+        <div className="relative hidden w-56 sm:block">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
