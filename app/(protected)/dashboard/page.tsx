@@ -46,7 +46,7 @@ export default async function DashboardPage() {
   const baseUrl = process.env.APP_URL ?? "";
 
   return (
-    <div className="flex flex-col gap-5 pb-16 sm:gap-6 sm:pb-0">
+    <div className="flex flex-col gap-5 sm:gap-6">
       {/* Header */}
       {/* The couple's name leads and the page title follows, which inverts the
           imported design: Parisienne carries roughly half the visual weight of
@@ -82,7 +82,8 @@ export default async function DashboardPage() {
               labels={allLabels}
             />
           </div>
-          {/* Phones get a fixed bottom "Add guest" bar instead of header buttons. */}
+          {/* Desktop only. On phones the add button is a round one in the board
+              toolbar, beside search; CSV export is a desktop job. */}
           <div className="hidden flex-wrap items-center justify-end gap-2.5 sm:flex">
             <ExportGuestsButton rows={guestRows} baseUrl={baseUrl} />
             {canEdit(user.role) ? (
@@ -92,24 +93,14 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {/* Kanban board (imported design) — per-column vines + counts live inside. */}
+      {/* Kanban board — per-column vines, counts, and the phone toolbar's round
+          search and add buttons all live inside. */}
       <GuestsBoard
         rows={guestRows}
         labels={allLabels}
         baseUrl={baseUrl}
         canEdit={canEdit(user.role)}
       />
-
-      {/* Mobile: fixed bottom action bar (per hi-fi mobile design) */}
-      {canEdit(user.role) ? (
-        // `pb-[max(...)]` rather than a flat `pb-6`: this is the one element
-        // anchored to a screen edge, so once the route declares
-        // `viewport-fit=cover` it has to clear the home indicator itself, the
-        // way the letter's VinylPlayer does.
-        <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background via-background/90 to-transparent px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:hidden">
-          <GuestDialog mode="create" labels={allLabels} />
-        </div>
-      ) : null}
     </div>
   );
 }
