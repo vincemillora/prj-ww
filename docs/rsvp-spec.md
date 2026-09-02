@@ -25,9 +25,46 @@
   so only the foreground moves and the journey reads as one continuous scene.
 - `/rsvp` renders the guest-facing wedding letter and RSVP form.
 - `/dashboard` and all dashboard routes are unchanged.
-- Both public routes keep `viewport-fit=cover` but deliberately omit `theme-color`, allowing
-  Safari's bottom browser controls to reveal the full-bleed page artwork instead of an opaque
-  forced tint. The document canvas remains ink as a fallback.
+- **iOS Safari chrome, and why the letter stops short of the screen edge.**
+  All figures measured on iPhone 17 Pro / iOS 26.5, with **real swipe gestures** — this
+  cannot be tested with `window.scrollTo`, which never minimises the address bar and puts
+  every reading in the wrong state.
+  - Scrolled by a real gesture, Safari minimises its address bar to a floating pill and a
+    plain page's **flowed content genuinely reaches the bottom of the screen**, under the
+    pill. This is what the reference site does; it sets no `viewport-fit` at all.
+  - **What stops it here: any painted `position: sticky` layer.** The band appears the
+    moment such a layer scrolls into the viewport and then does NOT go away for the rest
+    of the session — it latches. Height is not the trigger: an ordinary 56px painted
+    sticky nav bar reproduces it. An empty or text-only sticky does not. Removing
+    `sticky` always clears it. Verified on device: with every painted sticky removed from
+    the letter, content reaches the bottom row of the screen under the minimised pill.
+  - **The band is Safari's own opaque chrome material, NOT our document canvas.** It
+    stays white with the canvas forced to `#ff00ff`. Colour matching is therefore not a
+    mitigation — there is nothing of ours to match. `theme-color` is ignored outright on
+    iOS 26, static or mutated.
+  - **Instrument warning — read before re-testing.** Counting canvas-coloured pixels is
+    structurally blind to this bug: the band is chrome, so a "no canvas pixels" reading
+    says nothing. This was measured wrongly several times before being caught by eye.
+    Test by looking at the screen, and scroll with a real touch drag — a trackpad or
+    wheel scroll never collapses the address bar, so it parks you in the expanded state,
+    which reserves a strip on every page ever made (a page containing nothing but one
+    striped div reserves an identical one).
+  - **Standing trade-off.** The letter's pinned scenes and edge-to-edge content are
+    mutually exclusive on iOS 26. The pins are: `OpeningBackdrop`'s backdrop zoom,
+    `Hero`'s pinned type, `PrenupGallery`'s scroll-driven pan, `Rsvp`'s backdrop hold,
+    and `RsvpEnvelope`'s glide-and-tuck. Keeping any one of them keeps the band. Both
+    public routes keep `viewport-fit=cover`.
+  - **DECIDED: the scenes win and the band is accepted.** The pinned motion is part of
+    the approved design, so it is not traded away for the last ~58pt of screen. Nothing
+    in our CSS moves this band — not the canvas colour, not `theme-color`, not
+    `viewport-fit`, not `env(safe-area-inset-*)` (both insets are `0px` in portrait
+    Safari), not `overscroll-behavior`, not swapping `vh` for `dvh`/`svh` (already done
+    throughout), not moving `overflow` off the sticky. All measured. Re-open only if a
+    future iOS changes the sticky behaviour; the removal spike is preserved on branch
+    `spike/ios26-no-painted-sticky` (commit `16e6c10`) if it ever needs re-evaluating.
+  - Unrelated to the band, `FooterLace` declares `bg-lace` (`--lace: #877863`, the
+    measured average of `public/lace-bg.png`) rather than `bg-paper`, so the frame before
+    the drapery decodes does not flash white under the white sign-off type.
 
 An **invite-only** wedding RSVP website. The couple pre-registers each invitee (a party/household)
 in a Google-authenticated admin dashboard (`/dashboard`), which mints a per-person link
