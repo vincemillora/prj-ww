@@ -74,6 +74,10 @@ export default async function UsersPage() {
                   <Badge variant={ROLE_VARIANT[u.role]}>{u.role}</Badge>
                   <Badge variant={STATUS_VARIANT[u.status]}>{u.status}</Badge>
                 </div>
+                {/* The buttons name their account. “Deactivate” alone is only
+                    unambiguous if you can see which record it sits under, which
+                    is exactly what a screen reader stepping through the list
+                    cannot do. */}
                 {locked ? (
                   <p className="text-xs text-muted-foreground">
                     {u.id === current.id
@@ -83,14 +87,20 @@ export default async function UsersPage() {
                 ) : u.status === 'active' ? (
                   <form action={deactivateUser}>
                     <input type="hidden" name="userId" value={u.id} />
-                    <Button type="submit" variant="outline" size="sm" className="w-full">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      aria-label={`Deactivate ${u.email}`}
+                    >
                       Deactivate
                     </Button>
                   </form>
                 ) : (
                   <form action={activateUser}>
                     <input type="hidden" name="userId" value={u.id} />
-                    <Button type="submit" size="sm" className="w-full">
+                    <Button type="submit" size="sm" className="w-full" aria-label={`Activate ${u.email}`}>
                       Activate
                     </Button>
                   </form>
@@ -126,18 +136,25 @@ export default async function UsersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       {locked ? (
-                        <span className="text-sm text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground" aria-label="No action available">
+                          —
+                        </span>
                       ) : u.status === 'active' ? (
                         <form action={deactivateUser} className="inline-block">
                           <input type="hidden" name="userId" value={u.id} />
-                          <Button type="submit" variant="outline" size="sm">
+                          <Button
+                            type="submit"
+                            variant="outline"
+                            size="sm"
+                            aria-label={`Deactivate ${u.email}`}
+                          >
                             Deactivate
                           </Button>
                         </form>
                       ) : (
                         <form action={activateUser} className="inline-block">
                           <input type="hidden" name="userId" value={u.id} />
-                          <Button type="submit" size="sm">
+                          <Button type="submit" size="sm" aria-label={`Activate ${u.email}`}>
                             Activate
                           </Button>
                         </form>

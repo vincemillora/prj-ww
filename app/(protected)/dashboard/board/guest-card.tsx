@@ -148,7 +148,10 @@ export function GuestCard({
                       target="_blank"
                       rel="noopener noreferrer"
                       title={`${cfg.label}: ${handle}`}
-                      className="inline-flex max-w-full items-center gap-1 truncate text-foreground underline-offset-2 hover:underline"
+                      // `py-1 -my-1` grows the hit area to 24px without moving
+                      // the row: at the card's 11px type these links measured
+                      // 16px tall, under WCAG 2.5.8's minimum target size.
+                      className="inline-flex max-w-full items-center gap-1 truncate py-1 -my-1 text-foreground underline-offset-2 hover:underline"
                     >
                       <SnsIcon platform={platform} className="size-3 shrink-0" />
                       <span className="truncate">{handle}</span>
