@@ -205,7 +205,7 @@ const SPRAY_TR_PLACES: readonly Place[] = [
   { plant: "bud", run: 0, seg: 2, t: 1, w: 30 },
 ];
 
-function CardSprayTopRight({ className }: SvgProps) {
+export function CardSprayTopRight({ className }: SvgProps) {
   return (
     <Spray
       box={SPRAY_BOX}
@@ -250,7 +250,7 @@ const SPRAY_BL_PLACES: readonly Place[] = [
   { plant: "bud", run: 0, seg: 2, t: 1, w: 30, flip: true },
 ];
 
-function CardSprayBottomLeft({ className }: SvgProps) {
+export function CardSprayBottomLeft({ className }: SvgProps) {
   return (
     <Spray
       box={SPRAY_BOX}
