@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { BEAT } from '@/components/letter/motion-tokens';
-import { TypedLines, WRITE_S } from '@/components/letter/typed-text';
+import { TypedLines, writeDurationS } from '@/components/letter/typed-text';
 import { COUPLE_NAMES } from '@/lib/wedding';
 import envelopeBack from '@/public/index-invitation/back.png';
 import envelopeFront from '@/public/index-invitation/front.png';
@@ -47,13 +47,17 @@ const SENDERS = COUPLE_NAMES.join(' and ');
  * subject is simply present, the way a letter on a table is, and the words are
  * what arrive.
  *
- * The hint's hold is DERIVED, not guessed: the senders' hold, plus the write
- * itself (`WRITE_S`, the same budget `TypedLines` writes to), plus two beats.
- * The instruction lands just after the names finish rather than competing with
- * them, and re-timing the typewriter re-times this with it.
+ * The hint's hold is DERIVED, not guessed: the senders' hold, plus however long
+ * the block actually takes to write (`writeDurationS`, asked with the same
+ * `parallel` the block uses), plus two beats. The instruction lands just after
+ * the words settle rather than competing with them, and re-timing the
+ * typewriter — or switching the block back to sequential — re-times this with
+ * it instead of leaving a stale constant behind.
  */
+const SENDERS_LINES = ['you have received a letter from', SENDERS];
 const SENDERS_HOLD_S = 0.45;
-const HINT_HOLD_S = SENDERS_HOLD_S + WRITE_S + BEAT * 2;
+const HINT_HOLD_S =
+  SENDERS_HOLD_S + writeDurationS(SENDERS_LINES, true) + BEAT * 2;
 
 /**
  * The invitation stage: the senders' line, the tappable envelope, and the hint
@@ -141,10 +145,16 @@ export function EnvelopeInvitation({ href }: { href: string }) {
         lines={[
           {
             className: 'font-sans text-label uppercase tracking-[0.08em]',
-            text: 'you have received a letter from',
+            text: SENDERS_LINES[0],
           },
-          { className: 'font-script text-title', text: SENDERS },
+          { className: 'font-script text-title', text: SENDERS_LINES[1] },
         ]}
+        // Both lines at once. Inside the letter a heading must finish before
+        // its kicker starts, but here the two lines are one utterance and this
+        // is the first thing on the page: writing them together finishes the
+        // block in the longer line's 31 ticks rather than 43, and the hint
+        // behind it arrives that much sooner.
+        parallel
         // Above the fold, so the server renders this block empty behind a
         // `<noscript>` copy — without that the finished line painted, blanked
         // at hydration, and then wrote itself out. See `aboveFold`.

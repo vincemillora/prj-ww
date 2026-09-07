@@ -7,7 +7,7 @@ vi.mock('motion/react', () => ({
   useInView: () => inView,
 }));
 
-import { TypedLines } from '@/components/letter/typed-text';
+import { TypedLines, writeDurationS } from '@/components/letter/typed-text';
 
 /** The welcome band's sign-off — the two-line case the component was built for. */
 function SignOff() {
@@ -27,6 +27,10 @@ function SignOff() {
  * finished ones from the first frame. jsdom computes neither visibility nor
  * innerText, so the pending span is subtracted explicitly.
  */
+function writtenIn(line: Element) {
+  return written(line as HTMLElement);
+}
+
 function written(block: HTMLElement) {
   const pending = [...block.querySelectorAll('[data-slot="pending"]')]
     .map((n) => n.textContent ?? '')
@@ -102,6 +106,40 @@ describe('TypedLines', () => {
 
     tick(30);
     expect(written(block)).not.toContain('with');
+  });
+
+  it('writes every line at once when parallel, in the longest line\'s ticks', () => {
+    stubReducedMotion(false);
+    render(
+      <TypedLines
+        lines={[{ text: 'you have received a letter from' }, { text: 'Vince and Kc' }]}
+        parallel
+      />,
+    );
+
+    const block = screen.getByTestId('typed-text');
+
+    // Both lines advance together, so the short one is under way while the
+    // long one is nowhere near done — sequentially it would still be empty.
+    tick(6);
+    const [first, second] = [...block.querySelectorAll('p')];
+    expect(writtenIn(first).length).toBeGreaterThan(0);
+    expect(writtenIn(second).length).toBeGreaterThan(0);
+
+    // 31 ticks writes the longest line, and with it the whole block. The
+    // sequential path would need 43.
+    tick(40);
+    expect(writtenIn(first)).toBe('you have received a letter from');
+    expect(writtenIn(second)).toBe('Vince and Kc');
+  });
+
+  it('reports a parallel block as shorter than a sequential one', () => {
+    const lines = ['you have received a letter from', 'Vince and Kc'];
+
+    // Same hand speed, fewer ticks: this is the whole point of the mode, and
+    // the invitation derives its hint delay from this number.
+    expect(writeDurationS(lines, true)).toBeLessThan(writeDurationS(lines));
+    expect(writeDurationS(lines, true)).toBeCloseTo(31 * 0.033, 2);
   });
 
   it('leaves the finished text alone for a guest who prefers reduced motion', () => {
