@@ -4,6 +4,9 @@ import { useEffect, useState, type MouseEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { InViewReveal } from '@/components/letter/in-view-reveal';
+import { BEAT } from '@/components/letter/motion-tokens';
+import { TypedLines, WRITE_S } from '@/components/letter/typed-text';
 import { COUPLE_NAMES } from '@/lib/wedding';
 import envelopeBack from '@/public/index-invitation/back.png';
 import envelopeFront from '@/public/index-invitation/front.png';
@@ -32,6 +35,25 @@ const OPEN_RESET_MS = 6000;
 
 /** "Vince and Kc" — the prose form of `COUPLE` ("Vince & Kc"), for running text. */
 const SENDERS = COUPLE_NAMES.join(' and ');
+
+/**
+ * How long the senders' line waits before it starts writing itself, and how
+ * long the hint waits behind it.
+ *
+ * The envelope is NOT part of this sequence. It is the page's LCP element, and
+ * an entrance that starts it at `opacity: 0` would delay the largest paint by
+ * the length of the animation — the artwork is eager-loaded precisely because
+ * that measurement matters here (see the `loading="eager"` note below). So the
+ * subject is simply present, the way a letter on a table is, and the words are
+ * what arrive.
+ *
+ * The hint's hold is DERIVED, not guessed: the senders' hold, plus the write
+ * itself (`WRITE_S`, the same budget `TypedLines` writes to), plus two beats.
+ * The instruction lands just after the names finish rather than competing with
+ * them, and re-timing the typewriter re-times this with it.
+ */
+const SENDERS_HOLD_S = 0.45;
+const HINT_HOLD_S = SENDERS_HOLD_S + WRITE_S + BEAT * 2;
 
 /**
  * The invitation stage: the senders' line, the tappable envelope, and the hint
@@ -99,12 +121,37 @@ export function EnvelopeInvitation({ href }: { href: string }) {
       className="invitation-stage relative flex h-dvh flex-col items-center justify-center px-gutter text-center"
       data-opening={opening || undefined}
     >
-      <div className="invitation-senders text-paper">
-        <p className="font-sans text-label uppercase tracking-[0.08em]">
-          you have received a letter from
-        </p>
-        <p className="font-script text-title">{SENDERS}</p>
-      </div>
+      {/*
+        Written, not simply present — the same hand as the letter's section
+        headings and signatures (`TypedLines`), so the invitation and the letter
+        it opens are plainly the same document. The two lines share ONE
+        timeline, so the announcement finishes before the senders' names begin.
+
+        `startDelay` matters here in a way it does not inside the letter: this
+        block is already on screen at load, so without a hold it would start
+        writing in the same frame the artwork paints. Down the letter, the
+        scroll is the cue and the hold is 0.
+
+        The `invitation-senders` class stays on the wrapper: the tap exit is
+        choreographed in CSS off the stage's `data-opening` and still fades this
+        whole block out, whatever state the writing is in.
+      */}
+      <TypedLines
+        className="invitation-senders text-paper"
+        lines={[
+          {
+            className: 'font-sans text-label uppercase tracking-[0.08em]',
+            text: 'you have received a letter from',
+          },
+          { className: 'font-script text-title', text: SENDERS },
+        ]}
+        // Above the fold, so the server renders this block empty behind a
+        // `<noscript>` copy — without that the finished line painted, blanked
+        // at hydration, and then wrote itself out. See `aboveFold`.
+        aboveFold
+        startDelay={SENDERS_HOLD_S}
+        testId="invitation-senders"
+      />
 
       {/* Default prefetch (`auto`), deliberately NOT `prefetch`. Measured against
           the production build: the default fetches `/rsvp`'s prerendered PPR
@@ -167,10 +214,17 @@ export function EnvelopeInvitation({ href }: { href: string }) {
           mid-animation. No `aria-live` here: the DOM never mutates, so a live
           region would never fire — `aria-busy` on the link above is what tells
           assistive tech the tap was received. */}
-      <p className="invitation-hint mt-6 font-sans text-label text-paper">
+      <InViewReveal
+        className="invitation-hint mt-6 font-sans text-label text-paper"
+        // Last, and deliberately so: the instruction should arrive after the
+        // guest has been told who the letter is from. Timed to land as the
+        // senders' line finishes writing — see HINT_HOLD_S.
+        delay={HINT_HOLD_S}
+        distance={10}
+      >
         <span data-slot="idle">Tap the envelope to open the letter</span>
         <span data-slot="opening">Opening the letter…</span>
-      </p>
+      </InViewReveal>
     </div>
   );
 }
