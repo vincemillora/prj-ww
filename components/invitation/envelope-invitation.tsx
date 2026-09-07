@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
-import { BEAT } from '@/components/letter/motion-tokens';
-import { TypedLines, writeDurationS } from '@/components/letter/typed-text';
+import { TypedLines } from '@/components/letter/typed-text';
 import { COUPLE_NAMES } from '@/lib/wedding';
 import envelopeBack from '@/public/index-invitation/back.png';
 import envelopeFront from '@/public/index-invitation/front.png';
@@ -37,27 +36,31 @@ const OPEN_RESET_MS = 6000;
 const SENDERS = COUPLE_NAMES.join(' and ');
 
 /**
- * How long the senders' line waits before it starts writing itself, and how
- * long the hint waits behind it.
+ * How long the words wait before they arrive.
  *
- * The envelope is NOT part of this sequence. It is the page's LCP element, and
- * an entrance that starts it at `opacity: 0` would delay the largest paint by
- * the length of the animation — the artwork is eager-loaded precisely because
- * that measurement matters here (see the `loading="eager"` note below). So the
- * subject is simply present, the way a letter on a table is, and the words are
- * what arrive.
+ * There is only ONE hold, and every line shares it: the two written lines and
+ * the hint beneath them all start on the same beat, so the stage reads as a
+ * single utterance rather than a queue. The hint used to wait out the whole
+ * typewriter; it no longer does.
  *
- * The hint's hold is DERIVED, not guessed: the senders' hold, plus however long
- * the block actually takes to write (`writeDurationS`, asked with the same
- * `parallel` the block uses), plus two beats. The instruction lands just after
- * the words settle rather than competing with them, and re-timing the
- * typewriter — or switching the block back to sequential — re-times this with
- * it instead of leaving a stale constant behind.
+ * The hold is not zero because this block is already on screen at load — at 0
+ * it would start writing in the same frame the artwork paints, which reads as a
+ * glitch rather than an entrance.
+ *
+ * The envelope settles on the same beat. Its entrance is TRANSFORM ONLY — a
+ * rise, never a fade — because this is the page's LCP element: an element at
+ * `opacity: 0` is not a paint candidate, so a fade would delay the largest
+ * paint by the length of the animation, while a translated one paints in frame
+ * one and merely arrives low. The artwork is eager-loaded precisely because
+ * that measurement matters here (see the `loading="eager"` note below).
+ *
+ * The hold is handed to CSS as `--invitation-hold` rather than duplicated
+ * there, so this constant stays the one place the stage's timing is set. The
+ * settle itself lives in app/globals.css next to the tap exit it has to hand
+ * over to.
  */
 const SENDERS_LINES = ['you have received a letter from', SENDERS];
-const SENDERS_HOLD_S = 0.45;
-const HINT_HOLD_S =
-  SENDERS_HOLD_S + writeDurationS(SENDERS_LINES, true) + BEAT * 2;
+const STAGE_HOLD_S = 0.45;
 
 /**
  * The invitation stage: the senders' line, the tappable envelope, and the hint
@@ -124,6 +127,7 @@ export function EnvelopeInvitation({ href }: { href: string }) {
     <div
       className="invitation-stage relative flex h-dvh flex-col items-center justify-center px-gutter text-center"
       data-opening={opening || undefined}
+      style={{ '--invitation-hold': `${STAGE_HOLD_S}s` } as CSSProperties}
     >
       {/*
         Written, not simply present — the same hand as the letter's section
@@ -159,7 +163,7 @@ export function EnvelopeInvitation({ href }: { href: string }) {
         // `<noscript>` copy — without that the finished line painted, blanked
         // at hydration, and then wrote itself out. See `aboveFold`.
         aboveFold
-        startDelay={SENDERS_HOLD_S}
+        startDelay={STAGE_HOLD_S}
         testId="invitation-senders"
       />
 
@@ -226,10 +230,9 @@ export function EnvelopeInvitation({ href }: { href: string }) {
           assistive tech the tap was received. */}
       <InViewReveal
         className="invitation-hint mt-6 font-sans text-label text-paper"
-        // Last, and deliberately so: the instruction should arrive after the
-        // guest has been told who the letter is from. Timed to land as the
-        // senders' line finishes writing — see HINT_HOLD_S.
-        delay={HINT_HOLD_S}
+        // Same beat as the written lines above: the instruction is part of the
+        // one utterance, not a postscript to it. See STAGE_HOLD_S.
+        delay={STAGE_HOLD_S}
         distance={10}
       >
         <span data-slot="idle">Tap the envelope to open the letter</span>

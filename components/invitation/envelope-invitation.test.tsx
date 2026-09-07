@@ -86,7 +86,7 @@ describe('EnvelopeInvitation', () => {
     render(<EnvelopeInvitation href="/rsvp" />);
     await act(async () => {});
 
-    // SENDERS_HOLD_S: the block is already on screen at load, so it waits
+    // STAGE_HOLD_S: the block is already on screen at load, so it waits
     // rather than writing itself in the same frame the artwork paints.
     // The words are all in the DOM from the first frame — the unwritten ones
     // sit in a `visibility: hidden` span holding the line's box — so this
@@ -101,6 +101,16 @@ describe('EnvelopeInvitation', () => {
     await writeSendersLine();
     expect(senders).toHaveTextContent('you have received a letter from');
     expect(senders).toHaveTextContent('Vince and Kc');
+  });
+
+  it('hands the stage hold to CSS so the envelope settles on the same beat', () => {
+    render(<EnvelopeInvitation href="/rsvp" />);
+
+    // The settle itself is a stylesheet rule (app/globals.css), which jsdom
+    // will not run. What CAN be guarded here is the contract between the two:
+    // the hold is published as a custom property rather than duplicated in the
+    // CSS, so the words and the artwork cannot drift apart.
+    expect(stage().style.getPropertyValue('--invitation-hold')).toBe('0.45s');
   });
 
   it('shows the whole senders line at once under reduced motion', () => {
