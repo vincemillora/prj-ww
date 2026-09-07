@@ -23,11 +23,37 @@ const CHAR_MS_MIN = 16;
 const CHAR_MS_MAX = 62;
 
 /**
- * The write budget in seconds, for a caller that has to time something against
- * the end of a write rather than guess at it — the invitation's hint, which
- * lands as the senders' line finishes.
+ * The hand's speed for a block: derived from how much there is to write in
+ * total, so a two-line block keeps one rhythm across both lines.
  */
-export const WRITE_S = WRITE_MS / 1000;
+function charMsFor(total: number) {
+  return Math.min(
+    CHAR_MS_MAX,
+    Math.max(CHAR_MS_MIN, Math.round(WRITE_MS / Math.max(total, 1))),
+  );
+}
+
+/** How many ticks a block takes: the sum of its lines, or the longest one. */
+function stepsFor(texts: string[], parallel: boolean) {
+  const lengths = texts.map((t) => t.length);
+  return parallel
+    ? Math.max(0, ...lengths)
+    : lengths.reduce((sum, n) => sum + n, 0);
+}
+
+/**
+ * How long this block will take to write, in seconds, for a caller that has to
+ * time something against the END of a write rather than guess at it — the
+ * invitation's hint, which lands as the senders' line finishes.
+ *
+ * Pass the same `parallel` the block uses, or the answer is wrong in the
+ * direction that matters: parallel writing is FASTER, and a hint timed to the
+ * sequential length would sit there after the words had settled.
+ */
+export function writeDurationS(texts: string[], parallel = false) {
+  const total = texts.reduce((sum, t) => sum + t.length, 0);
+  return (stepsFor(texts, parallel) * charMsFor(total)) / 1000;
+}
 
 /** Erasing runs well under half of writing: arriving is worth watching. */
 const ERASE_RATIO = 0.42;
@@ -74,6 +100,23 @@ type TypedLinesProps = {
    * moment hydration lands, since nothing is typed for them at all.
    */
   aboveFold?: boolean;
+  /**
+   * Write every line AT ONCE instead of one after another.
+   *
+   * The default is sequential, and inside the letter that is the point: a
+   * heading has to finish before its kicker starts, or the pair reads as two
+   * machines rather than one hand. Parallel is for a block where the lines are
+   * one utterance and the wait is the cost — the invitation's "you have
+   * received a letter from / Vince and Kc", which is the first thing on the
+   * page and gates the hint behind it.
+   *
+   * The hand's speed per character does not change; the block simply finishes
+   * in the LONGEST line's ticks rather than the sum of them (31 instead of 43
+   * on the invitation, so about 0.4s back). Each line still being written
+   * carries its own cursor, which is what makes the simultaneity legible
+   * rather than looking like a glitch.
+   */
+  parallel?: boolean;
   testId?: string;
 };
 
@@ -81,10 +124,14 @@ type TypedLinesProps = {
  * Text written a character at a time when the block enters the viewport, and
  * erased in reverse when it leaves.
  *
- * The lines are ONE timeline, not one per line: a title finishes before its
- * kicker starts, and the kicker unwinds before the title is touched. Animating
- * each line independently would type the pair at once, which reads as two
- * machines rather than one hand.
+ * By default the lines are ONE timeline: a title finishes before its kicker
+ * starts, and the kicker unwinds before the title is touched. That is the point
+ * inside the letter — nine headings typing their two lines at once would read
+ * as two machines rather than one hand. `parallel` opts out, for a block whose
+ * lines are one utterance and where the wait is the cost; see that prop.
+ *
+ * Either way it is ONE clock. The lines never animate independently, so they
+ * cannot drift apart or leave a cursor burning on a line nobody is writing.
  *
  * REDUCED MOTION / NO JS: the words are never withheld by an animation that
  * may not run. The server renders the finished text — or, for an `aboveFold`
@@ -101,6 +148,7 @@ export function TypedLines({
   amount = 0.5,
   startDelay = 0,
   aboveFold = false,
+  parallel = false,
   testId = 'typed-text',
 }: TypedLinesProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -108,7 +156,11 @@ export function TypedLines({
   // that replays, because an erase is only worth animating if the guest can
   // still see it happen.
   const inView = useInView(ref, { amount });
-  const total = lines.reduce((sum, line) => sum + line.text.length, 0);
+  const texts = lines.map((line) => line.text);
+  const total = texts.reduce((sum, text) => sum + text.length, 0);
+  // One tick writes one character of every line at once when `parallel`, so a
+  // block's length is its longest line rather than all of them added up.
+  const steps = stepsFor(texts, parallel);
 
   const typing = !usePrefersReducedMotion();
   const [count, setCount] = useState(0);
@@ -116,13 +168,12 @@ export function TypedLines({
   useEffect(() => {
     if (!typing) return;
 
-    const target = inView ? total : 0;
+    const target = inView ? steps : 0;
     if (count === target) return;
 
-    const charMs = Math.min(
-      CHAR_MS_MAX,
-      Math.max(CHAR_MS_MIN, Math.round(WRITE_MS / Math.max(total, 1))),
-    );
+    // Speed comes from the TOTAL, not the step count: the hand writes at the
+    // same pace either way, and parallel simply gets more done per tick.
+    const charMs = charMsFor(total);
     const stepMs = inView
       ? charMs
       : Math.max(ERASE_MS_MIN, Math.round(charMs * ERASE_RATIO));
@@ -134,17 +185,25 @@ export function TypedLines({
     const wait = inView && count === 0 ? stepMs + startDelay * 1000 : stepMs;
     const id = window.setTimeout(() => setCount((c) => c + step), wait);
     return () => window.clearTimeout(id);
-  }, [typing, inView, count, total, startDelay]);
+  }, [typing, inView, count, steps, total, startDelay]);
 
   // `typing` is false for the server render, for the hydration render, and for
   // a guest who prefers reduced motion — all three show the finished text,
   // unless this block is above the fold and has asked to start empty.
   const hydrated = useHydrated();
-  const shown = aboveFold && !hydrated ? 0 : typing ? count : total;
+  const shown = aboveFold && !hydrated ? 0 : typing ? count : steps;
 
   return (
     <div className={className} data-testid={testId} ref={ref}>
-      {aboveFold ? (
+      {/*
+        The `<noscript>` copy exists for the server render only, and it is
+        dropped the moment the page hydrates — a hydrated page has JS, so the
+        copy could never be shown again, and leaving it mounted would re-render
+        a finished copy of every line on EVERY character. React hydrates
+        against it (both the server and the hydration render see `!hydrated`)
+        and then removes it on the first commit.
+      */}
+      {aboveFold && !hydrated ? (
         <noscript>
           {lines.map((line) => (
             <TypedLine
@@ -159,22 +218,25 @@ export function TypedLines({
         </noscript>
       ) : null}
       {lines.map((line, index) => {
-        // Where this line begins on the shared timeline. Recomputed per line
-        // rather than accumulated in a running total: these are two- and
-        // three-item arrays, and a mutable counter inside the map is exactly
-        // what react-hooks/immutability is for.
-        const start = lines
-          .slice(0, index)
-          .reduce((sum, prev) => sum + prev.text.length, 0);
+        // Where this line begins on the timeline. Zero for every line when the
+        // block writes in parallel, since they all start together. Recomputed
+        // per line rather than accumulated in a running total: these are two-
+        // and three-item arrays, and a mutable counter inside the map is
+        // exactly what react-hooks/immutability is for.
+        const start = parallel
+          ? 0
+          : texts.slice(0, index).reduce((sum, prev) => sum + prev.length, 0);
         const chars = Math.min(Math.max(shown - start, 0), line.text.length);
         return (
           <TypedLine
             as={line.as}
             chars={chars}
             className={line.className}
-            // One cursor for the whole block: it sits on the line being
-            // written and goes out once the block is complete and settled.
-            cursor={typing && shown > start && shown < total}
+            // Sequential blocks have ONE cursor, on whichever line is being
+            // written. Parallel blocks have one per unfinished line — that is
+            // what makes two lines filling at once read as deliberate rather
+            // than as a glitch.
+            cursor={typing && chars > 0 && chars < line.text.length}
             key={line.text}
             text={line.text}
           />
