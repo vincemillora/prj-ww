@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -47,12 +47,17 @@ const SENDERS = COUPLE_NAMES.join(' and ');
  * it would start writing in the same frame the artwork paints, which reads as a
  * glitch rather than an entrance.
  *
- * The envelope is NOT part of this sequence. It is the page's LCP element, and
- * an entrance that starts it at `opacity: 0` would delay the largest paint by
- * the length of the animation — the artwork is eager-loaded precisely because
- * that measurement matters here (see the `loading="eager"` note below). So the
- * subject is simply present, the way a letter on a table is, and the words are
- * what arrive.
+ * The envelope settles on the same beat. Its entrance is TRANSFORM ONLY — a
+ * rise, never a fade — because this is the page's LCP element: an element at
+ * `opacity: 0` is not a paint candidate, so a fade would delay the largest
+ * paint by the length of the animation, while a translated one paints in frame
+ * one and merely arrives low. The artwork is eager-loaded precisely because
+ * that measurement matters here (see the `loading="eager"` note below).
+ *
+ * The hold is handed to CSS as `--invitation-hold` rather than duplicated
+ * there, so this constant stays the one place the stage's timing is set. The
+ * settle itself lives in app/globals.css next to the tap exit it has to hand
+ * over to.
  */
 const SENDERS_LINES = ['you have received a letter from', SENDERS];
 const STAGE_HOLD_S = 0.45;
@@ -122,6 +127,7 @@ export function EnvelopeInvitation({ href }: { href: string }) {
     <div
       className="invitation-stage relative flex h-dvh flex-col items-center justify-center px-gutter text-center"
       data-opening={opening || undefined}
+      style={{ '--invitation-hold': `${STAGE_HOLD_S}s` } as CSSProperties}
     >
       {/*
         Written, not simply present — the same hand as the letter's section

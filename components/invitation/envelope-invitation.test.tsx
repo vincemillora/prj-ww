@@ -103,6 +103,16 @@ describe('EnvelopeInvitation', () => {
     expect(senders).toHaveTextContent('Vince and Kc');
   });
 
+  it('hands the stage hold to CSS so the envelope settles on the same beat', () => {
+    render(<EnvelopeInvitation href="/rsvp" />);
+
+    // The settle itself is a stylesheet rule (app/globals.css), which jsdom
+    // will not run. What CAN be guarded here is the contract between the two:
+    // the hold is published as a custom property rather than duplicated in the
+    // CSS, so the words and the artwork cannot drift apart.
+    expect(stage().style.getPropertyValue('--invitation-hold')).toBe('0.45s');
+  });
+
   it('shows the whole senders line at once under reduced motion', () => {
     mockReducedMotion(true);
     render(<EnvelopeInvitation href="/rsvp" />);

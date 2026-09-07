@@ -1233,10 +1233,37 @@
     transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* The envelope arrives on the settle (`animation`) and leaves on the tap
+   (`transition`), so both halves of its life are declared together here.
+
+   It settles on the same beat as the words: the hold comes from the stage's
+   `--invitation-hold`, written by STAGE_HOLD_S in
+   components/invitation/envelope-invitation.tsx, so all three lines and the
+   subject share one number.
+
+   TRANSFORM ONLY, and never opacity. This is the page's LCP element. An
+   element at `opacity: 0` is not a paint candidate, so a fade would make the
+   largest paint wait out the whole animation — the same trap measured on
+   /rsvp's hero, where a fade put LCP at 1908ms against 96ms without one. A
+   translated element paints in frame one and merely arrives 20px low, so the
+   metric is recorded before the rise even runs.
+
+   `both` holds the offset through the delay; without it the artwork would sit
+   at rest, snap down when the delay elapsed, and rise from there. */
 .invitation-envelope {
+  animation: invitation-envelope-settle 0.8s cubic-bezier(0.22, 1, 0.36, 1)
+    var(--invitation-hold, 0.45s) both;
   transition:
     opacity 540ms ease,
     transform 780ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes invitation-envelope-settle {
+  from {
+    transform: translateY(20px);
+  }
+  to {
+    transform: none;
+  }
 }
 
 .invitation-stage[data-opening] .invitation-senders {
@@ -1247,6 +1274,10 @@
    a stand-in paper sheet next to this artwork only ever read as a plain white
    rectangle, so the envelope is the whole gesture. */
 .invitation-stage[data-opening] .invitation-envelope {
+  /* The settle is cancelled rather than waited out: a running animation wins
+     over the transition's transform, so a guest who taps inside the first
+     1.25s would otherwise get a dissolve with no lift. */
+  animation: none;
   opacity: 0;
   transform: translateY(-5%) scale(1.14);
 }
@@ -1283,6 +1314,11 @@
   .invitation-hint,
   .invitation-envelope {
     transition: none;
+  }
+  /* The settle is decoration, not content: the artwork is already legible at
+     rest, so the preference simply removes the rise. */
+  .invitation-envelope {
+    animation: none;
   }
   .invitation-stage[data-opening] .invitation-senders,
   .invitation-stage[data-opening] .invitation-envelope {
