@@ -66,15 +66,25 @@ palette and type do not.
 - shadcn/ui (base-ui, `nova` preset) is the component baseline; check shadcn before hand-rolling.
 - `motion` (v12) carries the letter's motion language. Timings, easing and the
   reduced-motion floor live in `components/letter/motion-tokens.ts`; the shared
-  reveals are `in-view-reveal.tsx` (plain block entrance), `letter-reveals.tsx`
-  (the heading ink-stroke, its kicker, and the attire plate's develop) and
-  `ornament-drift.tsx` (the only scroll-linked enter+exit, ornaments only).
+  reveals are `typed-text.tsx` (section headings, item titles and both
+  signatures, written a character at a time and un-written on the way out),
+  `in-view-reveal.tsx` (the plain block entrance — a rise, or a sideways slide
+  for a block that sits to one side of a spine), `letter-reveals.tsx` (the
+  attire plate's develop) and `ornament-drift.tsx` (the scroll-linked ornament
+  ramp). **Every reveal is symmetric**: `REVEAL_VIEWPORT` is `once: false` and
+  the exit transition rides on the `initial` target, so a block leaves the way
+  it arrived, faster (`EXIT`, 0.26s against 0.62s). The heading ink-stroke that
+  used to be the repeated entrance is gone — typing replaced it; a stroke and a
+  typewriter over the same words are two entrances arguing.
   **`useReducedMotion()` cannot be trusted on its own in this stack** — it is a
   one-shot `useState` seeded from module state that is still `null` during the
   render that matters, so it reports `false` while motion itself declines to
   animate, leaving content stuck at its server-rendered hidden state. Put
   `MOTION_REDUCE_SAFE` (or `MOTION_REDUCE_OPEN` for a height collapse) on
-  anything whose resting state comes from motion.
+  anything whose resting state comes from motion. Where the preference decides
+  what CONTENT renders rather than how it moves — typed text, whose failure mode
+  is a BLANK heading — read it through `use-media-query.ts`
+  (`usePrefersReducedMotion`, a subscription with a server snapshot of `true`).
 - The page shell stays statically prerendered (Cache Components / PPR); only the RSVP body
   streams in under Suspense. Design work must not force the shell dynamic.
 - Guest replies: `going` / `not_going` only, with `adults` + `kids` bounded by the party's

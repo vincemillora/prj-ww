@@ -1,5 +1,4 @@
-import { InkFade, InkStroke } from '@/components/letter/letter-reveals';
-import { BEAT } from '@/components/letter/motion-tokens';
+import { TypedLines } from '@/components/letter/typed-text';
 import { cn } from '@/lib/utils';
 
 /**
@@ -21,16 +20,21 @@ import { cn } from '@/lib/utils';
  * `label`'s phone size, but growing faster on a desktop, where a 14px line under
  * a 56px script headline reads as a caption instead of a subtitle.
  *
- * The kicker takes a node, not just a string, so a section can keep a longer
- * lead-in sentence (Hotels) — use `kickerClassName` to cap its measure.
+ * The title and kicker are STRINGS, not nodes: the pair is written a character
+ * at a time (below), and a timeline cannot be laid over arbitrary markup. A
+ * section that wants a longer lead-in sentence still can — Hotels does — and
+ * `kickerClassName` caps its measure.
  *
  * MOTION: the pair is the letter's one repeated entrance, and it is repeated on
- * purpose. The script headline is stroked in left to right (see `InkStroke`) and
- * the kicker follows two beats behind. Every section opening is therefore in the
- * same hand, which is what holds nine sections together as one letter. The
- * bodies below deliberately differ. This file stays a server component: only the
- * two reveal spans hydrate, and the `h2`/`p` structure, tones and classes are
- * unchanged, so a heading still renders as plain text without JS.
+ * purpose — every section opens in the same hand, which is what holds nine
+ * sections together as one letter. That hand is now a typewriter: the headline
+ * is written out, the kicker follows on the same timeline, and both un-write
+ * when the heading leaves the viewport (see `TypedLines`). It replaces the ink
+ * stroke that used to sweep across the headline; a stroke and a typewriter over
+ * the same words would be two entrances arguing. The bodies below deliberately
+ * differ. The `h2`/`p` structure, tones and classes are unchanged, and the
+ * server still renders the finished words, so a heading reads as plain text
+ * without JS.
  */
 const TONES = {
   script: { title: 'text-script', kicker: 'text-ink' },
@@ -45,36 +49,44 @@ export function SectionHeading({
   className,
   kickerClassName,
 }: {
-  title: React.ReactNode;
-  kicker?: React.ReactNode;
+  title: string;
+  kicker?: string;
   tone?: keyof typeof TONES;
   className?: string;
   kickerClassName?: string;
 }) {
   return (
-    <div className={cn('text-center', className)}>
-      <h2
-        className={cn(
-          'font-script text-title',
-          TONES[tone].title,
-        )}
-      >
-        <InkStroke>{title}</InkStroke>
-      </h2>
-      {kicker != null && (
-        <p
-          className={cn(
-            // Caps, and wider tracking to go with them: at 0.04em a capitalised
-            // line sets too tight to read as a label. This is the same voice as
-            // the field labels and event times, one step up in size.
-            'mt-2 font-sans text-kicker uppercase tracking-[0.14em]',
-            TONES[tone].kicker,
-            kickerClassName,
-          )}
-        >
-          <InkFade delay={BEAT * 2}>{kicker}</InkFade>
-        </p>
-      )}
-    </div>
+    <TypedLines
+      className={cn('text-center', className)}
+      // A heading plus a kicker is a tall block on a phone; at 0.4 it starts
+      // writing as the guest arrives at it rather than after they have read
+      // past it.
+      amount={0.4}
+      lines={[
+        {
+          as: 'h2',
+          className: cn('font-script text-title', TONES[tone].title),
+          text: title,
+        },
+        ...(kicker != null
+          ? [
+              {
+                as: 'p' as const,
+                className: cn(
+                  // Caps, and wider tracking to go with them: at 0.04em a
+                  // capitalised line sets too tight to read as a label. This is
+                  // the same voice as the field labels and event times, one
+                  // step up in size.
+                  'mt-2 font-sans text-kicker uppercase tracking-[0.14em]',
+                  TONES[tone].kicker,
+                  kickerClassName,
+                ),
+                text: kicker,
+              },
+            ]
+          : []),
+      ]}
+      testId="section-heading"
+    />
   );
 }

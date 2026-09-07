@@ -20,6 +20,8 @@ vi.mock('motion/react', () => ({
     },
   },
   useReducedMotion: () => true,
+  // The sign-off types itself in view; here it just has to render its words.
+  useInView: () => true,
 }));
 
 vi.mock('@/components/letter/countdown-locket', () => ({

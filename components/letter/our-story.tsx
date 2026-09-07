@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 
 import { PhotoLightbox } from "@/components/letter/photo-lightbox";
 import { SectionHeading } from "@/components/letter/section-heading";
@@ -11,7 +11,9 @@ import {
   InkCharm,
   Polaroid,
 } from "@/components/letter/our-story/story-art";
-import { MOTION_REDUCE_SAFE } from "@/components/letter/motion-tokens";
+import { InViewReveal } from "@/components/letter/in-view-reveal";
+import { BEAT } from "@/components/letter/motion-tokens";
+import { TypedText } from "@/components/letter/typed-text";
 import { OrnamentDrift } from "@/components/letter/ornament-drift";
 import { Vine, VineFlorals } from "@/components/letter/our-story/vine-art";
 import {
@@ -98,43 +100,73 @@ export function OurStory() {
               />
 
               <div aria-hidden className="h-[calc(var(--row-h)*0.2)]" />
-              <ol className="relative">
+              {/*
+                `overflow-x-clip`, not `overflow-x-hidden`: the memories travel
+                40px sideways on their way in and out, and a right-hand block
+                already sits against the measure's edge — without a clip that
+                offset can widen the document and flash a horizontal scrollbar
+                mid-animation. Clip contains it without making this a scroll
+                container, which the vines behind it are not clipped by.
+              */}
+              <ol className="relative overflow-x-clip">
                 {MEMORIES.map((memory, index) => {
                   const onRight = vineSide(index) === "right";
+
+                  // Shared by both halves of the memory, so the print and its
+                  // caption cannot drift onto different curves or sides. No
+                  // `distance`: `slideAt` is at its default here, so these
+                  // always travel on x and the vertical fallback is never read.
+                  const arrival = {
+                    // Both halves come from the side of the vine the memory
+                    // hangs on, and leave the same way. Unlike Day itself's
+                    // rail, the vine keeps both sides on a phone, so the sides
+                    // are real at every width. The Polaroid's own tilt is on
+                    // the figure inside, so it survives this transform.
+                    slideFrom: onRight ? ("right" as const) : ("left" as const),
+                    // Tall rows (46rem): at 40% the memory would arrive long
+                    // after its top had passed the fold.
+                    tall: true,
+                    duration: 0.7,
+                    ease: "easeOut" as const,
+                  };
 
                   return (
                     <li
                       key={memory.date}
                       className="relative flex h-[var(--row-h)] flex-col items-center justify-center sm:items-start"
                     >
-                      <motion.div
-                        initial={
-                          reduce ? undefined : { opacity: 0, y: 24 }
-                        }
-                        whileInView={
-                          reduce ? undefined : { opacity: 1, y: 0 }
-                        }
-                        viewport={{ once: true, amount: 0.2 }}
-                        transition={{ duration: 0.7, ease: "easeOut" }}
+                      {/*
+                        The photo and the caption are TWO reveals sharing one
+                        layout box, not one reveal around both: the print lands
+                        first and the words follow two beats behind, which is
+                        the order a photograph and its caption are read in.
+                        Wrapping both in a third reveal would fade the pair a
+                        second time and move everything twice.
+                      */}
+                      <div
                         className={cn(
-                          // Without this the memory blocks sat at opacity 0 for
-                          // any guest with reduced motion on — see
-                          // MOTION_REDUCE_SAFE. The Polaroid's own tilt is on the
-                          // figure inside, so it survives the transform reset.
-                          MOTION_REDUCE_SAFE,
                           "flex w-[62%] flex-col items-center sm:w-[42%]",
                           onRight
                             ? "ml-[38%] items-start sm:ml-[58%]"
                             : "mr-[38%] items-end sm:mr-[58%]",
                         )}
                       >
-                        <Polaroid
-                          memory={memory}
-                          reduce={reduce}
-                          onOpen={() => setActive(memory)}
-                        />
+                        <InViewReveal {...arrival}>
+                          <Polaroid
+                            memory={memory}
+                            reduce={reduce}
+                            onOpen={() => setActive(memory)}
+                          />
+                        </InViewReveal>
 
-                        <div
+                        <InViewReveal
+                          {...arrival}
+                          // Two beats behind the print. The delay is on the
+                          // ENTRANCE only — the exit rides on `initial`, which
+                          // carries no delay — so the pair staggers in and
+                          // leaves together. Arriving is worth watching;
+                          // leaving in sequence would just be slow.
+                          delay={BEAT * 2}
                           className={cn(
                             "mt-6 max-w-sm px-2",
                             onRight ? "text-left" : "text-right",
@@ -143,14 +175,22 @@ export function OurStory() {
                           <p className="font-sans text-label font-medium uppercase tracking-[0.16em] text-paper">
                             {memory.date}
                           </p>
-                          <h3 className="mt-1 font-script text-entry text-paper">
-                            {memory.title}
-                          </h3>
+                          {/* Written out as the memory arrives, and unwritten
+                              when it leaves — the same hand as the section
+                              headings. The date above and body below are static:
+                              three typed lines in one block would turn a memory
+                              into a terminal. */}
+                          <TypedText
+                            as="h3"
+                            className="mt-1 font-script text-entry text-paper"
+                            testId="story-title"
+                            text={memory.title}
+                          />
                           <p className="mt-2 text-body text-paper">
                             {memory.body}
                           </p>
-                        </div>
-                      </motion.div>
+                        </InViewReveal>
+                      </div>
                     </li>
                   );
                 })}

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 
 import { InViewReveal } from '@/components/letter/in-view-reveal';
+import { TypedLines } from '@/components/letter/typed-text';
 import { BEAT } from '@/components/letter/motion-tokens';
 import { COUPLE } from '@/lib/wedding';
 import laceBackground from '@/public/lace-bg.png';
@@ -13,9 +14,11 @@ import laceBackground from '@/public/lace-bg.png';
  * zoom on the monogram stays exactly as it was — it is the one deliberate
  * easter egg down here, and it is a hover state rather than an entrance.
  *
- * Nothing in the footer drifts back out. It is the end of the document: there is
- * nothing below it to scroll it away, and a sign-off that fades as you reach it
- * would be the one exit on the page that undoes its own content.
+ * The footer settles back out like every other block (see `REVEAL_VIEWPORT`),
+ * which here can only ever happen on the way back UP — it is the end of the
+ * document, so there is nothing below it to scroll it away. Reaching the
+ * sign-off and then leaving it is the one direction that reads as closing the
+ * letter rather than undoing it.
  */
 export function FooterLace() {
   return (
@@ -63,8 +66,18 @@ export function FooterLace() {
             For any questions, please contact us at:
           </p>
           <p className="mt-6 font-sans text-body">------</p>
-          <p className="mt-6 font-script text-title">{COUPLE}</p>
-          <p className="mt-2 font-sans text-body">with love</p>
+          {/* The signature is written rather than revealed, the same as the
+              welcome band's. It is the only thing down here that replays: the
+              footer is the end of the document, so the erase is only ever seen
+              by a guest scrolling back UP off the sign-off, which is exactly
+              when un-writing it reads as closing the letter. */}
+          <TypedLines
+            lines={[
+              { className: 'mt-6 font-script text-title', text: COUPLE },
+              { className: 'mt-2 font-sans text-body', text: 'with love' },
+            ]}
+            testId="footer-sign-off"
+          />
         </address>
       </InViewReveal>
     </footer>
