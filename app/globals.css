@@ -767,24 +767,18 @@
   pointer-events: none;
 }
 
-/* Fixed-size envelope scene; perspective lets the flap fold back in 3D. Zooms
-   in and fades once the flap is open, as if the view moves into the envelope. */
-.env-wrap {
-  position: relative;
-  width: min(86vw, 30rem);
-  aspect-ratio: 1.7;
-  perspective: 1600px;
-  perspective-origin: center 40%;
-  animation: c2-zoom 0.85s cubic-bezier(0.5, 0, 0.75, 0) 1.5s forwards;
-
-  /* Paper texture, shared by every envelope face (applied in the grouped
-     rule after the face colours below). Three layers over the base tone:
-       1. --paper-grain  — grayscale feTurbulence fibre tooth. Blended
-          soft-light so mid-grey noise is neutral: it embosses the paper
-          without shifting the ivory tone (no UI colour change).
-       2. --paper-mottle — a faint top-left sheen, as paper catches light.
-       3. --paper-laid   — hairline vertical laid lines (multiply), the
-          fibre weave of real writing paper. */
+/* Paper texture, shared by every envelope face (applied in the grouped rule
+   after the face colours below) and by .paper-laid-surface. Three layers over
+   whatever base tone the element already has:
+     1. --paper-grain  — grayscale feTurbulence fibre tooth. Blended
+        soft-light so mid-grey noise is neutral: it embosses the paper
+        without shifting the ivory tone (no UI colour change).
+     2. --paper-mottle — a faint top-left sheen, as paper catches light.
+     3. --paper-laid   — hairline vertical laid lines (multiply), the
+        fibre weave of real writing paper.
+   Declared at the root rather than on .env-wrap so other surfaces can reuse
+   them. */
+:root {
   --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   --paper-mottle: radial-gradient(
     130% 110% at 28% 18%,
@@ -796,6 +790,32 @@
     rgba(90, 70, 55, 0.028) 0 1px,
     transparent 1px 5px
   );
+}
+
+/* Real paper, on a surface that owns its own colour: the laid lines and the
+   fibre tooth, over whatever `background-color` the element already sets (the
+   colour is the bottom layer background-blend-mode blends down onto, so this
+   rule deliberately sets no background-color of its own).
+
+   NOT --paper-mottle. That layer is a single element-sized sheen, which works on
+   an envelope face and turns into one enormous soft blob across a full-bleed
+   section. The two layers kept here tile, so they hold at any size. */
+.paper-laid-surface {
+  background-image: var(--paper-grain), var(--paper-laid);
+  background-repeat: repeat, repeat;
+  background-size: 150px 150px, 5px 5px;
+  background-blend-mode: soft-light, multiply;
+}
+
+/* Fixed-size envelope scene; perspective lets the flap fold back in 3D. Zooms
+   in and fades once the flap is open, as if the view moves into the envelope. */
+.env-wrap {
+  position: relative;
+  width: min(86vw, 30rem);
+  aspect-ratio: 1.7;
+  perspective: 1600px;
+  perspective-origin: center 40%;
+  animation: c2-zoom 0.85s cubic-bezier(0.5, 0, 0.75, 0) 1.5s forwards;
 }
 
 .env-back {
