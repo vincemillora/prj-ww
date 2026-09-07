@@ -16,7 +16,12 @@ import { cn } from '@/lib/utils';
 import { WEDDING_VENUE } from '@/lib/wedding';
 import { DeferredMap } from '@/components/letter/deferred-map';
 import { letterButton } from '@/components/letter/letter-button';
-import { ENTER, TALL_VIEWPORT } from '@/components/letter/motion-tokens';
+import {
+  ENTER,
+  EXIT,
+  MOTION_REDUCE_SAFE,
+  TALL_VIEWPORT,
+} from '@/components/letter/motion-tokens';
 import { SectionHeading } from '@/components/letter/section-heading';
 import {
   Card,
@@ -152,10 +157,16 @@ export function Location() {
               stretched over it — that keeps all five cards the same box no
               matter which one is currently in front. */}
           <motion.div
+            // MOTION_REDUCE_SAFE, not a `reduce` branch: this wrapper starts at
+            // opacity 0 and motion declines to animate under the preference, so
+            // without the CSS floor a guest with reduced motion on was left
+            // looking at an INVISIBLE venue card — name, address and map. The
+            // hook cannot be trusted with this on its own; see its note.
+            className={MOTION_REDUCE_SAFE}
             style={{ paddingBottom: PEEK_ROOM }}
             // Opacity only on the wrapper: the fan below is the entrance, and a
             // rise on top of it would move every card twice.
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 0, transition: EXIT }}
             whileInView={{ opacity: 1 }}
             viewport={TALL_VIEWPORT}
             transition={ENTER}

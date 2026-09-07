@@ -1,6 +1,7 @@
 import { CountdownLocket } from '@/components/letter/countdown-locket';
 import { CountdownDetails } from '@/components/letter/countdown-band';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
+import { TypedLines } from '@/components/letter/typed-text';
 import { BEAT } from '@/components/letter/motion-tokens';
 import { COUPLE } from '@/lib/wedding';
 
@@ -14,8 +15,10 @@ import { COUPLE } from '@/lib/wedding';
  *
  * The beats follow the reading order, which is also the order of the keepsake:
  * the locket, then the note, then the date it counts to, then the signature.
- * Total lead-in is 3 x BEAT, so the signature starts a quarter second after the
- * locket rather than arriving on its own scroll.
+ *
+ * The signature is the exception: it is typed rather than revealed, on its own
+ * in-view trigger, so it starts when the guest has actually reached it instead
+ * of a beat after the locket.
  */
 export function WelcomeBand() {
   return (
@@ -45,12 +48,26 @@ export function WelcomeBand() {
             <CountdownDetails className="mt-heading" />
           </InViewReveal>
 
-          <InViewReveal delay={BEAT * 3}>
-            <p className="mt-heading font-script text-entry leading-none">
-              with love
-            </p>
-            <p className="mt-2 font-script text-title leading-none">{COUPLE}</p>
-          </InViewReveal>
+          {/*
+            The signature is the one block here that is not a rise: it is
+            written. See TypedLines — it types on entry and erases on exit, and
+            it owns its own in-view trigger, so it is NOT wrapped in an
+            InViewReveal that would fade the same words a second time.
+          */}
+          <TypedLines
+            className="mt-heading"
+            lines={[
+              {
+                className: 'font-script text-entry leading-none',
+                text: 'with love',
+              },
+              {
+                className: 'mt-2 font-script text-title leading-none',
+                text: COUPLE,
+              },
+            ]}
+            testId="welcome-sign-off"
+          />
         </div>
       </div>
     </section>

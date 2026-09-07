@@ -9,6 +9,10 @@
  *
  * `LETTER_EASE` is an exponential ease-out: quick off the mark, long settle.
  * A letter arrives; it does not bounce. Nothing here uses an elastic curve.
+ *
+ * The section headings' own timing is NOT here: they are written a character at
+ * a time, and that speed is a per-block budget rather than a duration — see
+ * `TypedLines` in components/letter/typed-text.tsx.
  */
 export const LETTER_EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -21,12 +25,8 @@ export const ENTER_S = 0.62;
  */
 export const EXIT_S = 0.26;
 
-/** The heading stroke — the one deliberately authored beat in the letter. */
-export const STROKE_S = 0.72;
-
 export const ENTER = { duration: ENTER_S, ease: LETTER_EASE } as const;
 export const EXIT = { duration: EXIT_S, ease: 'easeOut' } as const;
-export const STROKE = { duration: STROKE_S, ease: LETTER_EASE } as const;
 
 /**
  * One beat of a cascade. Four beats is the cap — 3 x 0.09s of lead-in — because
@@ -36,18 +36,29 @@ export const STROKE = { duration: STROKE_S, ease: LETTER_EASE } as const;
 export const BEAT = 0.09;
 
 /**
- * When a reveal fires. 0.4 of the block has to be on screen, and it fires once:
- * this page is reread over months, so nothing that carries words replays.
- * `OrnamentDrift` is the deliberate exception, and it is scroll-linked rather
- * than a toggle.
+ * When a reveal fires: 0.4 of the block on screen, and it REPLAYS — a block
+ * that rises in on the way down settles back out on the way past.
+ *
+ * This used to be `once: true`, on the reasoning that a page reread over months
+ * should not replay anything carrying words. The letter's headings and
+ * signatures are now written a character at a time and un-written on the way
+ * out (see `TypedLines`), so a one-shot body reveal is the odd one out: the
+ * words above a block would erase themselves while the block sat frozen. An
+ * entrance with no exit is also a one-way door — scroll back up and the page
+ * has no memory of having moved.
+ *
+ * The exit is the fast half. Pair this viewport with `EXIT` on the `initial`
+ * target so returning to it takes 0.26s against the entrance's 0.62s; motion
+ * animates back to `initial` when the block leaves, and without that the exit
+ * inherits the entrance's duration and reads as latency.
  */
-export const REVEAL_VIEWPORT = { once: true, amount: 0.4 } as const;
+export const REVEAL_VIEWPORT = { once: false, amount: 0.4 } as const;
 
 /**
  * A softer trigger for tall blocks. A section-sized element rarely reaches 40%
  * on a phone before its top has already scrolled well past the fold.
  */
-export const TALL_VIEWPORT = { once: true, amount: 0.2 } as const;
+export const TALL_VIEWPORT = { once: false, amount: 0.2 } as const;
 
 /**
  * The reduced-motion floor, and it HAS to be CSS. Put this on anything whose

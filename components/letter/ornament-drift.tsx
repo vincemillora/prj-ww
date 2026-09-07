@@ -31,9 +31,14 @@ import { cn } from '@/lib/utils';
  * the lower quarter" and "bottom leaving the upper quarter" makes the hold band
  * the whole time the ornament is genuinely on screen, at any height.
  *
- * ORNAMENTS ONLY. Text, cards, the reply form, and the lace section seams hold
- * still on the way out — a guest scrolling back to check a time or an address
- * must never watch it dissolve, and the lace bands are the ink section's real
+ * Every block in the letter now leaves as well as arrives (see
+ * `REVEAL_VIEWPORT`), so this is no longer the page's only exit — but it stays
+ * the ORNAMENT one, and the mechanism is the point: a ramp for decoration,
+ * whose fade tracks the scroll, against a toggle for content, which holds full
+ * strength until the block has genuinely left. A guest scrolling back to check
+ * a time or an address should find the words solid, not mid-dissolve.
+ *
+ * The lace section seams are still excluded: they are the ink section's real
  * edges rather than decoration on it. The Our Story vines and their florals are
  * excluded by request.
  */

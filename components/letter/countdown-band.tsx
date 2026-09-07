@@ -3,6 +3,11 @@
 import { motion, useReducedMotion } from 'motion/react';
 import { AddToCalendar } from '@/components/letter/add-to-calendar';
 import { Countdown } from '@/components/countdown';
+import {
+  EXIT,
+  LETTER_EASE,
+  REVEAL_VIEWPORT,
+} from '@/components/letter/motion-tokens';
 import { WeekStrip } from '@/components/letter/week-strip';
 import { WEDDING_DAY_LABEL } from '@/lib/wedding';
 import { cn } from '@/lib/utils';
@@ -48,10 +53,14 @@ export function CountdownBand() {
     <section className="relative z-10 bg-paper px-gutter pt-28 pb-section text-center sm:pt-32">
       <motion.div
         className="flex flex-col items-center"
-        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+        // Symmetric, like the rest of the letter's blocks: the exit transition
+        // rides on `initial`, since leaving the viewport animates back to it.
+        initial={
+          reduceMotion ? false : { opacity: 0, y: 20, transition: EXIT }
+        }
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        viewport={REVEAL_VIEWPORT}
+        transition={{ duration: 0.9, ease: LETTER_EASE }}
       >
         <CountdownDetails />
       </motion.div>

@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { OrnamentDrift } from '@/components/letter/ornament-drift';
 import { SectionHeading } from '@/components/letter/section-heading';
+import { TypedText } from '@/components/letter/typed-text';
 
 /**
  * Sequence of events — EDGE-TO-EDGE paper section. Prenup now sits directly
@@ -83,7 +84,14 @@ export function DayItself() {
             className="absolute bottom-1 left-6 top-1 w-0.5 bg-ink md:bottom-32 md:left-1/2 md:-translate-x-1/2"
           />
 
-          <ol className="relative">
+          {/*
+            `overflow-x-clip`, not `overflow-x-hidden`: the rows travel 40px
+            sideways on their way in and out, and without a clip that offset can
+            push the document wider than the viewport and flash a horizontal
+            scrollbar mid-animation. Clip contains it without making this a
+            scroll container, which would break the rail's absolute placement.
+          */}
+          <ol className="relative overflow-x-clip">
             {EVENTS.map((e, i) => {
             // Even rows: illustration left, description right. Odd: swapped.
             const illoRight = i % 2 === 1;
@@ -95,6 +103,14 @@ export function DayItself() {
                 distance={24}
                 duration={0.7}
                 ease="easeOut"
+                // The row arrives from the side its WORDS sit on, so the
+                // events alternate across the rail on the way in and leave the
+                // same way. `illoRight` puts the illustration right, which puts
+                // the description left. Below `md` this is ignored and the row
+                // rises instead — see `slideFrom`: the rail is at the left edge
+                // there and every row sits to the right of it.
+                slideFrom={illoRight ? 'left' : 'right'}
+                slideAt="md"
               >
                 {/* Connector from the LEFT rail to the title (mobile only) —
                     stops short of the title (small gap) and is vertically
@@ -145,9 +161,16 @@ export function DayItself() {
                       illoRight ? 'md:-right-10' : 'md:-left-10'
                     )}
                   />
-                  <p className="font-script text-entry text-ink">
-                    {e.what}
-                  </p>
+                  {/* Written out as the rail reaches the event, unwritten when
+                      it passes. The connectors above are anchored to this
+                      title's first line in its own `em`, and TypedText keeps
+                      the line box open while it is empty, so they do not move
+                      while the words are being written. */}
+                  <TypedText
+                    className="font-script text-entry text-ink"
+                    testId="event-title"
+                    text={e.what}
+                  />
                   {/* The hour, as a subtitle under its event. Small caps in the
                       sans face — the same treatment the dates get on the Our
                       Story polaroids — so it labels the line without competing
