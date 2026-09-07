@@ -6,8 +6,11 @@ vi.mock('server-only', () => ({}));
 // components/invitation/envelope-invitation.tsx). jsdom has no mounted app
 // router, so
 // stub the hook; the opening choreography has its own test beside it.
+// `useSearchParams` is here for ClarityAnalytics, which reads `?id=` off the
+// URL to name the recording; its own behaviour is covered beside it.
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), prefetch: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 vi.mock('next/image', () => ({
   default: ({ alt = '', ...props }: React.ComponentProps<'img'>) => {

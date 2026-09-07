@@ -1,4 +1,5 @@
 import type { Viewport } from 'next';
+import { ClarityAnalytics } from '@/components/analytics/clarity';
 import { WeddingLetter } from '@/components/letter/wedding-letter';
 import { MotionProvider } from '@/components/letter/motion-provider';
 import { VinylPlayer } from '@/components/letter/vinyl-player';
@@ -37,6 +38,10 @@ export default function RsvpPage({
           className="!fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-50"
           size="min(18vw, 4.5rem)"
         />
+        {/* Public pages only — see the component for why the admin routes are
+            deliberately not recorded. It brings its own Suspense boundary, so
+            the shell above stays statically prerendered. */}
+        <ClarityAnalytics />
       </main>
     </MotionProvider>
   );

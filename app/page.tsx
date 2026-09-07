@@ -1,6 +1,7 @@
 import type { Viewport } from 'next';
 import { LaceBackdrop } from '@/components/letter/lace-backdrop';
 import { EnvelopeInvitation } from '@/components/invitation/envelope-invitation';
+import { ClarityAnalytics } from '@/components/analytics/clarity';
 
 export const viewport: Viewport = {
   viewportFit: 'cover',
@@ -23,6 +24,9 @@ export default async function Home({
     <main className="invitation-page viewport-bleed-stage relative overflow-hidden bg-ink">
       <LaceBackdrop />
       <EnvelopeInvitation href={rsvpHref} />
+      {/* Public pages only — see the component for why the admin routes are
+          deliberately not recorded. */}
+      <ClarityAnalytics />
     </main>
   );
 }
