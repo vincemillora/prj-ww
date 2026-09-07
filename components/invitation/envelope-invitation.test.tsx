@@ -44,6 +44,20 @@ function advance(ms: number) {
   });
 }
 
+/**
+ * Writes out the senders' line, which arrives a character at a time
+ * (`TypedLines`). Each character's timeout is only scheduled once React has
+ * committed the previous one, so the clock has to be advanced once per
+ * character rather than in a single jump.
+ */
+async function writeSendersLine() {
+  // The IntersectionObserver stub in tests/setup.ts reports the block visible on
+  // a MICROTASK, which a synchronous act() never flushes — without this the
+  // writing never starts and the assertions below read an empty line.
+  await act(async () => {});
+  for (let i = 0; i < 60; i += 1) advance(120);
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   push.mockClear();
@@ -61,10 +75,43 @@ describe('EnvelopeInvitation', () => {
     expect(openEnvelope()).toHaveAttribute('href', '/rsvp?id=guest-code');
   });
 
-  it('names the senders from the shared couple constant', () => {
+  it('names the senders from the shared couple constant', async () => {
     render(<EnvelopeInvitation href="/rsvp" />);
+    await writeSendersLine();
 
     expect(screen.getByText('Vince and Kc')).toBeInTheDocument();
+  });
+
+  it('holds the senders\' line back, then writes it', async () => {
+    render(<EnvelopeInvitation href="/rsvp" />);
+    await act(async () => {});
+
+    // SENDERS_HOLD_S: the block is already on screen at load, so it waits
+    // rather than writing itself in the same frame the artwork paints.
+    // The words are all in the DOM from the first frame — the unwritten ones
+    // sit in a `visibility: hidden` span holding the line's box — so this
+    // checks what is WRITTEN rather than what is present.
+    const senders = screen.getByTestId('invitation-senders');
+    const pending = senders.querySelectorAll('[data-slot="pending"]');
+    expect(pending).toHaveLength(2);
+    expect(
+      [...pending].map((n) => n.textContent).join(' '),
+    ).toBe('you have received a letter from Vince and Kc');
+
+    await writeSendersLine();
+    expect(senders).toHaveTextContent('you have received a letter from');
+    expect(senders).toHaveTextContent('Vince and Kc');
+  });
+
+  it('shows the whole senders line at once under reduced motion', () => {
+    mockReducedMotion(true);
+    render(<EnvelopeInvitation href="/rsvp" />);
+
+    // Nothing is typed for a guest with the preference on: the words are
+    // content, and an animation that cannot run must not withhold them.
+    expect(screen.getByTestId('invitation-senders')).toHaveTextContent(
+      'Vince and Kc',
+    );
   });
 
   it('acknowledges the tap before the route resolves', () => {

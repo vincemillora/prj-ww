@@ -20,6 +20,22 @@ function SignOff() {
 }
 
 /**
+ * The text actually WRITTEN so far.
+ *
+ * The whole line is always in the DOM — the characters not yet written sit in a
+ * `visibility: hidden` span so the line's width, wrapping and height are the
+ * finished ones from the first frame. jsdom computes neither visibility nor
+ * innerText, so the pending span is subtracted explicitly.
+ */
+function written(block: HTMLElement) {
+  const pending = [...block.querySelectorAll('[data-slot="pending"]')]
+    .map((n) => n.textContent ?? '')
+    .join('');
+  const all = block.textContent ?? '';
+  return pending ? all.slice(0, all.length - pending.length) : all;
+}
+
+/**
  * One character per act(): each step's timeout is only scheduled once React has
  * committed the previous one, so a single large advanceTimersByTime moves the
  * timeline by exactly one letter.
@@ -57,15 +73,15 @@ describe('TypedLines', () => {
     render(<SignOff />);
 
     const block = screen.getByTestId('typed-text');
-    expect(block.textContent).not.toContain('with love');
+    expect(written(block)).not.toContain('with love');
 
     tick(3);
-    expect(block.textContent).toContain('wit');
-    expect(block.textContent).not.toContain('Vince');
+    expect(written(block)).toContain('wit');
+    expect(written(block)).not.toContain('Vince');
 
     tick(30);
-    expect(block.textContent).toContain('with love');
-    expect(block.textContent).toContain('Vince & Kc');
+    expect(written(block)).toContain('with love');
+    expect(written(block)).toContain('Vince & Kc');
   });
 
   it('erases the sign-off in reverse when the block leaves the viewport', () => {
@@ -74,18 +90,18 @@ describe('TypedLines', () => {
     const block = screen.getByTestId('typed-text');
 
     tick(30);
-    expect(block.textContent).toContain('Vince & Kc');
+    expect(written(block)).toContain('Vince & Kc');
 
     inView = false;
     rerender(<SignOff />);
 
     // The names unwind before the sign-off is touched: one hand, one timeline.
     tick('Vince & Kc'.length);
-    expect(block.textContent).toContain('with love');
-    expect(block.textContent).not.toContain('Vince & Kc');
+    expect(written(block)).toContain('with love');
+    expect(written(block)).not.toContain('Vince & Kc');
 
     tick(30);
-    expect(block.textContent).not.toContain('with');
+    expect(written(block)).not.toContain('with');
   });
 
   it('leaves the finished text alone for a guest who prefers reduced motion', () => {
@@ -93,11 +109,11 @@ describe('TypedLines', () => {
     render(<SignOff />);
 
     const block = screen.getByTestId('typed-text');
-    expect(block.textContent).toContain('with love');
-    expect(block.textContent).toContain('Vince & Kc');
+    expect(written(block)).toContain('with love');
+    expect(written(block)).toContain('Vince & Kc');
 
     inView = false;
     tick(30);
-    expect(block.textContent).toContain('with love');
+    expect(written(block)).toContain('with love');
   });
 });
