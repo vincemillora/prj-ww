@@ -35,7 +35,13 @@ const SHOTS: Shot[] = [
 
 export function Prenup() {
   return (
-    <section id="prenup" className="relative z-0 bg-paper pt-section">
+    // `paper-laid-surface` (app/globals.css) puts real fibre tooth and the
+    // hairline vertical laid lines of writing paper on the white the film strip
+    // lies on. Flat white is the one thing in frame with no material at all.
+    <section
+      id="prenup"
+      className="paper-laid-surface relative z-0 bg-paper pt-section"
+    >
       <PrenupScrollGallery shots={SHOTS} />
     </section>
   );
