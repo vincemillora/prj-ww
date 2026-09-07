@@ -2,6 +2,9 @@
 
 import Image from 'next/image';
 import { motion } from 'motion/react';
+
+import { MOTION_REDUCE_SAFE } from '@/components/letter/motion-tokens';
+import { cn } from '@/lib/utils';
 import lacePng from '@/public/lace.png';
 
 /**
@@ -16,10 +19,25 @@ import lacePng from '@/public/lace.png';
  * retracts, while the sticky header uses `dvh` to fill the visible screen.
  */
 export function Hero() {
-  // Hero content reveals on mount (above the fold), staggered top to bottom.
+  /**
+   * Hero content settles on mount (above the fold), staggered top to bottom.
+   *
+   * TRANSFORM ONLY — no opacity, and that is a performance decision rather than
+   * a stylistic one. An element at `opacity: 0` is not a paint candidate, so
+   * fading this section in made the LARGEST CONTENTFUL PAINT wait for the
+   * animation: measured on the production build at 4x CPU throttle, `/rsvp`
+   * reported LCP at 1908ms against the announcement line, while the same page
+   * under `prefers-reduced-motion` — where motion leaves opacity alone —
+   * reported 96ms against the monogram. Every candidate up here was inside the
+   * fade, so the fade was the metric.
+   *
+   * A rise reads as a settle rather than an arrival, which is the right note
+   * anyway: the guest has just come from the invitation, whose envelope
+   * dissolved over this same backdrop, so this content should already be here.
+   */
   const heroItem = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
+    hidden: { y: 20 },
+    show: { y: 0 },
   };
 
   return (
@@ -49,6 +67,15 @@ export function Hero() {
             // moment the reveal runs. Passed as a motion value, the rotation
             // composes with the reveal's translateY instead of losing to it.
             style={{ rotate: -6 }}
+            // NO `MOTION_REDUCE_SAFE` here, deliberately: its
+            // `motion-reduce:transform-none!` would take the -6deg TILT with
+            // it, and the tilt is this card's design, not its animation —
+            // measured, it flattened to 0deg under the preference. The floor is
+            // there to rescue a resting state that only motion can produce,
+            // and this entrance no longer touches opacity, so the worst case
+            // without it (JS never runs) is a card sitting 20px low, tilted
+            // and fully legible. Reduced motion WITH JS lands at rest, because
+            // motion jumps a transform animation straight to its target.
             className="relative aspect-square w-[min(92vw,30rem,54svh)] md:w-[min(92vw,39rem,54svh)] lg:w-[min(92vw,42rem,60svh)]"
           >
             {/* Frosted glass filling the lace's open window. */}
@@ -98,7 +125,10 @@ export function Hero() {
           <motion.p
             variants={heroItem}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="pb-[calc(env(safe-area-inset-bottom)+2.5rem)] font-script text-heading text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]"
+            className={cn(
+              MOTION_REDUCE_SAFE,
+              'pb-[calc(env(safe-area-inset-bottom)+2.5rem)] font-script text-heading text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]',
+            )}
           >
             We&apos;re getting married!
           </motion.p>
