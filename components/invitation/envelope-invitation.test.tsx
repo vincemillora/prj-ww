@@ -86,7 +86,7 @@ describe('EnvelopeInvitation', () => {
     render(<EnvelopeInvitation href="/rsvp" />);
     await act(async () => {});
 
-    // SENDERS_HOLD_S: the block is already on screen at load, so it waits
+    // STAGE_HOLD_S: the block is already on screen at load, so it waits
     // rather than writing itself in the same frame the artwork paints.
     // The words are all in the DOM from the first frame — the unwritten ones
     // sit in a `visibility: hidden` span holding the line's box — so this
