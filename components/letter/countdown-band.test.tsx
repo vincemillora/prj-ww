@@ -2,21 +2,33 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { WEDDING_DAY_LABEL } from "@/lib/wedding";
 
+// The motion-only props are pulled out so they never reach the DOM (React
+// warns on unknown attributes), then `void`ed to say the discard is deliberate
+// — the same shape welcome-band.test.tsx and our-story/vine-art.test.tsx use.
+// An `_`-prefix does not work here: this config carries no `varsIgnorePattern`,
+// so prefixed names still read as unused.
 vi.mock("motion/react", () => ({
   motion: {
     div: ({
       children,
-      initial: _initial,
-      whileInView: _whileInView,
-      viewport: _viewport,
-      transition: _transition,
+      initial,
+      whileInView,
+      viewport,
+      transition,
       ...props
     }: React.HTMLAttributes<HTMLDivElement> & {
       initial?: unknown;
       whileInView?: unknown;
       viewport?: unknown;
       transition?: unknown;
-    }) => <div {...props}>{children}</div>,
+    }) => {
+      void initial;
+      void whileInView;
+      void viewport;
+      void transition;
+
+      return <div {...props}>{children}</div>;
+    },
   },
   useReducedMotion: () => true,
 }));

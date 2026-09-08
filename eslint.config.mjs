@@ -16,6 +16,12 @@ const eslintConfig = defineConfig([
     // repo (with their own build output). Never lint them, and ignore nested
     // build dirs anywhere so eslint doesn't crawl generated bundles.
     ".claude/**",
+    // .agents mirrors .claude: tracked agent-skill tooling, not app source, and
+    // it carries vendored bundles (modern-screenshot.umd.js alone accounted for
+    // 78 warnings). Both directories are committed, so without this `eslint .`
+    // reported 146 warnings across 20 files that nothing here owns — noise that
+    // buries a real finding in app code.
+    ".agents/**",
     "**/.next/**",
   ]),
 ]);
