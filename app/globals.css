@@ -198,16 +198,52 @@
      hero curve (see countdown-band.tsx), so this clearance shrinks to match in
      the media query below. The `-mt` overlaps in our-story/prenup carry their
      own `sm:` overrides to the same 4rem. */
-  --spacing-dome: calc(12rem + var(--spacing-section));
+  --dome-ry: 12rem;
+  --spacing-dome: calc(var(--dome-ry) + var(--spacing-section));
+  /* The crown's depth, which is NOT `--dome-ry` on mobile. 12rem is tuned for a
+     `down` arch, where the curve hangs inside the section and the content that
+     clears it fills the space again — none of that depth is ever seen as empty
+     paper. A crown stands above the edge, so the whole 12rem IS the empty
+     paper, and on a 375px screen that is a half-screen white lens above the
+     title however tight the padding under it. Shallower here; on `sm`+ the two
+     converge on the same ~4rem hero curve, so only mobile differs. */
+  --crown-ry: 7rem;
+  /* Where the title sits under a CROWN, measured from the section's top edge.
+     `--spacing-dome`'s counterpart, and not the same number: a `down` dome
+     hangs INTO its section, so the title clears a curve reaching `--dome-ry`
+     past that edge, while a crown stands ABOVE it and takes nothing from the
+     section. Subtracting the arch's height puts the title the same `section`
+     below the CURVE either way, which is the relationship the eye measures.
+
+     It GOES NEGATIVE on purpose. Once the arch is deeper than a `section` the
+     title belongs INSIDE the curve, not below it — a crown's interior is paper
+     like the rest of the section, so a title under the springing line just sits
+     beneath a screen-wide empty lens. That is why it is applied as `mt-` on the
+     title block and not as padding on the section: padding cannot go negative.
+
+     The second term is the guard rail. The arch is an ELLIPSE, so the higher
+     the title rides the narrower the paper beneath it, and past roughly 40% of
+     the depth a full-width script title runs off the curve's shoulders onto the
+     section above. `max()` keeps the lift on the shallow side of that. */
+  --spacing-crown-under: max(
+    calc(var(--spacing-section) - var(--crown-ry)),
+    calc(-0.4 * var(--crown-ry))
+  );
 }
 
-/* Wider screens: shallow the domes to the hero's ~4rem curve. Overriding the
-   token here retunes every dome-clearance utility (countdown `pb-dome`, prenup
-   & rsvp `pt-dome`) in one place; the matching `-mt` overlaps are overridden at
-   their call sites. Mobile keeps the deep 12rem dome. */
+/* Wider screens: shallow every arch to the hero's ~4rem curve, at which depth a
+   crown and a `down` dome want the same number. The two `-ry` tokens are the
+   ONE place each depth is written — dome.tsx draws from them and the clearances
+   above derive from them — so overriding them here retunes the curves and every
+   dome utility (countdown `pb-dome`, prenup & rsvp `pt-dome`, location
+   `mt-crown-under`) together. The matching `-mt` overlaps are overridden at
+   their call sites. Mobile keeps the deeper arches. */
 @media (min-width: 640px) {
   :root {
-    --spacing-dome: calc(4rem + var(--spacing-section));
+    --dome-ry: 4rem;
+    /* The crown converges on the same curve here — the reason it is shallower
+       than `--dome-ry` is a mobile-only problem. */
+    --crown-ry: 4rem;
   }
 }
 

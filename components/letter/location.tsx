@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import { WEDDING_VENUE } from '@/lib/wedding';
 import { DeferredMap } from '@/components/letter/deferred-map';
+import { Dome } from '@/components/letter/dome';
 import { letterButton } from '@/components/letter/letter-button';
 import {
   ENTER,
@@ -149,8 +150,34 @@ export function Location() {
   const bringToFront = (id: string) => setFrontIndex(DECK.indexOf(id));
 
   return (
-    <section className="bg-paper px-gutter py-section">
-      <div className="mx-auto max-w-[56rem] text-center lg:max-w-[64rem]">
+    // No `pt-*`: the title block carries the offset itself as `mt-crown-under`,
+    // because on a deep crown that offset is NEGATIVE and lifts the title up
+    // into the arch. See `--spacing-crown-under` in app/globals.css.
+    //
+    // `flow-root` is what makes that lift land on the TITLE. With no padding or
+    // border at this edge, the title block's top margin collapses through the
+    // section and moves the section itself instead — the title stays pinned to
+    // the top edge and only the seam shifts. A block formatting context
+    // contains the margin. `flow-root` rather than `overflow-*`, which would
+    // also establish one but clip the crown standing outside this box.
+    <section className="relative z-10 flow-root bg-paper px-gutter pb-section">
+      {/* The seam with DayItself: the paper of this section rises as a dome over
+          the dark, full-bleed one above. `crown` rather than the `down` band the
+          RSVP uses, because DayItself's ground is a PHOTOGRAPH — a band would
+          have to paint a flat approximation of the artwork around the arch,
+          which reads as a seam. The crown paints only the arch, so what sits
+          around it is the real backdrop. See components/letter/dome.tsx.
+
+          The section's `relative z-10` is what the arch is positioned against
+          and what puts it over DayItself (`relative z-0`) in paint order;
+          DayItself's `pb-dome` is what keeps its content off the curve. */}
+      <Dome direction="crown" className="bg-paper" />
+      {/* `mt-crown-under` lifts the title INTO the arch wherever the curve is
+          deeper than a `section`, so it sits inside the dome rather than under
+          an empty one. `relative` is load-bearing for that: the crown is
+          absolutely positioned and would otherwise paint over in-flow content
+          whatever the source order, hiding the lifted title behind its paper. */}
+      <div className="relative mx-auto mt-crown-under max-w-[56rem] text-center lg:max-w-[64rem]">
         <SectionHeading tone="ink" title="Where we’ll be" kicker="Location" />
 
         {/* Roughly three quarters of the section's measure: the card is a

@@ -8,12 +8,13 @@ import { cn } from '@/lib/utils';
  * in is `relative`; the dome is `absolute` and paints over that section's
  * background. `direction` says which way the arch points:
  *
- *     <Dome direction="down" className="bg-paper" />  // paper hangs into the section
- *     <Dome direction="up"   className="bg-paper" />  // the section rises into the paper
+ *     <Dome direction="down"  className="bg-paper" />  // paper hangs into the section
+ *     <Dome direction="up"    className="bg-paper" />  // the section rises into the paper
+ *     <Dome direction="crown" className="bg-paper" />  // the section rises OVER the one above
  *
- * The two are the SAME half-ellipse — `50%` of the width across, `--dome-ry`
- * deep — but they are not the same object, and this is the part that is easy to
- * get wrong:
+ * `down` and `up` are the SAME half-ellipse — `50%` of the width across,
+ * `--dome-ry` deep — but they are not the same object, and this is the part
+ * that is easy to get wrong:
  *
  *   - `down` is the ellipse DRAWN in the fill: a border radius rounds the band's
  *     two bottom corners away, leaving the paper bulging into the section.
@@ -28,18 +29,36 @@ import { cn } from '@/lib/utils';
  * not a flat colour: a hole shows the photo, whereas any painted arch could
  * only ever approximate it.
  *
- * `--dome-ry` is the shared depth, and both the box height and the curve read
- * from it, so one number moves the whole seam: 12rem on mobile, the shallow
- * ~4rem hero curve on `sm`+. It matches `--spacing-dome` in app/globals.css,
- * which is what the `pt-dome` on the receiving section uses to clear the crown
- * — retune one and retune the other.
+ * `crown` is the third case, and the one to reach for when the section ABOVE is
+ * a photograph rather than a flat colour. `down` and `up` are both a band of
+ * OPAQUE fill sitting inside this section, so the fill has to match the
+ * neighbour exactly — against artwork, a flat mean tone reads as a seam. `crown`
+ * inverts the problem: it is the half-ellipse ALONE, drawn in this section's own
+ * ground and parked just above its top edge (`bottom-full`), with nothing at all
+ * painted around it. The surround is therefore the real section above, photo and
+ * all, and no colour has to be matched.
+ *
+ * A crown asks three things of its neighbours, and drops on the floor without
+ * them: the section drawing it needs `relative` and must not clip its overflow,
+ * its title block needs `mt-crown-under` (see below), and the section above
+ * needs `pb-dome` so its content clears the arch standing in its lower margin.
+ *
+ * DEPTH is one number per arch kind, both declared in app/globals.css so the
+ * clearances can derive from them: `--dome-ry` (12rem, the shallow ~4rem hero
+ * curve on `sm`+) for `down`/`up`, and `--crown-ry` for `crown`, which is
+ * shallower on mobile because a crown's depth is all visible as empty paper.
+ * The clearances are `--spacing-dome` for the `pt-dome` on a section receiving
+ * a `down` arch, and `--spacing-crown-under` for the `mt-crown-under` on the
+ * title block of one drawing a `crown`. Retune a depth in that one place and
+ * the arch and its clearance follow; this file declaring its own copy is what
+ * used to let them drift apart.
  */
 export function Dome({
   direction = 'down',
   className,
 }: {
   /** Which way the arch points. See the note above — these are not mirrors. */
-  direction?: 'down' | 'up';
+  direction?: 'down' | 'up' | 'crown';
   /** The fill for the band AROUND the arch — a `bg-*` utility, e.g. `bg-paper`. */
   className?: string;
 }) {
@@ -53,9 +72,18 @@ export function Dome({
     <div
       aria-hidden
       className={cn(
-        'pointer-events-none absolute inset-x-0 top-0 h-[var(--dome-ry)] [--dome-ry:12rem] sm:[--dome-ry:4rem]',
+        'pointer-events-none absolute inset-x-0 h-[var(--dome-ry)]',
+        // `down` and `up` are bands inside the section, so they sit at its top
+        // edge; `crown` is the arch alone, sat just outside that edge in the
+        // margin of the section above, and re-points the depth at its own
+        // shallower token.
+        direction === 'crown'
+          ? 'bottom-full [--dome-ry:var(--crown-ry)]'
+          : 'top-0',
         direction === 'down' &&
           'rounded-[0_0_50%_50%_/_0_0_var(--dome-ry)_var(--dome-ry)]',
+        direction === 'crown' &&
+          'rounded-[50%_50%_0_0_/_var(--dome-ry)_var(--dome-ry)_0_0]',
         className
       )}
       style={
