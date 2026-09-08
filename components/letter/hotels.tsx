@@ -1,5 +1,6 @@
 import { MapPin, Phone, Star } from 'lucide-react';
 
+import { HandDrawnFrame } from '@/components/letter/hand-drawn-frame';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { letterButton } from '@/components/letter/letter-button';
 import { BEAT } from '@/components/letter/motion-tokens';
@@ -98,7 +99,30 @@ export function Hotels() {
             // stretch and the Card flexes to fill it — the equal-height
             // behaviour the `sm:mt-auto` button row depends on is unchanged.
             <InViewReveal key={h.name} delay={i * BEAT} className="flex">
-              <Card className="flex flex-1 flex-col border-2 border-ink bg-paper px-2 py-8 shadow-[0_20px_44px_-26px_color-mix(in_srgb,var(--ink)_45%,transparent)] ring-0 sm:px-6">
+              {/* The 2px ink border is now DRAWN, not stroked by CSS: the
+                  hand-drawn frame overlays the card's own edge and the border
+                  utilities are gone (`ring-0` still kills the Card's default
+                  hairline ring, which would otherwise draw a second, perfectly
+                  straight outline underneath the wobbly one). `relative` is
+                  what the frame absolutely positions against; `text-ink` is
+                  what colours it, since the frame fills with currentColor. */}
+              {/* `isolate` so the frame's `-z-10` paper stays behind THIS
+                  card's content instead of escaping to the back of the
+                  section. `bg-transparent` because the paper is now drawn by
+                  the frame, clipped to the outline — Card's own `bg-card`
+                  would repaint the full rectangle underneath it and fill in
+                  the corners the drawing cuts away. `overflow-visible
+                  rounded-none` for the same reason in reverse: Card ships
+                  `overflow-hidden rounded-xl`, which clips a 12px arc off each
+                  corner and shaves the frame's corner flicks.
+
+                  The padding is the card's ORIGINAL padding, unchanged from
+                  when this drew a CSS border. That only works because
+                  Frame_1's stroke sits on the artwork's edge; Frame_2 was tried
+                  here and its inset strokes forced extra padding on every card.
+                  See hand-drawn-frame.tsx. */}
+              <Card className="relative isolate flex flex-1 flex-col overflow-visible rounded-none bg-transparent px-2 py-8 text-ink ring-0 shadow-none sm:px-6">
+                <HandDrawnFrame />
                 <CardHeader>
                   <CardTitle className="font-sans text-ink">{h.name}</CardTitle>
                   <CardDescription className="flex items-center gap-2 font-sans tracking-wide">

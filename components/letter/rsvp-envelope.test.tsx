@@ -53,6 +53,36 @@ describe('RsvpEnvelope', () => {
     );
   });
 
+  it('drops the glide and its runway when asked to stand still', () => {
+    const { container } = render(
+      <RsvpEnvelope glide={false}>
+        <div data-testid="rsvp-card">card</div>
+      </RsvpEnvelope>,
+    );
+
+    // Everything the glide needs goes together: the runway row, the pinning,
+    // and the custom properties that place the pin.
+    expect(container.firstElementChild).toHaveClass('grid-rows-1');
+    expect(container.firstElementChild).not.toHaveAttribute('style');
+    expect(
+      container.querySelector('[data-slot="rsvp-envelope-sticky"]'),
+    ).not.toHaveClass('sticky');
+    expect(
+      container.querySelector('[data-slot="rsvp-envelope-front-sticky"]'),
+    ).not.toHaveClass('sticky');
+  });
+
+  it('lets the caller sink the card deeper into the pocket', () => {
+    const { getByTestId } = render(
+      <RsvpEnvelope cardTop="mt-[34%]">
+        <div data-testid="rsvp-card">card</div>
+      </RsvpEnvelope>,
+    );
+
+    expect(getByTestId('rsvp-card').parentElement).toHaveClass('mt-[34%]');
+    expect(getByTestId('rsvp-card').parentElement).not.toHaveClass('mt-[30%]');
+  });
+
   it('starts the card above the flap so its first lines are never clipped', () => {
     // The flap only clears the card's full width above 51.2% of this canvas's
     // width, so a card starting below that line has its opening lines cut at

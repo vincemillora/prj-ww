@@ -4,7 +4,6 @@ import { OpeningBackdrop } from '@/components/letter/opening-backdrop';
 // import { EnvelopeGallery } from '@/components/letter/envelope-gallery';
 import { Prenup } from '@/components/letter/prenup';
 import { DayItself } from '@/components/letter/day-itself';
-import { AttireGuide } from '@/components/letter/attire-guide';
 import { Location } from '@/components/letter/location';
 import { Hotels } from '@/components/letter/hotels';
 import { Rsvp } from '@/components/letter/rsvp';
@@ -41,8 +40,11 @@ export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) 
       {/* <EnvelopeGallery /> parked here — reinsert to bring the keepsake
           envelope back between Our Story and Prenup. */}
       <Prenup />
+      {/* The attire guide is no longer its own section: DayItself now carries
+         the "What to wear" title and both of its sheets. Its content still
+         lives in components/letter/attire-guide.tsx, which DayItself imports —
+         that file is now a pair of exports rather than a section. */}
       <DayItself />
-      <AttireGuide />
       <Location />
       <Hotels />
       <Rsvp searchParams={searchParams} />
