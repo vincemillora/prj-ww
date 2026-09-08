@@ -22,6 +22,7 @@ import {
   MOTION_REDUCE_SAFE,
   TALL_VIEWPORT,
 } from '@/components/letter/motion-tokens';
+import { HandDrawnFrame } from '@/components/letter/hand-drawn-frame';
 import { SectionHeading } from '@/components/letter/section-heading';
 import {
   Card,
@@ -97,9 +98,15 @@ const PEEK_ROOM = (COUNT - 1) * PEEK;
 const THROW_THRESHOLD = 160;
 
 /** Shared silhouette: the photos are bare images, but they sit in the deck
-    with the same corner radius and drop shadow as the venue card. */
-const CARD_SHELL =
-  'rounded-xl shadow-[0_20px_44px_-26px_color-mix(in_srgb,var(--ink)_45%,transparent)]';
+    with the same corner radius as the venue card.
+
+    Radius only — no drop shadow. The venue card's outline is now a DRAWN line
+    (see HandDrawnFrame) and a shadow cast by its rectangular box does not
+    follow that line's wobble; it reads as a second, straighter edge just
+    outside the hand-drawn one. The photo cards behind it still carry the
+    shadow, declared on the photo itself — they are stacked and need the depth,
+    and having no drawn outline they have nothing for it to conflict with. */
+const CARD_SHELL = 'rounded-xl';
 
 /** The two chevrons flanking the dots — bare glyphs, no button chrome. The
     padding is hit area only, so the tap target clears 24px on touch. */
@@ -185,17 +192,30 @@ export function Location() {
                 onDismiss={goNext}
                 onBringToFront={() => bringToFront('venue')}
               >
-                {/* 2px ink border, the same stroke and colour as the timeline
-                    rail in components/letter/day-itself.tsx. `ring-0` kills
-                    the Card's default hairline ring so the two don't draw one
-                    over the other. */}
+                {/* The ink border is DRAWN rather than stroked by CSS — the
+                    hand-drawn frame overlays the card's own edge, so the
+                    `border-2 border-ink` utilities are gone. `ring-0` still
+                    kills the Card's default hairline ring, which would
+                    otherwise draw a second, perfectly straight outline
+                    underneath the wobbly one. `relative` is what the frame
+                    positions against; `text-ink` colours it (the frame fills
+                    with currentColor). */}
                 <Card
                   inert={front !== 'venue'}
                   className={cn(
                     CARD_SHELL,
-                    'flex flex-col border-2 border-ink bg-paper px-2 py-8 ring-0 sm:px-6',
+                    // See the matching note in hotels.tsx: `isolate` keeps the
+                    // frame's `-z-10` paper inside this card, `bg-transparent`
+                    // leaves the paper to the frame (which clips it to the
+                    // outline), and `overflow-visible rounded-none` undoes
+                    // Card's `overflow-hidden rounded-xl` so the corner flicks
+                    // are not shaved off. The padding is this card's original
+                    // padding — Frame_1's stroke lands on the box edge, so it
+                    // needs no clearance of its own.
+                    'relative isolate flex flex-col overflow-visible rounded-none bg-transparent px-2 py-8 text-ink ring-0 sm:px-6',
                   )}
                 >
+                  <HandDrawnFrame />
                   <CardHeader className="text-center">
                     <CardTitle className="font-sans text-ink">
                       {VENUE.name}
@@ -261,13 +281,21 @@ export function Location() {
                   onDismiss={goNext}
                   onBringToFront={() => bringToFront(photo.id)}
                 >
-                  {/* Bare photo — no paper frame, no caption. It only borrows
-                      the venue card's radius and shadow so the deck keeps one
-                      silhouette as the cards shuffle. */}
+                  {/* Bare photo — no paper frame, no caption. It borrows the
+                      venue card's radius so the deck keeps one silhouette as
+                      the cards shuffle.
+
+                      The shadow lives HERE, on the photos only, and no longer
+                      on the shared shell. The venue card in front is outlined
+                      by a drawn line, and a shadow cast by its rectangular box
+                      reads as a second, straighter edge just outside the
+                      hand-drawn one. The cards behind it have no such problem
+                      and genuinely need the depth: they are stacked, and the
+                      offset and scale alone do not separate them. */}
                   <div
                     className={cn(
                       CARD_SHELL,
-                      'relative size-full overflow-hidden bg-ink select-none',
+                      'relative size-full overflow-hidden bg-ink shadow-[0_20px_44px_-26px_color-mix(in_srgb,var(--ink)_45%,transparent)] select-none',
                     )}
                   >
                     <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--paper),var(--paper)_1px,transparent_1px,transparent_10px)]">

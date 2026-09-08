@@ -12,7 +12,6 @@ vi.mock('@/components/letter/our-story', () => ({
 }));
 vi.mock('@/components/letter/prenup', () => ({ Prenup: () => null }));
 vi.mock('@/components/letter/day-itself', () => ({ DayItself: () => null }));
-vi.mock('@/components/letter/attire-guide', () => ({ AttireGuide: () => null }));
 vi.mock('@/components/letter/location', () => ({ Location: () => null }));
 vi.mock('@/components/letter/hotels', () => ({ Hotels: () => null }));
 vi.mock('@/components/letter/rsvp', () => ({ Rsvp: () => null }));

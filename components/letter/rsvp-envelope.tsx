@@ -57,6 +57,15 @@ const PAPER_BOX = "relative aspect-[1446/1599] w-full";
 const STICKY_LAYER =
   "pointer-events-none sticky top-[var(--pin-top)] bottom-0 col-start-1 row-start-1 row-end-3 self-start";
 
+/**
+ * The same stack with the glide removed: one row, nothing pinned, so the
+ * envelope and the card it holds are a single still composition that scrolls
+ * like any other block. Used where the envelope is an ornament rather than the
+ * subject — see the `glide` prop.
+ */
+const STATIC_LAYER =
+  "pointer-events-none col-start-1 row-start-1 self-start";
+
 type PaperLayerProps = {
   className: string;
   src: string;
@@ -69,10 +78,34 @@ type StickyPaperProps = {
   className: string;
   paperSlot: string;
   stickySlot: string;
+  /** False pins nothing — see the `glide` prop on RsvpEnvelope. */
+  glide: boolean;
 };
 
 type RsvpEnvelopeProps = {
   children: ReactNode;
+  /**
+   * Whether the card GLIDES out of the pocket as the guest scrolls (the
+   * default, and what the RSVP section is built around) or the whole thing
+   * stands still.
+   *
+   * Everything the glide needs is conditional on this: the runway row, the
+   * sticky layers, and the custom properties that place the pin. What is NOT
+   * conditional is the layer artwork — the tilts, the clip path, the 83.195%
+   * paper width and the percentages hung off it — which is the fiddly part and
+   * the reason this is a prop rather than a second copy of the component.
+   */
+  glide?: boolean;
+  /** Merged onto the canvas, for the caller's own width and spacing. */
+  className?: string;
+  /**
+   * How far down the pocket the card starts, as a margin utility. The default
+   * `mt-[30%]` is tuned for the RSVP's tall card (see the note at the card
+   * below); a SHORT card in a SMALL envelope needs to start higher, because the
+   * band of clear pocket above the flap scales with the envelope while the type
+   * in the card does not.
+   */
+  cardTop?: string;
 };
 
 function PaperLayer({ children, className, src }: PaperLayerProps) {
@@ -94,12 +127,13 @@ function StickyPaper({
   className,
   paperSlot,
   stickySlot,
+  glide,
 }: StickyPaperProps) {
   return (
     <div
       aria-hidden
       data-slot={stickySlot}
-      className={cn(STICKY_LAYER, className)}
+      className={cn(glide ? STICKY_LAYER : STATIC_LAYER, className)}
     >
       <div data-slot={paperSlot} className={PAPER_BOX}>
         {children}
@@ -113,18 +147,34 @@ function StickyPaper({
  * sits in ordinary document flow between them, so scrolling carries it through
  * the pocket without moving the card itself.
  */
-export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
+export function RsvpEnvelope({
+  children,
+  glide = true,
+  className,
+  cardTop = "mt-[30%]",
+}: RsvpEnvelopeProps) {
   return (
     <div
       data-slot="rsvp-envelope"
-      style={ENVELOPE_GEOMETRY}
-      className="@container relative left-1/2 isolate mt-[calc(var(--spacing-heading)+6rem)] grid w-[calc(100%+120.2px)] grid-cols-1 grid-rows-[auto_var(--runway)] -translate-x-1/2"
+      // No geometry when nothing pins: every one of those properties exists
+      // only to place the pin, and `--envelope-height` is read solely by
+      // `--pin-top`. The paper boxes get their height from `aspect-[1446/1599]`
+      // either way.
+      style={glide ? ENVELOPE_GEOMETRY : undefined}
+      className={cn(
+        "@container relative left-1/2 isolate grid w-[calc(100%+120.2px)] grid-cols-1 -translate-x-1/2",
+        glide
+          ? "mt-[calc(var(--spacing-heading)+6rem)] grid-rows-[auto_var(--runway)]"
+          : "grid-rows-1",
+        className,
+      )}
     >
       {/* The paper layers are 83.195% of this canvas. Adding 120.2px to the
           canvas adds exactly 100px to their visible width; subtracting that
           same 100px off the card preserves its approved measure. `@container` is
           what lets the layers read this canvas's width — see ENVELOPE_GEOMETRY. */}
       <StickyPaper
+        glide={glide}
         stickySlot="rsvp-envelope-sticky"
         paperSlot="rsvp-envelope-paper"
         className="z-10"
@@ -167,12 +217,16 @@ export function RsvpEnvelope({ children }: RsvpEnvelopeProps) {
           buried one. */}
       <div
         data-slot="rsvp-envelope-card"
-        className="relative z-20 col-start-1 row-start-1 mx-auto mt-[30%] w-[calc(83.195%-100px)] self-start"
+        className={cn(
+          "relative z-20 col-start-1 row-start-1 mx-auto w-[calc(83.195%-100px)] self-start",
+          cardTop,
+        )}
       >
         {children}
       </div>
 
       <StickyPaper
+        glide={glide}
         stickySlot="rsvp-envelope-front-sticky"
         paperSlot="rsvp-envelope-front-paper"
         className="z-30"
