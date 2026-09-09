@@ -27,17 +27,20 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  * on into the ink as an arch, mirroring the white dome that opens the countdown
  * band and the ink dome that opens Our Story. Same curve as those two, inverted
  * — the shoulders sit on the section's top edge and the crown dips into the
- * ink. Deep 12rem (`h-48`, `180px`) on mobile; the shallow ~4rem hero curve on
- * `sm`+ (`sm:h-16`, `sm:rounded` 3rem). `pt-dome` clears the deepest point (it
- * shrinks with the dome on `sm`+), so the heading never rides into it.
+ * ink. Its depth is `--dome-ry` (app/globals.css): 7rem on mobile, the shallow
+ * ~4rem hero curve on `sm`+. It was 12rem on mobile, which put 192px of blank
+ * white between Hotels' last card and this heading — an arch bulging into a
+ * section with nothing in it reads as a hole, not a seam. `pt-dome` clears the
+ * deepest point and derives from the same token, so the heading never rides
+ * into the curve at either depth.
  *
  * `-mt-section` makes the arch OVERLAP Hotels' bottom padding instead of
  * hanging below it, which is why the section carries `z-10`. Without it Hotels
- * paid for the seam twice — its own `pb-section` AND the arch's full 12rem —
+ * paid for the seam twice — its own `pb-section` AND the arch's full depth —
  * leaving 264px of white under its last line. The arch is the tail now, and
  * Hotels adds nothing on top of it.
  *
- * The bite is ONE SECTION, not the 12rem the other domes take. This dome is not
+ * The bite is ONE SECTION, not the arch's full depth. This dome is not
  * like theirs: theirs are carved out of the section's own padding with a border
  * radius, so they cost no extra height, while this one is an overlay that adds
  * its full depth below the paper above. Biting 12rem here would pull the ink up

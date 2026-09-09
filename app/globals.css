@@ -178,36 +178,35 @@
                 144px between sections on a phone, 224px on a desktop.
        heading  a SectionHeading and the content it introduces
 
-     Deliberately NOT covered: the dome overlaps (`-mt-48`, `pb-72`, `pt-76`,
-     `pt-56`, `pt-28`). Those are structural — they are measured against the
-     12rem bite each dome takes out of the section above it, not against this
-     rhythm, and retuning one means retuning its partner. See the notes in
-     countdown-band.tsx and prenup.tsx. */
+     Deliberately NOT covered: the dome overlaps (`pt-28`, and the `-mt` pulls
+     in day-itself). Those are structural — measured against the arch they
+     partner, not against this rhythm, and retuning one means retuning its
+     partner. See the notes in countdown-band.tsx and prenup.tsx. */
   --spacing-gutter: clamp(1.25rem, 0.859rem + 1.739vw, 2.25rem);
   --spacing-section: clamp(4.5rem, 3.522rem + 4.348vw, 7rem);
   --spacing-heading: clamp(2.5rem, 2.109rem + 1.739vw, 3.5rem);
   /* Clearance for the one thing the rhythm above cannot express: the gap on the
-     far side of a dome. Every dome is 12rem deep — either the bite the next
-     section takes with `-mt-48`, or the height of the arch a section draws for
-     itself — so the padding that clears one is that 12rem plus exactly one
-     `section` of breathing room. Naming it keeps the three places that need it
-     in step: they used to be 18rem, 19rem and 14rem, which left 32px of air
-     under the RSVP arch against 112px under Our Story's dome.
-
-     Mobile domes are 12rem deep; on `sm`+ every dome is the shallower ~4rem
-     hero curve (see countdown-band.tsx), so this clearance shrinks to match in
-     the media query below. The `-mt` overlaps in our-story/prenup carry their
-     own `sm:` overrides to the same 4rem. */
-  --dome-ry: 12rem;
+     far side of a dome. The padding that clears an arch is its depth plus
+     exactly one `section` of breathing room. Naming it keeps the places that
+     need it in step: they used to be 18rem, 19rem and 14rem, which left 32px of
+     air under the RSVP arch against 112px under Our Story's dome. It is derived
+     from `--dome-ry` below, so shallowing the arch shallows the clearance with
+     it, and the media query needs only the one depth. */
+  /* Every arch's depth, `down` and `crown` alike. 7rem on mobile, not the 12rem
+     this used to be: at 12rem the interior of an arch is a half-screen of empty
+     ground on a phone, which is what it reads as whenever the curve bulges into
+     a section with nothing in it — 192px of blank white between the last hotel
+     card and the RSVP title. The crown ran at 7rem first and the seam read
+     right, so the `down` arch follows it rather than keeping a second depth. */
+  --dome-ry: 7rem;
   --spacing-dome: calc(var(--dome-ry) + var(--spacing-section));
-  /* The crown's depth, which is NOT `--dome-ry` on mobile. 12rem is tuned for a
-     `down` arch, where the curve hangs inside the section and the content that
-     clears it fills the space again — none of that depth is ever seen as empty
-     paper. A crown stands above the edge, so the whole 12rem IS the empty
-     paper, and on a 375px screen that is a half-screen white lens above the
-     title however tight the padding under it. Shallower here; on `sm`+ the two
-     converge on the same ~4rem hero curve, so only mobile differs. */
-  --crown-ry: 7rem;
+  /* Headroom for a crown in the section it stands in, which is deliberately NOT
+     `--spacing-dome`. That clearance tracks the arch, and letting this track it
+     too brought the attire card down onto the curve when the arch was
+     shallowed. How much room a section wants above a crown is a question about
+     that section's own content, not about how deep the curve happens to be, so
+     it is pinned here and moves only when someone means to move it. */
+  --spacing-crown-over: calc(12rem + var(--spacing-section));
   /* Where the title sits under a CROWN, measured from the section's top edge.
      `--spacing-dome`'s counterpart, and not the same number: a `down` dome
      hangs INTO its section, so the title clears a curve reaching `--dome-ry`
@@ -226,24 +225,21 @@
      the depth a full-width script title runs off the curve's shoulders onto the
      section above. `max()` keeps the lift on the shallow side of that. */
   --spacing-crown-under: max(
-    calc(var(--spacing-section) - var(--crown-ry)),
-    calc(-0.4 * var(--crown-ry))
+    calc(var(--spacing-section) - var(--dome-ry)),
+    calc(-0.4 * var(--dome-ry))
   );
 }
 
-/* Wider screens: shallow every arch to the hero's ~4rem curve, at which depth a
-   crown and a `down` dome want the same number. The two `-ry` tokens are the
-   ONE place each depth is written — dome.tsx draws from them and the clearances
-   above derive from them — so overriding them here retunes the curves and every
-   dome utility (countdown `pb-dome`, prenup & rsvp `pt-dome`, location
-   `mt-crown-under`) together. The matching `-mt` overlaps are overridden at
-   their call sites. Mobile keeps the deeper arches. */
+/* Wider screens: shallow every arch to the hero's ~4rem curve. `--dome-ry` is
+   the ONE place the depth is written — dome.tsx draws from it and the
+   clearances above derive from it — so overriding it here retunes the curves,
+   the RSVP's `pt-dome` and Location's `mt-crown-under` together. Mobile keeps
+   the deeper arch. `--spacing-crown-over` is pinned rather than derived (see
+   above), so it is restated here instead of following along. */
 @media (min-width: 640px) {
   :root {
     --dome-ry: 4rem;
-    /* The crown converges on the same curve here — the reason it is shallower
-       than `--dome-ry` is a mobile-only problem. */
-    --crown-ry: 4rem;
+    --spacing-crown-over: calc(4rem + var(--spacing-section));
   }
 }
 

@@ -93,14 +93,14 @@ export function DayItself() {
     // flashing white and then going dark. Same trick as the `--lace` token in
     // app/globals.css, but not that token — its name says it is the drapery's
     // average, and this is a different picture.
-    // `pb-dome`, not `pb-section`: the Location section below crowns this one
-    // with a paper arch that stands in this section's bottom margin, and the
-    // sequence has to clear it. Deliberately the FULL dome clearance rather
-    // than one measured off the shallower `--crown-ry` — tightening it to the
-    // arch's real height brings this section's last card down onto the curve.
-    // The room above the crown is not the gap that needed closing; the empty
-    // paper INSIDE it was. See `--spacing-crown-under` in app/globals.css.
-    <section className="relative z-0 overflow-x-clip bg-[#7d6e55] px-gutter pt-section pb-dome">
+    // `pb-crown-over`, not `pb-section`: the Location section below crowns this
+    // one with a paper arch that stands in this section's bottom margin, and
+    // the sequence has to clear it. Deliberately a PINNED clearance rather than
+    // `pb-dome`, which tracks the arch depth — shallowing the arch then drags
+    // this section's last card down onto the curve. The room above the crown is
+    // not the gap that needed closing; the empty paper INSIDE it was. See
+    // `--spacing-crown-over` in app/globals.css.
+    <section className="relative z-0 overflow-x-clip bg-[#7d6e55] px-gutter pt-section pb-crown-over">
       {/* The floral backdrop this section stands on — the SAME artwork the RSVP
           section uses (public/rsvp-bg.png), so the letter's two full-bleed
           sections share a ground instead of introducing a second one.
