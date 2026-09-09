@@ -31,6 +31,8 @@ yarn.lock
 # local hand-drawn icon library (full sets). Only the icons the site actually
 # references live under public/icons/hand_drawn/ and are committed; the rest
 # stays here so icons can be swapped in locally without repo weight.
+# `_library/_retired/` holds icons that were committed once, then stopped being
+# referenced -- kept on the shelf rather than deleted, in case they come back.
 /public/icons/_library/
 
 # debug
