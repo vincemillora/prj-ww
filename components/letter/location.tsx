@@ -160,7 +160,22 @@ export function Location() {
     // the top edge and only the seam shifts. A block formatting context
     // contains the margin. `flow-root` rather than `overflow-*`, which would
     // also establish one but clip the crown standing outside this box.
-    <section className="relative z-10 flow-root bg-paper px-gutter pb-section">
+    // `overflow-x-clip` because a thrown card travels 460px sideways (see
+    // `throwAway`), which on a phone is well past the screen edge. The body's
+    // `overflow-x-hidden` cannot contain that: it hides the strip but the
+    // LAYOUT viewport is already wider, so the page zooms out mid-swipe and
+    // re-anchors. Clipping here keeps the throw inside the section.
+    //
+    // `clip`, not `hidden`, for the usual reason — `hidden` would make this
+    // section a scrollport, and the deck's cards would scroll inside it. And
+    // the x axis ONLY: paired with `overflow-y: visible` the used values stay
+    // as specified, so the crown standing above this section's top edge, and
+    // the title lifted up into it, are untouched. `overflow-clip` on both axes
+    // would behead them.
+    //
+    // This does not replace `flow-root`: `clip` establishes no block formatting
+    // context, so without it the title's negative margin still escapes.
+    <section className="relative z-10 flow-root overflow-x-clip bg-paper px-gutter pb-section">
       {/* The seam with DayItself: the paper of this section rises as a dome over
           the dark, full-bleed one above. `crown` rather than the `down` band the
           RSVP uses, because DayItself's ground is a PHOTOGRAPH — a band would
