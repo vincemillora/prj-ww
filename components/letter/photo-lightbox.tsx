@@ -31,6 +31,13 @@ export type LightboxPhoto = {
   /** Intrinsic pixel size — fixes the lightbox's aspect ratio so `object-cover` never crops. */
   w: number;
   h: number;
+  /**
+   * Optional `sizes` override for the lightbox img. The default suits a
+   * roughly square photo capped at 600px; a wide plate (the attire
+   * illustration) fills the viewport width instead and would be served a
+   * needlessly small candidate without this.
+   */
+  sizes?: string;
 };
 
 /** Spring shared by the page img and the lightbox img — keep both in step. */
@@ -126,7 +133,7 @@ function Overlay({
           alt={photo.alt}
           width={photo.w}
           height={photo.h}
-          sizes="(max-width: 652px) 92vw, 600px"
+          sizes={photo.sizes ?? '(max-width: 652px) 92vw, 600px'}
           className="max-h-[85svh] max-w-[92vw] object-cover"
           style={{ aspectRatio: `${photo.w} / ${photo.h}` }}
         />

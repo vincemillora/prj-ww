@@ -30,24 +30,47 @@ describe('DayItself', () => {
     expect(screen.getAllByText('What to wear')).toHaveLength(1);
     expect(screen.getByText(/Semi-formal/)).toBeInTheDocument();
     expect(
-      screen.getByText(/Please leave white and ivory/),
+      screen.getByText(/We would love to see you in the colours above/),
     ).toBeInTheDocument();
   });
 
-  it('lays the sequence and both attire blocks on their own frames', () => {
+  it('gives each attire block the presentation its content asks for', () => {
     const { container } = render(<DayItself />);
 
+    // Three drawn sheets, not five: the day's own card, then one for each of
+    // the two guide cards. The palette plate and the closing rule are NOT on
+    // drawn sheets — see the two assertions below.
     const sheets = container.querySelectorAll(
       '[data-slot="hand-drawn-frame-long"]',
     );
     expect(sheets).toHaveLength(3);
 
-    // Exactly one is inverted (ink fill, paper line) to match the title card.
+    // Both guide cards are inverted (ink fill, paper line); the day card stays
+    // paper. A guide card that loses its tone loses its white type with it.
     const inked = container.querySelectorAll(
       '[data-slot="hand-drawn-frame-long"][data-tone="ink"]',
     );
-    expect(inked).toHaveLength(1);
-    expect(inked[0].parentElement).toHaveTextContent(/Semi-formal/);
+    expect(inked).toHaveLength(2);
+    expect(inked[0].parentElement).toHaveTextContent(/For the men/);
+    expect(inked[1].parentElement).toHaveTextContent(/For the women/);
+
+    // The palette plate is a POLAROID: a paper mount around the print, with a
+    // caption on the lip. A drawn sheet here would make the picture look like
+    // one more written card.
+    const plate = screen.getByAltText(/^Illustrated guests/);
+    const mount = plate.closest('figure');
+    expect(mount).not.toBeNull();
+    expect(mount).toHaveTextContent('our colours');
+    expect(
+      mount?.closest('[data-slot="hand-drawn-frame-long"]'),
+    ).toBeNull();
+
+    // The closing rule is set in the LACE frame, the same ornament as the
+    // section title, so the run opens and closes on it.
+    const laces = container.querySelectorAll('img[src*="floral-lace-frame"]');
+    expect(laces).toHaveLength(2);
+    expect(laces[0].parentElement).toHaveTextContent('What to wear');
+    expect(laces[1].parentElement).toHaveTextContent(/Semi-formal/);
   });
 
   it('gives every sheet its own stacking context', () => {
