@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import Image from 'next/image';
 import dayBackground from '@/public/rsvp-bg.png';
-import laceFrame from '@/public/floral-lace-frame.png';
+import laceFrame from '@/public/floral-lace-frame.webp';
 import { cn } from '@/lib/utils';
 import {
   AttireForMen,

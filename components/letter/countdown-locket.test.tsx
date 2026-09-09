@@ -11,11 +11,11 @@ describe("CountdownLocket", () => {
     expect(locket).toHaveAttribute("aria-hidden", "true");
     expect(
       screen.getByTestId("countdown-locket-ribbon").getAttribute("src"),
-    ).toContain("url=%2Flocket%2Fribbon.png");
+    ).toContain("url=%2Flocket%2Fribbon.webp");
     expect(
       screen.getByTestId("countdown-locket-frame").getAttribute("src"),
     ).toContain(
-      "url=%2Flocket%2Flocket-frame.png",
+      "url=%2Flocket%2Flocket-frame.webp",
     );
     for (const layer of [
       screen.getByTestId("countdown-locket-ribbon"),
@@ -30,7 +30,7 @@ describe("CountdownLocket", () => {
 
     const photoLayer = screen.getByTestId("countdown-locket-photos");
     expect(photoLayer).toHaveStyle({
-      maskImage: "url(/locket/locket-window-mask.png)",
+      maskImage: "url(/locket/locket-window-mask.webp)",
     });
 
     expect(screen.getAllByTestId("countdown-locket-photo-placeholder")).toHaveLength(2);

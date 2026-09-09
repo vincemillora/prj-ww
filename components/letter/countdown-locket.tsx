@@ -17,15 +17,15 @@ export function CountdownLocket(): React.JSX.Element {
         sizes={LOCKET_SIZES}
         className="absolute inset-0 h-full w-full object-contain"
         data-testid="countdown-locket-ribbon"
-        src="/locket/ribbon.png"
+        src="/locket/ribbon.webp"
       />
       <svg
         className="absolute inset-0 h-full w-full"
         data-testid="countdown-locket-photos"
         style={{
-          maskImage: "url(/locket/locket-window-mask.png)",
+          maskImage: "url(/locket/locket-window-mask.webp)",
           maskSize: "100% 100%",
-          WebkitMaskImage: "url(/locket/locket-window-mask.png)",
+          WebkitMaskImage: "url(/locket/locket-window-mask.webp)",
           WebkitMaskSize: "100% 100%",
         }}
         viewBox="0 0 800 600"
@@ -58,7 +58,7 @@ export function CountdownLocket(): React.JSX.Element {
         sizes={LOCKET_SIZES}
         className="absolute inset-0 h-full w-full object-contain"
         data-testid="countdown-locket-frame"
-        src="/locket/locket-frame.png"
+        src="/locket/locket-frame.webp"
       />
     </div>
   );

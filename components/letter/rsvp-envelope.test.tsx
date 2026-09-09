@@ -103,8 +103,8 @@ describe('RsvpEnvelope', () => {
   it('keeps the card between the independently sticky back and front layers', () => {
     const { container, getByTestId } = renderEnvelope();
     const card = getByTestId('rsvp-card');
-    const inside = container.querySelector('img[src="/envelope/inside.png"]');
-    const front = container.querySelector('img[src="/envelope/front.png"]');
+    const inside = container.querySelector('img[src="/envelope/inside.webp"]');
+    const front = container.querySelector('img[src="/envelope/front.webp"]');
 
     expect(card.parentElement).toHaveClass('z-20');
     expect(card.parentElement).toHaveClass('w-[calc(83.195%-100px)]');
@@ -128,11 +128,11 @@ describe('RsvpEnvelope', () => {
   it('tilts the paper layers five degrees without rotating the RSVP card', () => {
     const { container, getByTestId } = renderEnvelope();
     const paper = container.querySelector('[data-slot="rsvp-envelope-paper"]');
-    const back = container.querySelector('img[src="/envelope/back.png"]');
-    const inside = container.querySelector('img[src="/envelope/inside.png"]');
-    const front = container.querySelector('img[src="/envelope/front.png"]');
+    const back = container.querySelector('img[src="/envelope/back.webp"]');
+    const inside = container.querySelector('img[src="/envelope/inside.webp"]');
+    const front = container.querySelector('img[src="/envelope/front.webp"]');
     const logo = container.querySelector('[data-slot="rsvp-envelope-logo"]');
-    const lace = container.querySelector('img[src="/envelope/lace.png"]');
+    const lace = container.querySelector('img[src="/envelope/lace.webp"]');
     const card = getByTestId('rsvp-card').parentElement;
 
     expect(paper).not.toHaveClass('rotate-[5deg]');
@@ -150,10 +150,10 @@ describe('RsvpEnvelope', () => {
     const [back, inside, lace, front, logo] = images;
 
     expect(images.map((image) => image.getAttribute('src'))).toEqual([
-      '/envelope/back.png',
-      '/envelope/inside.png',
-      '/envelope/lace.png',
-      '/envelope/front.png',
+      '/envelope/back.webp',
+      '/envelope/inside.webp',
+      '/envelope/lace.webp',
+      '/envelope/front.webp',
       '/couple-logo-rustic.svg',
     ]);
     expect(back.parentElement).toHaveClass('z-10');
@@ -165,7 +165,7 @@ describe('RsvpEnvelope', () => {
 
   it('keeps the inverted lace raised and offset right behind the envelope', () => {
     const { container } = renderEnvelope();
-    const lace = container.querySelector('img[src="/envelope/lace.png"]');
+    const lace = container.querySelector('img[src="/envelope/lace.webp"]');
 
     expect(lace).toHaveClass('rotate-[185deg]');
     expect(lace).toHaveClass('origin-center');
@@ -176,7 +176,7 @@ describe('RsvpEnvelope', () => {
 
   it('raises the inner panel slightly within the envelope', () => {
     const { container } = renderEnvelope();
-    const inside = container.querySelector('img[src="/envelope/inside.png"]');
+    const inside = container.querySelector('img[src="/envelope/inside.webp"]');
 
     expect(inside?.parentElement).toHaveClass('-translate-y-[10px]');
   });

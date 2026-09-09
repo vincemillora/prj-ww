@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { TypedLines } from '@/components/letter/typed-text';
 import { COUPLE_NAMES } from '@/lib/wedding';
-import envelopeBack from '@/public/index-invitation/back.png';
-import envelopeFront from '@/public/index-invitation/front.png';
-import laceCollar from '@/public/index-invitation/lace.png';
+import envelopeBack from '@/public/index-invitation/back.webp';
+import envelopeFront from '@/public/index-invitation/front.webp';
+import laceCollar from '@/public/index-invitation/lace.webp';
 
 /**
  * How long the envelope is allowed to open before the router is told to move.

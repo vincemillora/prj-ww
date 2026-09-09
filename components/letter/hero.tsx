@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 
 import { MOTION_REDUCE_SAFE } from '@/components/letter/motion-tokens';
 import { cn } from '@/lib/utils';
-import lacePng from '@/public/lace.png';
+import laceArt from '@/public/lace.webp';
 
 /**
  * Hero type — the names and lace frame. It paints NO background of its
@@ -57,7 +57,7 @@ export function Hero() {
               keeps the ornament clear of mobile browser chrome on short screens. */}
           <motion.div className="flex min-h-0 flex-1 flex-col items-center justify-center pb-8">
           {/* The footer monogram sits inside the square floral lace frame
-              (public/lace.png), over its frosted-glass window. */}
+              (public/lace.webp), over its frosted-glass window. */}
           <motion.div
             variants={heroItem}
             transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -89,7 +89,7 @@ export function Hero() {
               className="pointer-events-none absolute inset-0 drop-shadow-[0_8px_30px_color-mix(in_srgb,var(--ink)_55%,transparent)]"
             >
               <Image
-                src={lacePng}
+                src={laceArt}
                 alt=""
                 fill
                 loading="eager"

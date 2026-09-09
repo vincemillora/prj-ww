@@ -180,7 +180,7 @@ export function RsvpEnvelope({
         className="z-10"
       >
         <PaperLayer
-          src="/envelope/back.png"
+          src="/envelope/back.webp"
           className="z-10 origin-center rotate-[5deg]"
         />
 
@@ -189,7 +189,7 @@ export function RsvpEnvelope({
           style={{ clipPath: INSIDE_CLIP_PATH }}
         >
           <Image
-            src="/envelope/inside.png"
+            src="/envelope/inside.webp"
             alt=""
             fill
             sizes={INSIDE_LAYER_SIZES}
@@ -198,7 +198,7 @@ export function RsvpEnvelope({
         </div>
 
         <Image
-          src="/envelope/lace.png"
+          src="/envelope/lace.webp"
           alt=""
           fill
           sizes={ENVELOPE_SIZES}
@@ -232,7 +232,7 @@ export function RsvpEnvelope({
         className="z-30"
       >
         <PaperLayer
-          src="/envelope/front.png"
+          src="/envelope/front.webp"
           className="z-30 origin-center rotate-[5deg]"
         >
           <div
