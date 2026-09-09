@@ -73,11 +73,28 @@ export function Dome({
     <div
       aria-hidden
       className={cn(
-        'pointer-events-none absolute inset-x-0 h-[var(--dome-ry)]',
+        // A pixel TALLER than the curve, and that extra pixel is a seam fix, not
+        // a rounding error. An arch always meets a neighbouring surface along
+        // its one flat edge, and both boxes land on fractional positions (the
+        // section tops here sit at .953125, .328125 and so on, because every
+        // padding above them is a `clamp()` of rems). Two boxes rasterising
+        // independently from a fractional boundary can round to different
+        // device pixels, and the hairline that opens between them shows the
+        // ground BEHIND the arch — dark ink under the RSVP's white dome, the
+        // photograph under Location's paper crown. It is intermittent by
+        // nature: it appears only at the scroll offsets where the two edges
+        // happen to round apart, which is exactly how it was reported.
+        //
+        // The extra pixel is spent entirely on the flat edge, pushing it INTO
+        // the neighbour so no rounding can separate them. The curve is
+        // untouched: its radius stays `--dome-ry`, so the arch keeps its depth
+        // and its apex does not move — only the straight side grows.
+        'pointer-events-none absolute inset-x-0 h-[calc(var(--dome-ry)+1px)]',
         // `down` and `up` are bands inside the section, so they sit at its top
-        // edge; `crown` is the arch alone, sat just outside that edge in the
-        // margin of the section above.
-        direction === 'crown' ? 'bottom-full' : 'top-0',
+        // edge and overlap the section ABOVE by that pixel; `crown` is the arch
+        // alone, sat just outside that edge in the margin of the section above,
+        // and overlaps the section BELOW it instead.
+        direction === 'crown' ? 'bottom-[calc(100%-1px)]' : '-top-px',
         direction === 'down' &&
           'rounded-[0_0_50%_50%_/_0_0_var(--dome-ry)_var(--dome-ry)]',
         direction === 'crown' &&

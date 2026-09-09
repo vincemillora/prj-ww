@@ -84,7 +84,20 @@ function Stars({ value }: { value: number }) {
 export function Hotels() {
   return (
     <section className="bg-paper py-section">
-      <div className="mx-auto max-w-[56rem] px-gutter text-center lg:max-w-[64rem]">
+      {/* `relative z-20` so this content rides OVER the RSVP's dome instead of
+          disappearing behind it. RSVP pulls itself up `-mt-section`, so this
+          section's box carries on ~73px past the RSVP's top edge, and the RSVP
+          is `z-10` with an opaque ground: everything painted in that band — a
+          card's last line, a shadow, anything mid-entrance or mid-exit — was
+          covered, which read as an invisible line cutting the animation off
+          exactly where the dome begins.
+
+          The z-index goes on the CONTENT, never on the section. This section is
+          unpositioned, so its background stays down at the root level where the
+          arch is drawn over it; raising the whole section would bring that
+          full-width white rectangle up too and square off the arch's shoulders.
+          Only the cards come forward. */}
+      <div className="relative z-20 mx-auto max-w-[56rem] px-gutter text-center lg:max-w-[64rem]">
         <SectionHeading
           title="Where you can stay"
           kicker="We want to make your visit as comfortable as possible. Here are our recommended places to stay."

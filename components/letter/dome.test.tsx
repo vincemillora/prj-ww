@@ -12,7 +12,9 @@ describe('Dome', () => {
     const { container } = render(<Dome direction="down" className="bg-paper" />);
     const el = arch(container);
 
-    expect(el.className).toContain('top-0');
+    // `-top-px`, not `top-0`: the flat edge is pushed a pixel into the section
+    // above so a fractional seam cannot round the two apart. See dome.tsx.
+    expect(el.className).toContain('-top-px');
     expect(el.className).toContain('bg-paper');
     // Bottom corners rounded away: the fill bulges DOWN into the section.
     expect(el.className).toContain(
@@ -38,10 +40,12 @@ describe('Dome', () => {
     );
     const el = arch(container);
 
-    // `bottom-full`, not `top-0`: the crown stands in the margin of the section
-    // ABOVE, which is what leaves the real backdrop showing around it.
-    expect(el.className).toContain('bottom-full');
-    expect(el.className).not.toContain('top-0');
+    // Positioned off the BOTTOM, not the top: the crown stands in the margin of
+    // the section ABOVE, which is what leaves the real backdrop showing around
+    // it. The `-1px` is the same seam overlap the other directions take, spent
+    // downwards here because a crown's flat edge is its bottom one.
+    expect(el.className).toContain('bottom-[calc(100%-1px)]');
+    expect(el.className).not.toContain('-top-px');
     // Top corners rounded away, the mirror of the `down` arch.
     expect(el.className).toContain(
       'rounded-[50%_50%_0_0_/_var(--dome-ry)_var(--dome-ry)_0_0]',
@@ -56,8 +60,23 @@ describe('Dome', () => {
     // direction reads the same depth, so none of them may re-point it either.
     for (const direction of ['down', 'up', 'crown'] as const) {
       const { container } = render(<Dome direction={direction} />);
-      expect(arch(container).className).toContain('h-[var(--dome-ry)]');
       expect(arch(container).className).not.toContain('[--dome-ry:');
+    }
+  });
+
+  it('overlaps its neighbour by a pixel, without deepening the curve', () => {
+    // The seam fix has to be spent on the FLAT edge only. If the extra pixel
+    // ever reaches the radius, the arch gets deeper than the clearances derived
+    // from `--dome-ry` in app/globals.css expect, and the title starts riding
+    // into the curve.
+    for (const direction of ['down', 'up', 'crown'] as const) {
+      const { container } = render(<Dome direction={direction} />);
+      const cls = arch(container).className;
+
+      expect(cls).toContain('h-[calc(var(--dome-ry)+1px)]');
+      // The radius is the bare token at every corner it rounds.
+      expect(cls).not.toContain('%_/_0_0_calc(');
+      expect(cls).not.toContain('0_0_/_calc(');
     }
   });
 });
