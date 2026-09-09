@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 
 import { PageFloralBottomRight } from "@/components/dashboard/florals";
 
@@ -8,14 +8,10 @@ export const metadata: Metadata = {
   description: "Manage wedding guests, invitations, and RSVP responses.",
 };
 
-// Matches the public routes so all four opt into the full screen rather than
-// two of them declaring it and two not. No measured effect in portrait on
-// iPhone 17 Pro / iOS 26.5 — `env(safe-area-inset-*)` are `0px` there either
-// way — so this is for landscape insets and consistency, NOT a fix for the
-// address-bar band. See docs/rsvp-spec.md §1 for why that band cannot be moved.
-export const viewport: Viewport = {
-  viewportFit: "cover",
-};
+// `viewportFit: 'cover'` now comes from the root layout, which all four routes
+// share. `robots: { index: false }` is inherited from there too — the admin
+// console must not be indexed, and metadata merges key by key, so omitting
+// `robots` here keeps the root's rule rather than clearing it.
 
 /**
  * Sidebar-less admin shell: a full-width, centred container on plain white. The

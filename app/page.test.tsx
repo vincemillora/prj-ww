@@ -29,22 +29,12 @@ vi.mock('@/components/letter/vinyl-player', () => ({
   VinylPlayer: () => null,
 }));
 
-import Home, { viewport } from '@/app/page';
-import { viewport as rsvpViewport } from '@/app/rsvp/page';
+import Home from '@/app/page';
 
+// The `viewportFit: 'cover'` contract these two routes used to declare for
+// themselves now lives once in the root layout, and is asserted in
+// app/layout.test.tsx.
 describe('Home', () => {
-  it('extends the invitation hero without forcing opaque Safari chrome', () => {
-    expect(viewport).toEqual({
-      viewportFit: 'cover',
-    });
-  });
-
-  it('keeps the RSVP letter edge-to-edge without forcing opaque Safari chrome', () => {
-    expect(rsvpViewport).toEqual({
-      viewportFit: 'cover',
-    });
-  });
-
   it('keeps the dark document canvas as the full-bleed artwork fallback', async () => {
     const { container } = render(await Home({ searchParams: Promise.resolve({}) }));
 

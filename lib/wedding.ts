@@ -38,6 +38,23 @@ export const RSVP_DEADLINE_LABEL = 'December 2026';
 export const WEDDING_VENUE = 'Anvy Beach Resort';
 
 /**
+ * How the occasion names itself — the browser tab, the Open Graph and Twitter
+ * cards, the drawn share image (app/opengraph-image.tsx) and the calendar
+ * event below. It was written out by hand in each of those places; one
+ * constant keeps them from drifting apart.
+ */
+export const SITE_TITLE = `${COUPLE} — Wedding`;
+
+/**
+ * The one-sentence description behind `<meta description>`, `og:description`
+ * and the Twitter card, so a link shared into a chat app reads the same
+ * everywhere. Derived, so moving the date or the venue above rewrites it.
+ */
+export const SITE_DESCRIPTION =
+  `${COUPLE} are getting married in ${WEDDING_MONTH_LABEL} at ${WEDDING_VENUE}. ` +
+  "Find the day's details and send your RSVP.";
+
+/**
  * The event behind the letter's "Add to calendar" button.
  *
  * The day is WEDDING_DATE_ISO's date, so moving the wedding here moves the
@@ -47,7 +64,7 @@ export const WEDDING_VENUE = 'Anvy Beach Resort';
  * event lands at the right hour no matter where the guest's device is set.
  */
 export const WEDDING_EVENT = {
-  title: `${COUPLE} — Wedding`,
+  title: SITE_TITLE,
   location: WEDDING_VENUE,
   details: 'We would be honoured to have you celebrate with us.',
   start: `${WEDDING_DATE_ISO.slice(0, 10)}T14:00:00+08:00`,

@@ -1,17 +1,14 @@
-import type { Viewport } from 'next';
 import { ClarityAnalytics } from '@/components/analytics/clarity';
 import { WeddingLetter } from '@/components/letter/wedding-letter';
 import { MotionProvider } from '@/components/letter/motion-provider';
 import { VinylPlayer } from '@/components/letter/vinyl-player';
 
-// Let the public hero artwork paint through iPhone's browser and device insets.
-// Interactive content remains sized to the visible dynamic viewport.
-export const viewport: Viewport = {
-  viewportFit: 'cover',
-};
-
 /**
  * Guest RSVP page.
+ *
+ * `viewportFit: 'cover'` (letting the hero artwork paint through iPhone's
+ * browser and device insets) is set once in the root layout; interactive
+ * content stays sized to the visible dynamic viewport.
  *
  * The `searchParams` promise (carrying the `?id=<token>` invite link) is
  * forwarded, unawaited, into the closing RSVP section, which awaits it under
