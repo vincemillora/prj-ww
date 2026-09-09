@@ -78,6 +78,11 @@ const nextConfig: NextConfig = {
       rootFile('svg'),
       rootFile('webp'),
       { source: '/favicon.ico', headers: cache },
+      // The Open Graph card (app/opengraph-image.tsx). Also a metadata route,
+      // and one that renders on demand under Cache Components — see the note
+      // in that file. Nothing in it is request-dependent, so this header is
+      // what keeps satori from re-rendering the PNG on every unfurl.
+      { source: '/opengraph-image', headers: cache },
     ];
   },
 

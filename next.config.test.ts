@@ -52,6 +52,18 @@ describe('asset cache headers', () => {
     expect(sources).toContain('/favicon.ico');
   });
 
+  /**
+   * The Open Graph card renders on demand — no Cache Components opt-in fits an
+   * image route (see app/opengraph-image.tsx) — so this header is the only
+   * thing standing between a shared invitation and satori re-rasterizing the
+   * PNG on every single unfurl.
+   */
+  it('caches the generated Open Graph card', async () => {
+    const sources = (await headerRules()).map((rule) => rule.source);
+
+    expect(sources).toContain('/opengraph-image');
+  });
+
   it('sends a shared, month-long, non-blocking policy on every rule', async () => {
     for (const rule of await headerRules()) {
       const cacheControl = rule.headers.find((h) => h.key === 'Cache-Control');

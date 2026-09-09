@@ -385,7 +385,11 @@ guest **response** DTO (attendance-form input) is deferred with the form.
 |---|---|
 | `README.md` | Setup, env, deploy, and "view responses at `/admin`" section. |
 | `package.json` | Add deps (§2) + `db:generate` / `db:migrate` scripts. |
-| `app/layout.tsx` | Metadata / fonts for the wedding site (as needed). |
+| `app/layout.tsx` | Fonts and the site-wide `metadata` / `viewport`: `metadataBase` (`APP_URL`, falling back to `VERCEL_PROJECT_PRODUCTION_URL` so preview deployments do not advertise a localhost image), `robots: { index: false }` for **every** route, the `openGraph` / `twitter` blocks, `themeColor` (`--ink`), `viewportFit: 'cover'` and `formatDetection`. Metadata merges key by key across segments, so a child that omits a key inherits the root's — which is what keeps the admin console and `/rsvp` out of indexes, and why there is no root `alternates.canonical` (every route would claim to be `/`). No `appleWebApp`: `capable: true` needs an `apple-icon` beside it and strips the address bar from a saved `?id=` link — see the file's own comment. |
+| `lib/wedding.ts` → `SITE_TITLE` / `SITE_DESCRIPTION` | The occasion's name and one-sentence description, derived from the couple/date/venue constants. Single source for the tab title, the OG + Twitter cards, the drawn share image and `WEDDING_EVENT.title`. |
+| `app/robots.ts` | `Disallow: /` for all crawlers. A guest's `?id=<token>` is a capability URL, so an indexed page discloses guest tokens; there is deliberately **no** sitemap. |
+| `app/opengraph-image.tsx` | The 1200×630 / ~49 KB link-preview card, drawn with `next/og` (`ImageResponse`) from `lib/wedding.ts` strings — chat-app unfurlers ignore `robots`, so this is what guests see when the invitation is pasted into Messenger or iMessage. Identical for every guest and carries no token, which is what lets one cached card serve per-guest capability links. Typographic, not photographic: the hero artwork is megabyte-scale and every embedded asset counts against the 500KB `ImageResponse` bundle. Renders on demand (no opt-in to `'use cache'` fits an image route — see the file's own note) and is cached by the `/opengraph-image` rule in `next.config.ts` `headers()`. |
+| `app/_fonts/*.ttf` + `OFL.txt` | Parisienne + Montserrat bytes for satori, which cannot read the `next/font` faces the pages use. Vendored (a `_`-prefixed private folder) so a build never depends on reaching Google Fonts; both are traced into the route bundle. Both families are SIL OFL 1.1, and vendoring the binaries means shipping the license — `OFL.txt` carries the per-family copyright notices and the license text. |
 
 ### Files to delete
 
@@ -529,7 +533,7 @@ To verify any of this, `next build && next start` and read the real headers — 
 | Var | Required | Where set | Purpose |
 |---|---|---|---|
 | `DATABASE_URL` | ✅ | Vercel (Neon Marketplace) + local `.env` | Neon Postgres connection string. |
-| `APP_URL` | ✅ | Vercel env + local `.env` | Base URL; builds the OAuth redirect URI. Dev: `http://localhost:3000`. |
+| `APP_URL` | ✅ | Vercel env + local `.env` | Base URL; builds the OAuth redirect URI **and** the root layout's `metadataBase`, which is what turns the relative `/opengraph-image` path into the absolute URL unfurlers require. Unset in production, the share card silently stops resolving. Dev: `http://localhost:3000`. |
 | `GOOGLE_CLIENT_ID` | ✅ | Vercel env + local `.env` | Google OAuth 2.0 Web client id. |
 | `GOOGLE_CLIENT_SECRET` | ✅ | Vercel env + local `.env` | Google OAuth client secret (user-supplied). |
 | `SESSION_SECRET` | ✅ | Vercel env + local `.env` | 32+ random bytes; signs the session JWT (`openssl rand -base64 32`). |
