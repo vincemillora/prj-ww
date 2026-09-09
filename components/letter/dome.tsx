@@ -43,15 +43,16 @@ import { cn } from '@/lib/utils';
  * its title block needs `mt-crown-under` (see below), and the section above
  * needs `pb-dome` so its content clears the arch standing in its lower margin.
  *
- * DEPTH is one number per arch kind, both declared in app/globals.css so the
- * clearances can derive from them: `--dome-ry` (12rem, the shallow ~4rem hero
- * curve on `sm`+) for `down`/`up`, and `--crown-ry` for `crown`, which is
- * shallower on mobile because a crown's depth is all visible as empty paper.
- * The clearances are `--spacing-dome` for the `pt-dome` on a section receiving
- * a `down` arch, and `--spacing-crown-under` for the `mt-crown-under` on the
- * title block of one drawing a `crown`. Retune a depth in that one place and
- * the arch and its clearance follow; this file declaring its own copy is what
- * used to let them drift apart.
+ * DEPTH is `--dome-ry`, declared once in app/globals.css — 7rem, the shallow
+ * ~4rem hero curve on `sm`+ — and shared by all three directions, because an
+ * arch's interior reads as empty ground whichever way it points. The clearances
+ * derive from it there: `--spacing-dome` for the `pt-dome` on a section
+ * receiving a `down` arch, and `--spacing-crown-under` for the `mt-crown-under`
+ * on the title block of one drawing a `crown`. Retune the depth in that one
+ * place and the arch and both clearances follow; this file declaring its own
+ * copy is what used to let them drift apart. The one clearance that does NOT
+ * follow is `--spacing-crown-over`, the room above a crown in the section it
+ * stands in — that is set by what that section's content needs.
  */
 export function Dome({
   direction = 'down',
@@ -75,11 +76,8 @@ export function Dome({
         'pointer-events-none absolute inset-x-0 h-[var(--dome-ry)]',
         // `down` and `up` are bands inside the section, so they sit at its top
         // edge; `crown` is the arch alone, sat just outside that edge in the
-        // margin of the section above, and re-points the depth at its own
-        // shallower token.
-        direction === 'crown'
-          ? 'bottom-full [--dome-ry:var(--crown-ry)]'
-          : 'top-0',
+        // margin of the section above.
+        direction === 'crown' ? 'bottom-full' : 'top-0',
         direction === 'down' &&
           'rounded-[0_0_50%_50%_/_0_0_var(--dome-ry)_var(--dome-ry)]',
         direction === 'crown' &&

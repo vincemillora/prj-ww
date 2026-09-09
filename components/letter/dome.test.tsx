@@ -42,8 +42,6 @@ describe('Dome', () => {
     // ABOVE, which is what leaves the real backdrop showing around it.
     expect(el.className).toContain('bottom-full');
     expect(el.className).not.toContain('top-0');
-    // Its own, shallower depth — a crown's height is all visible empty paper.
-    expect(el.className).toContain('[--dome-ry:var(--crown-ry)]');
     // Top corners rounded away, the mirror of the `down` arch.
     expect(el.className).toContain(
       'rounded-[50%_50%_0_0_/_var(--dome-ry)_var(--dome-ry)_0_0]',
@@ -52,13 +50,14 @@ describe('Dome', () => {
     expect(el.style.maskImage).toBe('');
   });
 
-  it('never declares its own depth, so the tokens stay the one source', () => {
+  it('never declares its own depth, so the token stays the one source', () => {
     // Re-declaring `--dome-ry` here is what used to let the arch and the
-    // clearances derived from it in app/globals.css drift apart.
+    // clearances derived from it in app/globals.css drift apart. Every
+    // direction reads the same depth, so none of them may re-point it either.
     for (const direction of ['down', 'up', 'crown'] as const) {
       const { container } = render(<Dome direction={direction} />);
-      expect(arch(container).className).not.toContain('[--dome-ry:12rem]');
-      expect(arch(container).className).not.toContain('sm:[--dome-ry:4rem]');
+      expect(arch(container).className).toContain('h-[var(--dome-ry)]');
+      expect(arch(container).className).not.toContain('[--dome-ry:');
     }
   });
 });
