@@ -3,7 +3,12 @@ import Image from 'next/image';
 import dayBackground from '@/public/rsvp-bg.png';
 import laceFrame from '@/public/floral-lace-frame.png';
 import { cn } from '@/lib/utils';
-import { AttireNotes, AttirePlate } from '@/components/letter/attire-guide';
+import {
+  AttireForMen,
+  AttireForWomen,
+  AttireNotes,
+  AttirePlate,
+} from '@/components/letter/attire-guide';
 import { HandDrawnFrameLong } from '@/components/letter/hand-drawn-frame';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { OrnamentDrift } from '@/components/letter/ornament-drift';
@@ -436,57 +441,106 @@ export function DayItself() {
           </div>
         </div>
 
-        {/* The attire content, on two sheets rather than one: the palette plate
-            and the guidance notes are different KINDS of thing — a picture and
-            a list of instructions — and giving each its own sheet lets them sit
-            apart the way loose papers do, one nudged right and one left, under
-            the lace title above.
+        {/* The attire run, under the lace title above, is four blocks and
+            THREE different presentations, because they are three different
+            kinds of thing:
 
-            Both come from attire-guide.tsx rather than being retyped here, so
-            the palette names and the three lines of guidance have one home.
+              polaroid    the palette illustration — a picture, so it is a
+                          photograph on the table
+              two sheets  a card each for the men and the women — written
+                          advice, so they are written cards
+              lace        the semi-formal line — the rule over all of it, so it
+                          closes on the same ornament the title opened with
 
-            They LAP the sheet above and each other, and since the frame's fill
-            is opaque the sheet beneath loses its bottom LINE but keeps its
-            sides — which is what makes a run of them read as papers laid down
-            in a stack rather than a column of boxes. Keep the laps small for
-            that reason: much more and the sheet underneath stops reading as a
-            whole sheet.
+            The order is the reading order: look at the illustration, read the
+            half that applies to you, then the rule that covers everyone. Every
+            word comes from attire-guide.tsx rather than being retyped here, so
+            the palette names and the guidance have one home.
 
-            They TILT in opposite directions and offset in opposite directions,
-            which turns that stack into two papers dropped on a table. Both are
-            capped by the same thing as everything else here — a sheet pushed or
-            rotated far enough to put the frame's own side line off the screen
-            reads as broken open. 2° is the ceiling on a phone (a rotation
-            throws the corners out by roughly half the box height times
-            sin(angle), against ~11px of slack), and the left sheet uses 0.75rem
-            rather than 1rem because the tilt spends some of that slack: at 1rem
-            the rotated corner landed on x=0 exactly.
+            The blocks LAP each other, and since a sheet's fill is opaque the
+            one beneath loses its bottom LINE but keeps its sides — which is
+            what makes the run read as papers laid down in a stack rather than
+            a column of boxes. Keep the laps small: much more and the sheet
+            underneath stops reading as a whole sheet.
+
+            They TILT and offset in alternating directions, which turns that
+            stack into papers dropped on a table. 2° is the ceiling on a phone
+            — a rotation throws the corners out by roughly half the box height
+            times sin(angle), against ~11px of slack — and the nudge is 0.75rem
+            rather than 1rem because the tilt spends some of that slack: at
+            1rem the rotated corner landed on x=0 exactly. A block pushed or
+            rotated far enough to put its own side line off the screen reads as
+            broken open.
 
             Tailwind v4 sets `rotate` and `translate` as separate CSS
             properties, so tilt and nudge compose instead of one winning. Safe
-            as classes because neither sheet is itself a motion element — the
-            reveals are on the content INSIDE, so nothing writes an inline
-            transform over these.
+            as classes because none of these wrappers is itself a motion
+            element — the reveals are on the content INSIDE, so nothing writes
+            an inline transform over them. The polaroid is the exception and
+            carries its own tilt; see below. */}
 
-            On a desktop they are CAPPED and pushed further apart. Unconstrained
-            they filled the section: 1235px and 1224px wide, the notes sheet a
-            1224x292 letterbox, and at that width a 2° tilt lifts one end ~21px
-            so the type read as skewed rather than as a sheet laid at an angle.
-            Capped at 43/32rem the same tilt lifts ~9px. */}
-        <Sheet className="-mt-[2.5rem] translate-x-[0.75rem] rotate-2 px-6 py-10 sm:mx-auto sm:-mt-10 sm:max-w-[43rem] sm:translate-x-[5rem] sm:px-10 sm:py-12 lg:translate-x-[8rem]">
+        {/* NO Sheet: the plate carries its own polaroid mount (see
+            attire-guide.tsx), so a drawn frame around it would be a frame
+            around a frame. Its tilt lives on the polaroid itself, which is why
+            there is no `rotate-*` here. It runs wider than the drawn sheets
+            (46rem) because the mount adds its own border. */}
+        <div className="-mt-[2.5rem] w-full translate-x-[0.75rem] sm:mx-auto sm:-mt-10 sm:max-w-[46rem] sm:translate-x-[5rem] lg:translate-x-[8rem]">
           <AttirePlate />
-        </Sheet>
+        </div>
 
-        {/* The notes sheet is INVERTED to match the title card: an ink ground
-            with the drawing in paper. Both come from `tone="ink"` — the fill
-            and the line are separate baked assets, so they can only switch
-            together (see hand-drawn-frame.tsx). */}
+        {/* The two guide cards keep the run alternating — plate right, men
+            left, women right — so no two blocks in the stack lean the same way
+            twice. They are capped narrower than the plate (34rem) because
+            these are paragraphs of text; at the plate's 46rem the measure runs
+            long.
+
+            Both are INVERTED, which leaves the polaroid as the one piece of
+            white paper in the run: the palette is the picture, and the written
+            advice about it reads as one dark voice. `tone="ink"` on the Sheet
+            flips the frame; `tone="paper"` on the content flips the type to
+            match (separate props because the frame's fill and line are baked
+            assets — see hand-drawn-frame.tsx). */}
         <Sheet
           tone="ink"
-          className="-mt-[2rem] -translate-x-[0.75rem] -rotate-2 px-6 py-10 sm:mx-auto sm:-mt-8 sm:max-w-[32rem] sm:-translate-x-[5rem] sm:px-10 sm:py-12 lg:-translate-x-[8rem]"
+          className="-mt-[2rem] -translate-x-[0.75rem] -rotate-2 px-6 py-10 sm:mx-auto sm:-mt-8 sm:max-w-[34rem] sm:-translate-x-[5rem] sm:px-10 sm:py-12 lg:-translate-x-[8rem]"
         >
-          <AttireNotes tone="paper" />
+          <AttireForMen tone="paper" />
         </Sheet>
+
+        <Sheet
+          tone="ink"
+          className="-mt-[2rem] translate-x-[0.75rem] rotate-2 px-6 py-10 sm:mx-auto sm:-mt-8 sm:max-w-[34rem] sm:translate-x-[5rem] sm:px-10 sm:py-12 lg:translate-x-[8rem]"
+        >
+          <AttireForWomen tone="paper" />
+        </Sheet>
+
+        {/* The closing rule is set in the LACE, the same frame that carries
+            the section title above — the run opens and closes on the same
+            ornament, and the drawn sheets sit between them. Type is white
+            here rather than the title's ink: this is body copy at body size
+            over the lace's translucent wash, and in ink it disappeared.
+
+            Window insets and the 1126/819 aspect are the title block's,
+            measured off the asset's alpha — see the note there before
+            changing either. The box is wider than the title's because this is
+            two lines of prose rather than one script line: the window is 70%
+            of the box, so 34rem clears a comfortable measure. */}
+        <div className="relative -mt-[1.5rem] w-full max-w-[24rem] -translate-x-[0.75rem] sm:mx-auto sm:-mt-6 sm:max-w-[34rem] sm:-translate-x-[5rem] lg:-translate-x-[8rem]">
+          <div className="relative aspect-[1126/819]">
+            <Image
+              src={laceFrame}
+              alt=""
+              aria-hidden
+              fill
+              placeholder="blur"
+              sizes="(max-width: 640px) 92vw, 34rem"
+              className="object-contain"
+            />
+            <div className="absolute inset-x-[15%] inset-y-[20%] flex items-center justify-center">
+              <AttireNotes tone="paper" />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
