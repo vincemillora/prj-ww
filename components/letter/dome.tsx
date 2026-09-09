@@ -34,14 +34,17 @@ import { cn } from '@/lib/utils';
  * OPAQUE fill sitting inside this section, so the fill has to match the
  * neighbour exactly — against artwork, a flat mean tone reads as a seam. `crown`
  * inverts the problem: it is the half-ellipse ALONE, drawn in this section's own
- * ground and parked just above its top edge (`bottom-full`), with nothing at all
- * painted around it. The surround is therefore the real section above, photo and
- * all, and no colour has to be matched.
+ * ground and parked just past its top edge, with nothing at all painted around
+ * it. The surround is therefore the real section above, photo and all, and no
+ * colour has to be matched.
  *
  * A crown asks three things of its neighbours, and drops on the floor without
- * them: the section drawing it needs `relative` and must not clip its overflow,
- * its title block needs `mt-crown-under` (see below), and the section above
- * needs `pb-dome` so its content clears the arch standing in its lower margin.
+ * them: the section drawing it needs `relative` and must not clip its overflow
+ * VERTICALLY, its title block needs `mt-crown-under` (see below), and the
+ * section above needs `pb-dome` so its content clears the arch standing in its
+ * lower margin. Clipping the x axis alone is fine and Location does it, to
+ * contain a thrown card; `overflow-y` or the `overflow` shorthand would behead
+ * the arch.
  *
  * DEPTH is `--dome-ry`, declared once in app/globals.css — 7rem, the shallow
  * ~4rem hero curve on `sm`+ — and shared by all three directions, because an
@@ -53,6 +56,23 @@ import { cn } from '@/lib/utils';
  * copy is what used to let them drift apart. The one clearance that does NOT
  * follow is `--spacing-crown-over`, the room above a crown in the section it
  * stands in — that is set by what that section's content needs.
+ *
+ * THE SEAM is why the box is a pixel taller than the curve. An arch always
+ * meets a neighbouring surface along its one flat edge, and both boxes land on
+ * fractional positions — the section tops here sit at .953125, .328125 and so
+ * on, because every padding above them is a `clamp()` of rems. Two boxes
+ * rasterising independently from a fractional boundary can round to different
+ * device pixels, and the hairline that opens between them shows the ground
+ * BEHIND the arch: dark ink under the RSVP's white dome, the photograph under
+ * Location's paper crown. It is intermittent by nature, appearing only at the
+ * scroll offsets where the two edges happen to round apart.
+ *
+ * That pixel is spent entirely on the FLAT edge, pushing it into the neighbour
+ * so no rounding can separate them — upwards for `down` and `up`, downwards for
+ * `crown`. The curve never sees it: the radius stays `--dome-ry`, so the arch
+ * keeps its depth and its apex does not move. Spending it on the radius instead
+ * would deepen the arch past the clearances derived from `--dome-ry`, and the
+ * title would start riding into the curve.
  */
 export function Dome({
   direction = 'down',
@@ -73,27 +93,16 @@ export function Dome({
     <div
       aria-hidden
       className={cn(
-        // A pixel TALLER than the curve, and that extra pixel is a seam fix, not
-        // a rounding error. An arch always meets a neighbouring surface along
-        // its one flat edge, and both boxes land on fractional positions (the
-        // section tops here sit at .953125, .328125 and so on, because every
-        // padding above them is a `clamp()` of rems). Two boxes rasterising
-        // independently from a fractional boundary can round to different
-        // device pixels, and the hairline that opens between them shows the
-        // ground BEHIND the arch — dark ink under the RSVP's white dome, the
-        // photograph under Location's paper crown. It is intermittent by
-        // nature: it appears only at the scroll offsets where the two edges
-        // happen to round apart, which is exactly how it was reported.
-        //
-        // The extra pixel is spent entirely on the flat edge, pushing it INTO
-        // the neighbour so no rounding can separate them. The curve is
-        // untouched: its radius stays `--dome-ry`, so the arch keeps its depth
-        // and its apex does not move — only the straight side grows.
+        // The `+1px` is the seam overlap — see THE SEAM above. It is written
+        // out literally here, and in the two offsets below, because Tailwind
+        // reads these class names out of the source text and a composed string
+        // would generate nothing.
         'pointer-events-none absolute inset-x-0 h-[calc(var(--dome-ry)+1px)]',
-        // `down` and `up` are bands inside the section, so they sit at its top
-        // edge and overlap the section ABOVE by that pixel; `crown` is the arch
-        // alone, sat just outside that edge in the margin of the section above,
-        // and overlaps the section BELOW it instead.
+        // Where that pixel goes. `down` and `up` are bands inside the section,
+        // so their flat edge is the top one and it overlaps the section ABOVE;
+        // `crown` is the arch alone, standing in the margin of the section
+        // above, so its flat edge is the bottom one and it overlaps the section
+        // BELOW — the one drawing it.
         direction === 'crown' ? 'bottom-[calc(100%-1px)]' : '-top-px',
         direction === 'down' &&
           'rounded-[0_0_50%_50%_/_0_0_var(--dome-ry)_var(--dome-ry)]',

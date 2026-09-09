@@ -150,31 +150,32 @@ export function Location() {
   const bringToFront = (id: string) => setFrontIndex(DECK.indexOf(id));
 
   return (
-    // No `pt-*`: the title block carries the offset itself as `mt-crown-under`,
-    // because on a deep crown that offset is NEGATIVE and lifts the title up
-    // into the arch. See `--spacing-crown-under` in app/globals.css.
+    // Three classes here are load-bearing for the crown, and each guards a
+    // different failure.
     //
-    // `flow-root` is what makes that lift land on the TITLE. With no padding or
-    // border at this edge, the title block's top margin collapses through the
-    // section and moves the section itself instead — the title stays pinned to
-    // the top edge and only the seam shifts. A block formatting context
-    // contains the margin. `flow-root` rather than `overflow-*`, which would
-    // also establish one but clip the crown standing outside this box.
-    // `overflow-x-clip` because a thrown card travels 460px sideways (see
-    // `throwAway`), which on a phone is well past the screen edge. The body's
-    // `overflow-x-hidden` cannot contain that: it hides the strip but the
-    // LAYOUT viewport is already wider, so the page zooms out mid-swipe and
-    // re-anchors. Clipping here keeps the throw inside the section.
+    // No `pt-*`, because the title block carries its own offset as
+    // `mt-crown-under` — negative on a deep crown, lifting the title up into
+    // the arch. See `--spacing-crown-under` in app/globals.css.
     //
-    // `clip`, not `hidden`, for the usual reason — `hidden` would make this
-    // section a scrollport, and the deck's cards would scroll inside it. And
-    // the x axis ONLY: paired with `overflow-y: visible` the used values stay
-    // as specified, so the crown standing above this section's top edge, and
-    // the title lifted up into it, are untouched. `overflow-clip` on both axes
-    // would behead them.
+    // `flow-root` makes that lift land on the TITLE. With no padding or border
+    // at this edge the title's top margin collapses through the section and
+    // moves the section instead, leaving the title pinned to the top edge while
+    // the seam shifts. A block formatting context contains the margin.
     //
-    // This does not replace `flow-root`: `clip` establishes no block formatting
-    // context, so without it the title's negative margin still escapes.
+    // `overflow-x-clip` contains a thrown card, which travels 460px sideways
+    // (see `throwAway`) and reaches ~516px past a phone's screen edge. The
+    // body's `overflow-x-hidden` cannot hold that: it hides the strip, but the
+    // LAYOUT viewport has already widened, so the page zooms out for the length
+    // of the animation and re-anchors after.
+    //
+    // The two overflow decisions are narrower than they look. `clip` and not
+    // `hidden`, which would make this section a scrollport and scroll the deck
+    // inside it. The x axis and not the shorthand, because `overflow-y` in any
+    // clipping value beheads the crown standing above this section's top edge
+    // and the title lifted into it; paired with `overflow-y: visible` the used
+    // values stay as specified. And `clip` is no substitute for `flow-root`,
+    // establishing no block formatting context of its own — drop `flow-root`
+    // and the title's negative margin escapes again.
     <section className="relative z-10 flow-root overflow-x-clip bg-paper px-gutter pb-section">
       {/* The seam with DayItself: the paper of this section rises as a dome over
           the dark, full-bleed one above. `crown` rather than the `down` band the

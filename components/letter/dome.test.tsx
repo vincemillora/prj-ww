@@ -65,18 +65,21 @@ describe('Dome', () => {
   });
 
   it('overlaps its neighbour by a pixel, without deepening the curve', () => {
-    // The seam fix has to be spent on the FLAT edge only. If the extra pixel
-    // ever reaches the radius, the arch gets deeper than the clearances derived
-    // from `--dome-ry` in app/globals.css expect, and the title starts riding
+    // The seam overlap has to be spent on the FLAT edge only. If the extra
+    // pixel ever reaches the radius the arch grows deeper than the clearances
+    // derived from `--dome-ry` in app/globals.css, and the title starts riding
     // into the curve.
     for (const direction of ['down', 'up', 'crown'] as const) {
       const { container } = render(<Dome direction={direction} />);
       const cls = arch(container).className;
+      const rounded = cls
+        .split(' ')
+        .find((c) => c.startsWith('rounded-'));
 
+      // The box takes the pixel...
       expect(cls).toContain('h-[calc(var(--dome-ry)+1px)]');
-      // The radius is the bare token at every corner it rounds.
-      expect(cls).not.toContain('%_/_0_0_calc(');
-      expect(cls).not.toContain('0_0_/_calc(');
+      // ...and the radius does not: it stays the bare token.
+      if (rounded != null) expect(rounded).not.toContain('1px');
     }
   });
 });
