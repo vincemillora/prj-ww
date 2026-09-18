@@ -1,6 +1,7 @@
 import { LaceBackdrop } from '@/components/letter/lace-backdrop';
 import { EnvelopeInvitation } from '@/components/invitation/envelope-invitation';
 import { ClarityAnalytics } from '@/components/analytics/clarity';
+import { KotaeEmbed } from '@/components/embed/kotae-embed';
 
 /** A quiet invitation entry point that carries an invite code into the RSVP. */
 export default async function Home({
@@ -22,6 +23,9 @@ export default async function Home({
       {/* Public pages only — see the component for why the admin routes are
           deliberately not recorded. */}
       <ClarityAnalytics />
+      {/* TEMPORARY: production trial of the Kotae chat embed — revert once
+          verified. Home page only; see the component. */}
+      <KotaeEmbed />
     </main>
   );
 }
