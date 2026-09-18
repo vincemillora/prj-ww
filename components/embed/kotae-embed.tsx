@@ -1,7 +1,3 @@
-'use client';
-
-import { useEffect } from 'react';
-
 /**
  * TEMPORARY — production smoke test of the Kotae chat embed.
  *
@@ -13,38 +9,38 @@ import { useEffect } from 'react';
  * admin routes under `app/(protected)` show every guest's details, and a
  * third-party script has full access to the DOM it is loaded into.
  *
- * The tags are injected from an effect rather than rendered as JSX so that the
- * ids the vendor's snippet expects (`kotae-embed-js` / `kotae-embed-css`) are
- * preserved verbatim and each tag is inserted exactly once, including under
- * React StrictMode's double-invoked effects in development.
+ * This is a server component on purpose, so both tags land in the prerendered
+ * HTML. The vendor bundle builds its widget from `window.onload = ...`, so it
+ * MUST be parsed before the window load event: injecting it from a client
+ * effect (the obvious approach) registers that handler after load has already
+ * fired, and the widget then never appears — silently, with no console error.
+ *
+ * It also reads its own tag back via `document.getElementById('kotae-embed-js')`
+ * and parses the `src` and `data-cid` off it, so the id and both attributes
+ * have to stay exactly as the vendor snippet writes them.
  */
-const SCRIPT_ID = 'kotae-embed-js';
-const STYLE_ID = 'kotae-embed-css';
-
-const SCRIPT_SRC = 'https://app.test.kotae.tokyotechies.co.jp/embed/index.min.js';
-const STYLE_HREF = 'https://app.test.kotae.tokyotechies.co.jp/embed/index.min.css';
+const EMBED_ORIGIN = 'https://app.test.kotae.tokyotechies.co.jp';
 const CLIENT_ID = '6aab85224e513504081229d2';
 
 export function KotaeEmbed() {
-  useEffect(() => {
-    if (!document.getElementById(STYLE_ID)) {
-      const style = document.createElement('link');
-      style.id = STYLE_ID;
-      style.rel = 'stylesheet';
-      style.href = STYLE_HREF;
-      document.head.appendChild(style);
-    }
-
-    if (!document.getElementById(SCRIPT_ID)) {
-      const script = document.createElement('script');
-      script.id = SCRIPT_ID;
-      script.type = 'text/javascript';
-      script.src = SCRIPT_SRC;
-      script.defer = true;
-      script.dataset.cid = CLIENT_ID;
-      document.head.appendChild(script);
-    }
-  }, []);
-
-  return null;
+  return (
+    <>
+      {/* No `precedence`: that would opt the tag into React's stylesheet
+          hoisting, which under PPR re-inserts it from the client at hydration
+          instead of shipping it in the prerendered shell. Rendered in place, it
+          is in the HTML the parser sees, like the vendor snippet. */}
+      <link
+        id="kotae-embed-css"
+        rel="stylesheet"
+        href={`${EMBED_ORIGIN}/embed/index.min.css`}
+      />
+      <script
+        id="kotae-embed-js"
+        type="text/javascript"
+        src={`${EMBED_ORIGIN}/embed/index.min.js`}
+        data-cid={CLIENT_ID}
+        defer
+      />
+    </>
+  );
 }
