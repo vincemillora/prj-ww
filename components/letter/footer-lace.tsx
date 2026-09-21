@@ -63,9 +63,8 @@ export function FooterLace() {
       <InViewReveal delay={BEAT * 2} className="relative z-10">
         <address className="px-gutter text-center text-paper not-italic">
           <p className="font-sans text-body">
-            For any questions, please contact us at:
+            For any questions, please contact us at our Social Media accounts.
           </p>
-          <p className="mt-6 font-sans text-body">------</p>
           {/* The signature is written rather than revealed, the same as the
               welcome band's. It is the only thing down here that replays: the
               footer is the end of the document, so the erase is only ever seen

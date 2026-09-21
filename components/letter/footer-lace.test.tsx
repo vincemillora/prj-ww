@@ -65,12 +65,11 @@ describe('FooterLace', () => {
 
     const footer = screen.getByRole('contentinfo');
     const logo = footer.querySelector('img[src="/couple-logo-white.svg"]');
-    const contact = screen.getByText('For any questions, please contact us at:');
+    const contact = screen.getByText('For any questions, please contact us at our Social Media accounts.');
 
     expect(logo?.compareDocumentPosition(contact)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(screen.getByText('------')).toBeInTheDocument();
     expect(screen.getByText('Vince & Kc')).toBeInTheDocument();
     expect(screen.getByText('with love')).toBeInTheDocument();
   });
@@ -79,7 +78,7 @@ describe('FooterLace', () => {
     render(<FooterLace />);
 
     const footer = screen.getByRole('contentinfo');
-    const signOff = screen.getByText('For any questions, please contact us at:')
+    const signOff = screen.getByText('For any questions, please contact us at our Social Media accounts.')
       .parentElement;
 
     expect(footer).toHaveClass('py-section');
