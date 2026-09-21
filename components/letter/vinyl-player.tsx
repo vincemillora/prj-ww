@@ -4,8 +4,15 @@ import { useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** Placeholder loop synthesized locally (public/music/placeholder.wav). */
-const TRACK_SRC = '/music/placeholder.wav';
+/**
+ * "Lifetime" (Ben&Ben), piano cover by Marky J — public/music/lifetime-piano.mp3.
+ *
+ * MP3 at 64kbps, 3.0MB: it replaces a 1.1MB synthesized placeholder loop, so
+ * the page is heavier than before. `preload="none"` on the element below is
+ * what keeps that off the critical path — nothing is fetched until the guest
+ * presses play, so the hero and the RSVP form never compete with it.
+ */
+const TRACK_SRC = '/music/lifetime-piano.mp3';
 
 /**
  * A vinyl record that spins while a looping track plays and stops when paused.
