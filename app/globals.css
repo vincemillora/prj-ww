@@ -1361,3 +1361,36 @@
     opacity: 1;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Hero scroll cue (components/letter/hero.tsx)
+   ------------------------------------------------------------------------ */
+
+/* The hero fills the viewport with artwork and sets nothing at its foot that
+   looks cut off, so there is no edge telling the guest the page continues.
+   This is the only prompt to scroll on the page.
+
+   A slow fall held at rest for most of the cycle — it should read as an
+   invitation, not a nag. The travel (9px) is on the chevron alone, so the
+   label above it stays on its baseline. */
+@keyframes hero-scroll-cue {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(9px);
+  }
+}
+.hero-scroll-cue-chevron {
+  animation: hero-scroll-cue 2.4s ease-in-out infinite;
+}
+
+/* The bob is decoration: the label and chevron say the same thing standing
+   still, so the preference simply removes the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue-chevron {
+    animation: none;
+  }
+}

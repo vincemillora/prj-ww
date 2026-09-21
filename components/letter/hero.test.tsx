@@ -13,18 +13,31 @@ type MotionProps = {
   initial?: unknown;
   transition?: unknown;
   variants?: unknown;
+  style?: unknown;
 };
 
 /** Strips the motion-only props so the element renders as plain markup. */
-function stripMotionProps<T>({ animate, initial, transition, variants, ...props }: T & MotionProps) {
+function stripMotionProps<T>({
+  animate,
+  initial,
+  transition,
+  variants,
+  style,
+  ...props
+}: T & MotionProps) {
   void animate;
   void initial;
   void transition;
   void variants;
+  // Dropped rather than forwarded: the scroll cue's opacity is a motion value,
+  // which React cannot write to the DOM as a style.
+  void style;
   return props;
 }
 
 vi.mock('motion/react', () => ({
+  useScroll: () => ({ scrollY: { get: () => 0 } }),
+  useTransform: () => 1,
   motion: {
     div: (props: React.HTMLAttributes<HTMLDivElement> & MotionProps) => (
       <div {...stripMotionProps(props)} />
@@ -57,5 +70,16 @@ describe('Hero', () => {
     expect(container.querySelector('[class*="aspect-square"]')).toHaveClass(
       'lg:w-[min(92vw,42rem,60svh)]',
     );
+  });
+
+  it('prompts the guest to scroll without putting the cue in the accessibility tree', () => {
+    const { container } = render(<Hero />);
+
+    const cue = screen.getByText('Scroll to read the letter').parentElement;
+
+    expect(cue).toHaveAttribute('aria-hidden');
+    // A sign, not a control: it must not intercept a tap meant for the page.
+    expect(cue).toHaveClass('pointer-events-none');
+    expect(container.querySelector('.hero-scroll-cue-chevron')).toBeInTheDocument();
   });
 });
