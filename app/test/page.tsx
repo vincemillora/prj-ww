@@ -1,4 +1,4 @@
-import { KotaeEmbed } from "./kotae-embed";
+import Script from "next/script";
 
 // Sandbox page for the Kotae embed widget (test environment).
 export default function TestPage() {
@@ -11,7 +11,12 @@ export default function TestPage() {
         href="https://app.test.kotae.tokyotechies.co.jp/embed/index.min.css"
         precedence="default"
       />
-      <KotaeEmbed />
+      <Script
+        id="kotae-embed-js"
+        src="https://app.test.kotae.tokyotechies.co.jp/embed/index.min.js"
+        data-cid="6aa8b274482c965379e0c4ed"
+        strategy="afterInteractive"
+      />
     </>
   );
 }
