@@ -23,20 +23,28 @@ const CASH_METHODS = [
   { method: 'BDO', payload: 'bdo:transfer?account=REPLACE_WITH_REAL' },
 ];
 
+/**
+ * Off while the real GCash / BDO payloads are not in yet: the QR block is not
+ * rendered (or generated) and the intro line drops its "scan a code" ask.
+ */
+const SHOW_QR = false;
+
 export async function Gifts() {
-  const codes = await Promise.all(
-    CASH_METHODS.map(async (m) => ({
-      method: m.method,
-      svg: await QRCode.toString(m.payload, {
-        type: 'svg',
-        width: 176,
-        margin: 1,
-        errorCorrectionLevel: 'M',
-        // Retain white for this established paper surface and its QR quiet zone.
-        color: { dark: '#2c2a1b', light: '#ffffff' },
-      }),
-    })),
-  );
+  const codes = !SHOW_QR
+    ? []
+    : await Promise.all(
+        CASH_METHODS.map(async (m) => ({
+          method: m.method,
+          svg: await QRCode.toString(m.payload, {
+            type: 'svg',
+            width: 176,
+            margin: 1,
+            errorCorrectionLevel: 'M',
+            // Retain white for this established paper surface and its QR quiet zone.
+            color: { dark: '#2c2a1b', light: '#ffffff' },
+          }),
+        })),
+      );
 
   return (
     <section className="bg-paper px-gutter py-section">
@@ -45,30 +53,34 @@ export async function Gifts() {
 
         <InViewReveal>
           <p className="mx-auto mt-heading max-w-lg text-lead text-muted-foreground">
-            Your presence is the only gift we’re hoping for. But if you’d like
-            to give a little more, you can scan a code below with your banking
-            app.
+            {SHOW_QR
+              ? 'Your presence is the only gift we’re hoping for. But if you’d like to give a little more, you can scan a code below with your banking app.'
+              : 'Your presence is the only gift we’re hoping for. But if you’d like to give a little more, a monetary gift would be warmly received, and we’ll share the details here soon.'}
           </p>
         </InViewReveal>
 
-        {/* Cash gift — QR codes */}
-        <div className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-10">
-          {codes.map((c, i) => (
-            <InViewReveal
-              key={c.method}
-              delay={BEAT + i * BEAT}
-              distance={0}
-              className="flex flex-col items-center"
-            >
-              <div
-                className="rounded-md border border-ink bg-paper p-2 [&>svg]:block"
-                /* Match the QR's quiet zone to its surrounding surface. */
-                dangerouslySetInnerHTML={{ __html: c.svg }}
-              />
-              <p className="mt-4 font-sans text-subhead text-ink">{c.method}</p>
-            </InViewReveal>
-          ))}
-        </div>
+        {/* Cash gift — QR codes. Parked behind SHOW_QR. */}
+        {SHOW_QR && (
+          <div className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-10">
+            {codes.map((c, i) => (
+              <InViewReveal
+                key={c.method}
+                delay={BEAT + i * BEAT}
+                distance={0}
+                className="flex flex-col items-center"
+              >
+                <div
+                  className="rounded-md border border-ink bg-paper p-2 [&>svg]:block"
+                  /* Match the QR's quiet zone to its surrounding surface. */
+                  dangerouslySetInnerHTML={{ __html: c.svg }}
+                />
+                <p className="mt-4 font-sans text-subhead text-ink">
+                  {c.method}
+                </p>
+              </InViewReveal>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

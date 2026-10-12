@@ -205,6 +205,13 @@ function RsvpBodyFallback() {
   );
 }
 
+/**
+ * Off until the personal RSVP links have gone out. While false, a visitor
+ * with no (or an unknown) `?id=` token is told their link is coming, rather
+ * than asked to open one they have not been sent yet. Flip to true on send day.
+ */
+const INVITES_SENT = false;
+
 /** Resolves the `?id=<token>` guest and renders the matching state. Dynamic. */
 async function RsvpBody({ searchParams }: { searchParams: SearchParams }) {
   const raw = (await searchParams).id;
@@ -216,11 +223,14 @@ async function RsvpBody({ searchParams }: { searchParams: SearchParams }) {
     return (
       <CardContent className="py-6 text-center">
         <p className="font-sans text-subhead text-foreground">
-          Reply by your personal link
+          {INVITES_SENT
+            ? "Reply by your personal link"
+            : "Your invitation is on its way"}
         </p>
         <p className="mx-auto mt-3 max-w-[24rem] font-sans text-meta">
-          This RSVP is by invitation. Please open the personal link we sent you
-          to let us know if you can make it.
+          {INVITES_SENT
+            ? "This RSVP is by invitation. Please open the personal link we sent you to let us know if you can make it."
+            : "We’ll be sending each guest a personal RSVP link soon. Keep an eye out for it, then reply here to let us know if you can make it."}
         </p>
       </CardContent>
     );
