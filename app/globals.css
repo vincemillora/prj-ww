@@ -690,10 +690,6 @@
   }
   html {
     @apply font-sans;
-    /* Kill rubber-band overscroll chaining on mobile: the pinned reveal
-       jitters when the root scroller bounces past its ends (and when the
-       URL bar toggles on a long-press / edge touch). */
-    overscroll-behavior-y: none;
   }
 }
 

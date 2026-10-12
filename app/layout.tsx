@@ -134,10 +134,10 @@ export default function RootLayout({
       className={cn(
         montserrat.variable,
         parisienne.variable,
-        "h-full antialiased",
+        "h-full overscroll-y-auto antialiased",
       )}
     >
-      <body className="flex min-h-dvh flex-col overflow-x-hidden">
+      <body className="flex min-h-dvh flex-col overflow-x-clip">
         {children}
         <Analytics />
         <SpeedInsights />
