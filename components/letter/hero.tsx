@@ -140,13 +140,18 @@ export function Hero() {
                 pinned to the foot of the viewport, so the card and its caption
                 read as one object. The group's `justify-center` then centres
                 the pair, which sits the lace a little above the optical middle
-                — correct, since the caption needs to belong to it. */}
+                — correct, since the caption needs to belong to it.
+                `pb-[0.3em] -mb-[0.3em]`: Parisienne's descenders (the two g's)
+                hang well below the 1.1 line box, and iOS Safari clips a
+                `drop-shadow` filter layer to the element's box, cutting them
+                off. The padding grows the box to hold the ink; the matching
+                negative margin keeps the layout unchanged. */}
             <motion.p
               variants={heroItem}
               transition={{ duration: 0.8, ease: 'easeOut' }}
               className={cn(
                 MOTION_REDUCE_SAFE,
-                'mt-5 font-script text-title text-balance text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]',
+                'mt-5 -mb-[0.3em] pb-[0.3em] font-script text-title text-balance text-paper drop-shadow-[0_1px_10px_color-mix(in_srgb,var(--ink)_65%,transparent)]',
               )}
             >
               We&apos;re getting married!

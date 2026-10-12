@@ -42,9 +42,9 @@ import { cn } from '@/lib/utils';
  * them: the section drawing it needs `relative` and must not clip its overflow
  * VERTICALLY, its title block needs `mt-crown-under` (see below), and the
  * section above needs `pb-dome` so its content clears the arch standing in its
- * lower margin. Clipping the x axis alone is fine and Location does it, to
- * contain a thrown card; `overflow-y` or the `overflow` shorthand would behead
- * the arch.
+ * lower margin. Do not clip the section's overflow on EITHER axis: iOS Safari
+ * beheads the arch even with `overflow-x: clip` alone. Location contains its
+ * thrown card with a clip on the deck's own wrapper instead.
  *
  * DEPTH is `--dome-ry`, declared once in app/globals.css — 7rem, the shallow
  * ~4rem hero curve on `sm`+ — and shared by all three directions, because an

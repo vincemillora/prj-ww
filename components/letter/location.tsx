@@ -150,7 +150,7 @@ export function Location() {
   const bringToFront = (id: string) => setFrontIndex(DECK.indexOf(id));
 
   return (
-    // Three classes here are load-bearing for the crown, and each guards a
+    // Two classes here are load-bearing for the crown, and each guards a
     // different failure.
     //
     // No `pt-*`, because the title block carries its own offset as
@@ -162,21 +162,12 @@ export function Location() {
     // moves the section instead, leaving the title pinned to the top edge while
     // the seam shifts. A block formatting context contains the margin.
     //
-    // `overflow-x-clip` contains a thrown card, which travels 460px sideways
-    // (see `throwAway`) and reaches ~516px past a phone's screen edge. The
-    // body's `overflow-x-hidden` cannot hold that: it hides the strip, but the
-    // LAYOUT viewport has already widened, so the page zooms out for the length
-    // of the animation and re-anchors after.
-    //
-    // The two overflow decisions are narrower than they look. `clip` and not
-    // `hidden`, which would make this section a scrollport and scroll the deck
-    // inside it. The x axis and not the shorthand, because `overflow-y` in any
-    // clipping value beheads the crown standing above this section's top edge
-    // and the title lifted into it; paired with `overflow-y: visible` the used
-    // values stay as specified. And `clip` is no substitute for `flow-root`,
-    // establishing no block formatting context of its own — drop `flow-root`
-    // and the title's negative margin escapes again.
-    <section className="relative z-10 flow-root overflow-x-clip bg-paper px-gutter pb-section">
+    // NO overflow clipping of any kind on this section. The crown and the
+    // lifted title both stand above its top edge, and iOS Safari clipped them
+    // even with only `overflow-x: clip` set (the title showed up behind
+    // DayItself's backdrop). The thrown card is contained by the deck's own
+    // wrapper below instead.
+    <section className="relative z-10 flow-root bg-paper px-gutter pb-section">
       {/* The seam with DayItself: the paper of this section rises as a dome over
           the dark, full-bleed one above. `crown` rather than the `down` band the
           RSVP uses, because DayItself's ground is a PHOTOGRAPH — a band would
@@ -199,190 +190,205 @@ export function Location() {
         {/* Roughly three quarters of the section's measure: the card is a
             single column of text over a map, so it reads better slimmer than
             the two-up Hotels grid that shares the same container width. */}
-        <div className="relative mx-auto mt-heading max-w-2xl md:max-w-[42rem] lg:max-w-[48rem]">
-          {/* Outer pad reserves the peek room, so the deepest card's bottom
-              edge doesn't collide with whatever follows. The inner element is
-              the positioning context: its height comes from the venue card,
-              which stays in normal flow while every photo card is absolutely
-              stretched over it — that keeps all five cards the same box no
-              matter which one is currently in front. */}
-          <motion.div
-            // MOTION_REDUCE_SAFE, not a `reduce` branch: this wrapper starts at
-            // opacity 0 and motion declines to animate under the preference, so
-            // without the CSS floor a guest with reduced motion on was left
-            // looking at an INVISIBLE venue card — name, address and map. The
-            // hook cannot be trusted with this on its own; see its note.
-            className={MOTION_REDUCE_SAFE}
-            style={{ paddingBottom: PEEK_ROOM }}
-            // Opacity only on the wrapper: the fan below is the entrance, and a
-            // rise on top of it would move every card twice.
-            initial={{ opacity: 0, transition: EXIT }}
-            whileInView={{ opacity: 1 }}
-            viewport={TALL_VIEWPORT}
-            transition={ENTER}
-          >
-            <div
-              ref={stackRef}
-              className="relative"
-              role="group"
-              aria-roledescription="card stack"
-              aria-label={`${VENUE.name} — map and photos`}
+        {/* The deck's horizontal clip lives HERE, not on the section. A
+            thrown card travels 460px sideways (see `throwAway`), and on a
+            phone that widens the layout viewport unless something clips it.
+            It used to be `overflow-x-clip` on the section, but iOS Safari
+            then clipped the section's VERTICAL overflow too, hiding the crown
+            and the title lifted above the section's top edge behind
+            DayItself. This wrapper holds only the deck, so nothing that
+            reaches above the section is inside it.
+            `mx-[calc(50%-50vw)]` + the matching padding makes the clip edge
+            the screen edge, so a card is not cut off mid-screen on wide
+            layouts; the content box stays where it was. `-my-10 py-10` gives
+            the fanned cards' rotated corners and shadows room in case WebKit
+            clips this wrapper's y axis as well. */}
+        <div className="-my-10 mx-[calc(50%-50vw)] overflow-x-clip px-[calc(50vw-50%)] py-10">
+          <div className="relative mx-auto mt-heading max-w-2xl md:max-w-[42rem] lg:max-w-[48rem]">
+            {/* Outer pad reserves the peek room, so the deepest card's bottom
+                edge doesn't collide with whatever follows. The inner element is
+                the positioning context: its height comes from the venue card,
+                which stays in normal flow while every photo card is absolutely
+                stretched over it — that keeps all five cards the same box no
+                matter which one is currently in front. */}
+            <motion.div
+              // MOTION_REDUCE_SAFE, not a `reduce` branch: this wrapper starts at
+              // opacity 0 and motion declines to animate under the preference, so
+              // without the CSS floor a guest with reduced motion on was left
+              // looking at an INVISIBLE venue card — name, address and map. The
+              // hook cannot be trusted with this on its own; see its note.
+              className={MOTION_REDUCE_SAFE}
+              style={{ paddingBottom: PEEK_ROOM }}
+              // Opacity only on the wrapper: the fan below is the entrance, and a
+              // rise on top of it would move every card twice.
+              initial={{ opacity: 0, transition: EXIT }}
+              whileInView={{ opacity: 1 }}
+              viewport={TALL_VIEWPORT}
+              transition={ENTER}
             >
-              <StackCard
-                dealt={dealt}
-                depth={depthOf('venue')}
-                isFront={front === 'venue'}
-                onDismiss={goNext}
-                onBringToFront={() => bringToFront('venue')}
+              <div
+                ref={stackRef}
+                className="relative"
+                role="group"
+                aria-roledescription="card stack"
+                aria-label={`${VENUE.name} — map and photos`}
               >
-                {/* The ink border is DRAWN rather than stroked by CSS — the
-                    hand-drawn frame overlays the card's own edge, so the
-                    `border-2 border-ink` utilities are gone. `ring-0` still
-                    kills the Card's default hairline ring, which would
-                    otherwise draw a second, perfectly straight outline
-                    underneath the wobbly one. `relative` is what the frame
-                    positions against; `text-ink` colours it (the frame fills
-                    with currentColor). */}
-                <Card
-                  inert={front !== 'venue'}
-                  className={cn(
-                    CARD_SHELL,
-                    // See the matching note in hotels.tsx: `isolate` keeps the
-                    // frame's `-z-10` paper inside this card, `bg-transparent`
-                    // leaves the paper to the frame (which clips it to the
-                    // outline), and `overflow-visible rounded-none` undoes
-                    // Card's `overflow-hidden rounded-xl` so the corner flicks
-                    // are not shaved off. The padding is this card's original
-                    // padding — Frame_1's stroke lands on the box edge, so it
-                    // needs no clearance of its own.
-                    'relative isolate flex flex-col overflow-visible rounded-none bg-transparent px-2 py-8 text-ink ring-0 sm:px-6',
-                  )}
-                >
-                  <HandDrawnFrame />
-                  <CardHeader className="text-center">
-                    <CardTitle className="font-sans text-ink">
-                      {VENUE.name}
-                    </CardTitle>
-                    <CardDescription className="font-sans tracking-wide">
-                      {VENUE.tag}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex flex-1 flex-col text-center">
-                    {/* Same address row as the Hotels cards, centred: pin icon
-                        and street line on one line, icon aligned to the first
-                        line of wrapped text. */}
-                    <dl className="text-meta text-muted-foreground">
-                      <div className="flex justify-center gap-2">
-                        <dt className="pt-0.5">
-                          <MapPin
-                            aria-hidden
-                            className="size-4"
-                            strokeWidth={1.5}
-                          />
-                          <span className="sr-only">Address</span>
-                        </dt>
-                        <dd className="leading-relaxed">{VENUE.address}</dd>
-                      </div>
-                    </dl>
-
-                    {/* The iframe swallows pointer events, so a drag can
-                        never start on the map itself — it only accepts them
-                        while this card is in front, and the card is dragged
-                        from the paper around it (or paged with the dots). */}
-                    <DeferredMap
-                      title={`Map — ${VENUE.name}`}
-                      src={VENUE.embed}
-                      active={front === 'venue'}
-                    />
-
-                    {/* Measure-capped so the centred line doesn't run the full
-                        width of the widened card on desktop. */}
-                    <p className="mx-auto mt-5 max-w-prose text-body text-muted-foreground">
-                      {VENUE.caption}
-                    </p>
-
-                    <a
-                      href={VENUE.maps}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={cn(letterButton(), 'mx-auto mt-4')}
-                    >
-                      <MapPin aria-hidden strokeWidth={1.5} />
-                      Open in Google Maps
-                    </a>
-                  </CardContent>
-                </Card>
-              </StackCard>
-
-              {PHOTOS.map((photo) => (
                 <StackCard
-                  key={photo.id}
-                  stretch
                   dealt={dealt}
-                  depth={depthOf(photo.id)}
-                  isFront={front === photo.id}
+                  depth={depthOf('venue')}
+                  isFront={front === 'venue'}
                   onDismiss={goNext}
-                  onBringToFront={() => bringToFront(photo.id)}
+                  onBringToFront={() => bringToFront('venue')}
                 >
-                  {/* Bare photo — no paper frame, no caption. It borrows the
-                      venue card's radius so the deck keeps one silhouette as
-                      the cards shuffle.
-
-                      The shadow lives HERE, on the photos only, and no longer
-                      on the shared shell. The venue card in front is outlined
-                      by a drawn line, and a shadow cast by its rectangular box
-                      reads as a second, straighter edge just outside the
-                      hand-drawn one. The cards behind it have no such problem
-                      and genuinely need the depth: they are stacked, and the
-                      offset and scale alone do not separate them. */}
-                  <div
+                  {/* The ink border is DRAWN rather than stroked by CSS — the
+                      hand-drawn frame overlays the card's own edge, so the
+                      `border-2 border-ink` utilities are gone. `ring-0` still
+                      kills the Card's default hairline ring, which would
+                      otherwise draw a second, perfectly straight outline
+                      underneath the wobbly one. `relative` is what the frame
+                      positions against; `text-ink` colours it (the frame fills
+                      with currentColor). */}
+                  <Card
+                    inert={front !== 'venue'}
                     className={cn(
                       CARD_SHELL,
-                      'relative size-full overflow-hidden bg-ink shadow-[0_20px_44px_-26px_color-mix(in_srgb,var(--ink)_45%,transparent)] select-none',
+                      // See the matching note in hotels.tsx: `isolate` keeps the
+                      // frame's `-z-10` paper inside this card, `bg-transparent`
+                      // leaves the paper to the frame (which clips it to the
+                      // outline), and `overflow-visible rounded-none` undoes
+                      // Card's `overflow-hidden rounded-xl` so the corner flicks
+                      // are not shaved off. The padding is this card's original
+                      // padding — Frame_1's stroke lands on the box edge, so it
+                      // needs no clearance of its own.
+                      'relative isolate flex flex-col overflow-visible rounded-none bg-transparent px-2 py-8 text-ink ring-0 sm:px-6',
                     )}
                   >
-                    <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--paper),var(--paper)_1px,transparent_1px,transparent_10px)]">
-                      <span className="font-mono text-micro uppercase tracking-[0.14em] text-paper">
-                        photo · {photo.caption}
-                      </span>
-                    </div>
-                  </div>
+                    <HandDrawnFrame />
+                    <CardHeader className="text-center">
+                      <CardTitle className="font-sans text-ink">
+                        {VENUE.name}
+                      </CardTitle>
+                      <CardDescription className="font-sans tracking-wide">
+                        {VENUE.tag}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-1 flex-col text-center">
+                      {/* Same address row as the Hotels cards, centred: pin icon
+                          and street line on one line, icon aligned to the first
+                          line of wrapped text. */}
+                      <dl className="text-meta text-muted-foreground">
+                        <div className="flex justify-center gap-2">
+                          <dt className="pt-0.5">
+                            <MapPin
+                              aria-hidden
+                              className="size-4"
+                              strokeWidth={1.5}
+                            />
+                            <span className="sr-only">Address</span>
+                          </dt>
+                          <dd className="leading-relaxed">{VENUE.address}</dd>
+                        </div>
+                      </dl>
+
+                      {/* The iframe swallows pointer events, so a drag can
+                          never start on the map itself — it only accepts them
+                          while this card is in front, and the card is dragged
+                          from the paper around it (or paged with the dots). */}
+                      <DeferredMap
+                        title={`Map — ${VENUE.name}`}
+                        src={VENUE.embed}
+                        active={front === 'venue'}
+                      />
+
+                      {/* Measure-capped so the centred line doesn't run the full
+                          width of the widened card on desktop. */}
+                      <p className="mx-auto mt-5 max-w-prose text-body text-muted-foreground">
+                        {VENUE.caption}
+                      </p>
+
+                      <a
+                        href={VENUE.maps}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={cn(letterButton(), 'mx-auto mt-4')}
+                      >
+                        <MapPin aria-hidden strokeWidth={1.5} />
+                        Open in Google Maps
+                      </a>
+                    </CardContent>
+                  </Card>
                 </StackCard>
-              ))}
+
+                {PHOTOS.map((photo) => (
+                  <StackCard
+                    key={photo.id}
+                    stretch
+                    dealt={dealt}
+                    depth={depthOf(photo.id)}
+                    isFront={front === photo.id}
+                    onDismiss={goNext}
+                    onBringToFront={() => bringToFront(photo.id)}
+                  >
+                    {/* Bare photo — no paper frame, no caption. It borrows the
+                        venue card's radius so the deck keeps one silhouette as
+                        the cards shuffle.
+
+                        The shadow lives HERE, on the photos only, and no longer
+                        on the shared shell. The venue card in front is outlined
+                        by a drawn line, and a shadow cast by its rectangular box
+                        reads as a second, straighter edge just outside the
+                        hand-drawn one. The cards behind it have no such problem
+                        and genuinely need the depth: they are stacked, and the
+                        offset and scale alone do not separate them. */}
+                    <div
+                      className={cn(
+                        CARD_SHELL,
+                        'relative size-full overflow-hidden bg-ink shadow-[0_20px_44px_-26px_color-mix(in_srgb,var(--ink)_45%,transparent)] select-none',
+                      )}
+                    >
+                      <div className="flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--paper),var(--paper)_1px,transparent_1px,transparent_10px)]">
+                        <span className="font-mono text-micro uppercase tracking-[0.14em] text-paper">
+                          photo · {photo.caption}
+                        </span>
+                      </div>
+                    </div>
+                  </StackCard>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Pager. Doubles as the accessible control for the deck: dragging
+                is pointer-only, these are not. The deck wraps in both
+                directions, so neither chevron is ever disabled. */}
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <button type="button" onClick={goPrev} className={PAGER_ARROW}>
+                <ChevronLeft aria-hidden className="size-5" strokeWidth={1.5} />
+                <span className="sr-only">Previous card</span>
+              </button>
+
+              <div className="flex items-center gap-2.5">
+                {DECK.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => bringToFront(id)}
+                    aria-current={front === id}
+                    className={cn(
+                      'size-2.5 rounded-full border border-ink transition-colors',
+                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
+                      front === id ? 'bg-ink' : 'bg-transparent',
+                    )}
+                  >
+                    <span className="sr-only">Show {LABELS[id]}</span>
+                  </button>
+                ))}
+              </div>
+
+              <button type="button" onClick={goNext} className={PAGER_ARROW}>
+                <ChevronRight aria-hidden className="size-5" strokeWidth={1.5} />
+                <span className="sr-only">Next card</span>
+              </button>
             </div>
-          </motion.div>
-
-          {/* Pager. Doubles as the accessible control for the deck: dragging
-              is pointer-only, these are not. The deck wraps in both
-              directions, so neither chevron is ever disabled. */}
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <button type="button" onClick={goPrev} className={PAGER_ARROW}>
-              <ChevronLeft aria-hidden className="size-5" strokeWidth={1.5} />
-              <span className="sr-only">Previous card</span>
-            </button>
-
-            <div className="flex items-center gap-2.5">
-              {DECK.map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => bringToFront(id)}
-                  aria-current={front === id}
-                  className={cn(
-                    'size-2.5 rounded-full border border-ink transition-colors',
-                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
-                    front === id ? 'bg-ink' : 'bg-transparent',
-                  )}
-                >
-                  <span className="sr-only">Show {LABELS[id]}</span>
-                </button>
-              ))}
-            </div>
-
-            <button type="button" onClick={goNext} className={PAGER_ARROW}>
-              <ChevronRight aria-hidden className="size-5" strokeWidth={1.5} />
-              <span className="sr-only">Next card</span>
-            </button>
           </div>
         </div>
       </div>
