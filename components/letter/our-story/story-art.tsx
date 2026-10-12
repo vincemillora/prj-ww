@@ -20,7 +20,7 @@ export function Polaroid({
 
   return (
     <figure
-      className="relative w-[min(56vw,13rem)] rounded-[2px] bg-paper p-3 pb-9 shadow-[0_14px_28px_-6px_color-mix(in_srgb,var(--ink)_50%,transparent),0_2px_5px_color-mix(in_srgb,var(--ink)_30%,transparent)] sm:w-64"
+      className="relative w-[min(56vw,13rem)] rounded-[2px] bg-paper p-3 pb-11 shadow-[0_14px_28px_-6px_color-mix(in_srgb,var(--ink)_50%,transparent),0_2px_5px_color-mix(in_srgb,var(--ink)_30%,transparent)] sm:w-64"
       style={{ transform: `rotate(${tilt}deg)` }}
     >
       <div className="relative aspect-square overflow-hidden rounded-[1px] bg-ink shadow-[inset_0_2px_10px_color-mix(in_srgb,var(--ink)_30%,transparent)]">
@@ -51,7 +51,11 @@ export function Polaroid({
         )}
       </div>
 
-      <figcaption className="absolute inset-x-3 bottom-1 text-center font-script text-subhead leading-tight text-ink">
+      {/* `bottom-2.5` with the figure's `pb-11`: Parisienne's descenders
+          ("moving day", "the garden") hang well below the tight line box, and
+          at `bottom-1` they ran past the paper's edge onto the dark ground,
+          where the ink vanished and read as cut off. */}
+      <figcaption className="absolute inset-x-3 bottom-2.5 text-center font-script text-subhead leading-tight text-ink">
         {caption}
       </figcaption>
     </figure>

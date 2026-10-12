@@ -67,7 +67,7 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
  */
 export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <section className="relative z-10 -mt-section overflow-x-clip bg-ink px-gutter pt-dome pb-section">
+    <section className="relative z-10 -mt-section bg-ink px-gutter pt-dome pb-section">
       {/* The floral backdrop, painted ONE VIEWPORT AT A TIME.
 
           `object-cover` scales the artwork to the larger of the two ratios it
@@ -83,9 +83,9 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
           how far the section runs, so the cover scale stays under 1 and the
           artwork holds still while the card scrolls past it. Sticky, not
           `fixed` — the layer belongs to this section and must stop at its
-          edges. The section's `overflow-x-clip` is what keeps this working;
-          `overflow-hidden` would make the section a scrollport and pin the
-          backdrop to it instead of to the viewport.
+          edges. Never put `overflow-hidden` on the section: it would make the
+          section a scrollport and pin the backdrop to it instead of to the
+          viewport.
 
           `sizes` has to describe the PAINTED width, not the container's. Below
           the image's own 4:3 the height governs, so that width is
@@ -123,21 +123,31 @@ export function Rsvp({ searchParams }: { searchParams: SearchParams }) {
       <div className="relative z-10 mx-auto max-w-2xl">
         <SectionHeading tone="white" title="Will you join us?" kicker="RSVP" />
 
-        {/* Double rule: a 2px white outline held 2px off the card, so the ink
-            shows through the gap and the card reads as mounted on the section
-            rather than dropped on it. `outline-offset` leaves the gap
-            transparent, so it picks up the ink behind on its own. */}
-        <RsvpEnvelope>
-          <Card className="rounded-xl px-2 py-8 shadow-[0_28px_60px_-30px_color-mix(in_srgb,var(--ink)_55%,transparent)] outline-2 outline-offset-2 outline-paper sm:px-6">
-            <Suspense fallback={<RsvpBodyFallback />}>
-              <RsvpBody searchParams={searchParams} />
-            </Suspense>
-            {/* Closes every state of the card, so it is here rather than inside
-                RsvpBody: the reply form, the thank-you and the "open your
-                personal link" note all end on the same table. */}
-            <BanquetTableScene />
-          </Card>
-        </RsvpEnvelope>
+        {/* The envelope is wider than the screen on a phone (100% + 120px),
+            so it needs a horizontal clip. That clip lives HERE, not on the
+            section: iOS Safari clipped the section's vertical overflow too,
+            cutting off the 1px the white dome reaches into Hotels to hide the
+            seam (see THE SEAM in dome.tsx). `mx-[calc(50%-50vw)]` + matching
+            padding puts the clip edge at the screen edge and leaves the
+            content box where it was. `-my-16 py-16` keeps the card's shadow
+            clear in case WebKit clips this wrapper's y axis as well. */}
+        <div className="-my-16 mx-[calc(50%-50vw)] overflow-x-clip px-[calc(50vw-50%)] py-16">
+          {/* Double rule: a 2px white outline held 2px off the card, so the ink
+              shows through the gap and the card reads as mounted on the section
+              rather than dropped on it. `outline-offset` leaves the gap
+              transparent, so it picks up the ink behind on its own. */}
+          <RsvpEnvelope>
+            <Card className="rounded-xl px-2 py-8 shadow-[0_28px_60px_-30px_color-mix(in_srgb,var(--ink)_55%,transparent)] outline-2 outline-offset-2 outline-paper sm:px-6">
+              <Suspense fallback={<RsvpBodyFallback />}>
+                <RsvpBody searchParams={searchParams} />
+              </Suspense>
+              {/* Closes every state of the card, so it is here rather than inside
+                  RsvpBody: the reply form, the thank-you and the "open your
+                  personal link" note all end on the same table. */}
+              <BanquetTableScene />
+            </Card>
+          </RsvpEnvelope>
+        </div>
 
         {/* When we hope to hear back. Only shown to a guest who arrived on
             their personal link — without a token the card is asking them to go
