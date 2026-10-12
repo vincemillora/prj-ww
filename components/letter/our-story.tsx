@@ -220,8 +220,8 @@ export function OurStory() {
                 id: `story-${active.date}`,
                 src: active.image,
                 alt: active.title,
-                w: 600,
-                h: 600,
+                w: active.width ?? 600,
+                h: active.height ?? 600,
               }
             : null
         }

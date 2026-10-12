@@ -16,7 +16,7 @@ export function Polaroid({
   reduce: boolean;
   onOpen: () => void;
 }) {
-  const { image, caption, title, tilt } = memory;
+  const { image, caption, title, tilt, width, height, position } = memory;
 
   return (
     <figure
@@ -36,10 +36,11 @@ export function Polaroid({
               transition={MORPH}
               src={image}
               alt={title}
-              width={600}
-              height={600}
+              width={width ?? 600}
+              height={height ?? 600}
               sizes="(max-width: 639px) min(56vw, 13rem), 16rem"
               className="size-full object-cover"
+              style={position ? { objectPosition: position } : undefined}
             />
           </button>
         ) : (
