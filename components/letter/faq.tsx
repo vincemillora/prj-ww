@@ -7,12 +7,13 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { InViewReveal } from '@/components/letter/in-view-reveal';
 import { BEAT, EXIT_S, LETTER_EASE } from '@/components/letter/motion-tokens';
 import { SectionHeading } from '@/components/letter/section-heading';
+import { RSVP_DEADLINE_LABEL } from '@/lib/wedding';
 
 /**
  * FAQ — white section after Gifts (last in the letter). Same header pattern as
  * the other sections (SectionHeading), then a stack of
  * question/answer rows, separated by ink rules so the final section feels like
- * part of the letter rather than a separate UI surface. Placeholder copy — edit freely.
+ * part of the letter rather than a separate UI surface.
  *
  * MOTION: the accordion already owns this section's motion — opening and closing
  * an answer is the interaction, and it is where the feedback belongs. The rows
@@ -21,21 +22,48 @@ import { SectionHeading } from '@/components/letter/section-heading';
  * operating. Exit is the answer collapsing, which is a real exit and was already
  * here — it now runs at the letter's shared exit length instead of its own.
  */
-const FAQS = [
+const FAQS: { id: string; q: string; a: string; hidden?: boolean }[] = [
   {
     id: 'plus-one',
     q: 'Can I bring a plus-one?',
-    a: 'Seats are reserved for the names on your invite. If your invite includes extra seats, you’ll see them when you RSVP — otherwise we’re keeping it intimate.',
+    a: 'Seats are reserved for the names on your invitation. If your invitation includes extra seats, you’ll see them when you RSVP. Otherwise, we’re keeping it intimate, and we hope you understand.',
   },
   {
     id: 'kids',
     q: 'Are kids welcome?',
-    a: 'We love your little ones. When you RSVP you can let us know how many children are coming so we can plan seating and food.',
+    a: 'We love your little ones. When you RSVP, let us know how many children are coming so we can plan their seats and food.',
   },
   {
     id: 'rsvp-deadline',
+    // Hidden until the RSVP date is final; flip to show it again.
+    hidden: true,
     q: 'When should I RSVP by?',
-    a: 'Please reply as early as you can so we can finalise numbers with the venue. If your plans change afterwards, just reach out to us directly.',
+    a: `Please reply by ${RSVP_DEADLINE_LABEL} using the personal link we send you. It helps us finalise the guest count with the venue and caterer. If your plans change after that, just message us directly.`,
+  },
+  {
+    id: 'arrival',
+    q: 'What time should I arrive?',
+    a: 'Please arrive by 2:00 pm so you can settle in before the ceremony. We’re asking everyone to set aside “Filipino time” for this one day, as the ceremony will start on time.',
+  },
+  {
+    id: 'attire',
+    q: 'What should I wear?',
+    a: 'Semi-formal. A barong or a polo for the men, and a dress in our colours for the women. See “What to wear” above for the palette. We kindly ask guests not to wear white, which is saved for the bride.',
+  },
+  {
+    id: 'venue',
+    q: 'Where is the venue, and where can I stay?',
+    a: 'We’re still finalising the venue. Once it’s set, we’ll post the address, a map, travel tips and nearby places to stay right here on this page.',
+  },
+  {
+    id: 'gifts',
+    q: 'What gift should we give?',
+    a: 'Your presence is the best gift. If you’d like to give something more, a monetary gift for our new home together would be warmly received. We’ll share the details in the gift guide soon.',
+  },
+  {
+    id: 'dietary',
+    q: 'I have food allergies or dietary needs. What should I do?',
+    a: 'Let us know in your RSVP and we’ll pass it on to the caterer, so there is something good on the table for you.',
   },
 ];
 
@@ -52,7 +80,7 @@ export function Faq() {
         <SectionHeading title="Good to know" kicker="FAQ" />
 
         <div className="mx-auto mt-heading max-w-2xl border-y border-ink text-left">
-          {FAQS.map((f, i) => (
+          {FAQS.filter((f) => !f.hidden).map((f, i) => (
             <InViewReveal
               key={f.id}
               delay={i * BEAT}
