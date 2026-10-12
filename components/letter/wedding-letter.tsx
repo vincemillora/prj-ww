@@ -16,6 +16,7 @@ import { Faq } from '@/components/letter/faq';
 import { OurStory } from '@/components/letter/our-story';
 import { WelcomeBand } from '@/components/letter/welcome-band';
 import { FloralBorderPeonies } from '@/components/letter/floral-border-peonies';
+import { StringLightsBand } from '@/components/letter/string-lights-band';
 import { FooterLace } from '@/components/letter/footer-lace';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -41,6 +42,7 @@ export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) 
       <OpeningBackdrop />
       <WelcomeBand />
       <OurStory />
+      <StringLightsBand />
       {/* <EnvelopeGallery /> parked here — reinsert to bring the keepsake
           envelope back between Our Story and Prenup. */}
       {/* <Prenup /> parked here — reinsert to bring the film strip back between
