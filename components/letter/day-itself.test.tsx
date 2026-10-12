@@ -28,10 +28,9 @@ describe('DayItself', () => {
     // The old AttireGuide section was retired into this one; a second copy of
     // this heading means it has been remounted in wedding-letter.tsx.
     expect(screen.getAllByText('What to wear')).toHaveLength(1);
-    expect(screen.getByText(/Semi-formal/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/We would love to see you in the colours above/),
-    ).toBeInTheDocument();
+    // The closing dress-code line is parked (SHOW_ATTIRE_NOTES in
+    // day-itself.tsx) until the wording is final.
+    expect(screen.queryByText(/Semi-formal/)).not.toBeInTheDocument();
   });
 
   it('gives each attire block the presentation its content asks for', () => {
@@ -65,12 +64,11 @@ describe('DayItself', () => {
       mount?.closest('[data-slot="hand-drawn-frame-long"]'),
     ).toBeNull();
 
-    // The closing rule is set in the LACE frame, the same ornament as the
-    // section title, so the run opens and closes on it.
+    // The section title is set in the LACE frame. The closing rule that
+    // shared it is parked (SHOW_ATTIRE_NOTES), so only the title's lace shows.
     const laces = container.querySelectorAll('img[src*="floral-lace-frame"]');
-    expect(laces).toHaveLength(2);
+    expect(laces).toHaveLength(1);
     expect(laces[0].parentElement).toHaveTextContent('What to wear');
-    expect(laces[1].parentElement).toHaveTextContent(/Semi-formal/);
   });
 
   it('gives every sheet its own stacking context', () => {

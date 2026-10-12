@@ -2,10 +2,14 @@ import { OpeningBackdrop } from '@/components/letter/opening-backdrop';
 // EnvelopeGallery is parked — kept in components/letter/envelope-gallery.tsx for
 // reuse later, intentionally not mounted here.
 // import { EnvelopeGallery } from '@/components/letter/envelope-gallery';
-import { Prenup } from '@/components/letter/prenup';
+// Prenup (the film strip) is parked while its photos are placeholders — kept
+// in components/letter/prenup.tsx for reuse later, intentionally not mounted.
+// import { Prenup } from '@/components/letter/prenup';
 import { DayItself } from '@/components/letter/day-itself';
 import { Location } from '@/components/letter/location';
-import { Hotels } from '@/components/letter/hotels';
+// Hotels is parked while its listings are placeholders — kept in
+// components/letter/hotels.tsx for reuse later, intentionally not mounted here.
+// import { Hotels } from '@/components/letter/hotels';
 import { Rsvp } from '@/components/letter/rsvp';
 import { Gifts } from '@/components/letter/gifts';
 import { Faq } from '@/components/letter/faq';
@@ -39,14 +43,16 @@ export function WeddingLetter({ searchParams }: { searchParams: SearchParams }) 
       <OurStory />
       {/* <EnvelopeGallery /> parked here — reinsert to bring the keepsake
           envelope back between Our Story and Prenup. */}
-      <Prenup />
+      {/* <Prenup /> parked here — reinsert to bring the film strip back between
+          Our Story and DayItself. */}
       {/* The attire guide is no longer its own section: DayItself now carries
          the "What to wear" title and both of its sheets. Its content still
          lives in components/letter/attire-guide.tsx, which DayItself imports —
          that file is now a pair of exports rather than a section. */}
       <DayItself />
       <Location />
-      <Hotels />
+      {/* <Hotels /> parked here — reinsert once the real places to stay are
+          confirmed. */}
       <Rsvp searchParams={searchParams} />
       <div className="bg-paper">
         <FloralBorderPeonies />

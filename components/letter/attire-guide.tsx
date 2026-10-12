@@ -29,15 +29,15 @@ const PLATE_ALT =
  * copy-checks do not.
  */
 const MEN_LOOK =
-  'A barong, a polo shirt or a full-button polo — whichever you are most ' +
-  'comfortable in. No jacket needed; it will be warm by the sea. Trousers or ' +
-  'shorts both work, and loafers or sandals are good for the walk on sand.';
+  'A barong, a polo shirt or a full-button polo, whichever you are most ' +
+  'comfortable in. A jacket is up to you. Trousers or chinos both work, with ' +
+  'loafers or smart shoes you can stand and dance in all evening.';
 
 const WOMEN_LOOK =
-  'Wear something with movement — a midi or a floor-length dress — and the sea ' +
-  'breeze will do the rest. Chiffon, linen and cotton will keep you cool in ' +
-  'the sun, and florals in these colours are very welcome. Do skip the ' +
-  'stilettos: block heels, wedges or flats are far kinder on sand.';
+  'Wear something with movement, a midi or a floor-length dress, in a light ' +
+  'fabric like chiffon, linen or cotton. Florals in these colours are very ' +
+  'welcome. Pick shoes you can stand and dance in all evening: block heels, ' +
+  'wedges and flats all work well.';
 
 /**
  * The palette plate, the two guide cards and the closing notes are separate

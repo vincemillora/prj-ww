@@ -88,6 +88,12 @@ const EVENTS: {
   { what: 'Fireworks', detail: 'One last hurrah on the lawn.', illo: 'fireworks' },
 ];
 
+/**
+ * Off while the dress-code line ("Semi-formal — beach wedding") is not final.
+ * Hides the closing lace block that carries AttireNotes; flip back to restore.
+ */
+const SHOW_ATTIRE_NOTES = false;
+
 export function DayItself() {
   return (
     // `px-gutter` on BOTH sides: this section used to carry `pr-5` alone, so on
@@ -365,7 +371,9 @@ export function DayItself() {
                       {e.time}
                     </p>
                   )}
-                  <p className="mt-2 text-body text-ink">{e.detail}</p>
+                  {/* `detail` is hidden while the copy is placeholder; the
+                      data stays in EVENTS. Restore with:
+                      <p className="mt-2 text-body text-ink">{e.detail}</p> */}
                 </div>
               </InViewReveal>
               );
@@ -514,33 +522,37 @@ export function DayItself() {
           <AttireForWomen tone="paper" />
         </Sheet>
 
-        {/* The closing rule is set in the LACE, the same frame that carries
-            the section title above — the run opens and closes on the same
-            ornament, and the drawn sheets sit between them. Type is white
-            here rather than the title's ink: this is body copy at body size
-            over the lace's translucent wash, and in ink it disappeared.
+        {SHOW_ATTIRE_NOTES && (
+          <>
+            {/* The closing rule is set in the LACE, the same frame that carries
+                the section title above — the run opens and closes on the same
+                ornament, and the drawn sheets sit between them. Type is white
+                here rather than the title's ink: this is body copy at body size
+                over the lace's translucent wash, and in ink it disappeared.
 
-            Window insets and the 1126/819 aspect are the title block's,
-            measured off the asset's alpha — see the note there before
-            changing either. The box is wider than the title's because this is
-            two lines of prose rather than one script line: the window is 70%
-            of the box, so 34rem clears a comfortable measure. */}
-        <div className="relative -mt-[1.5rem] w-full max-w-[24rem] -translate-x-[0.75rem] sm:mx-auto sm:-mt-6 sm:max-w-[34rem] sm:-translate-x-[5rem] lg:-translate-x-[8rem]">
-          <div className="relative aspect-[1126/819]">
-            <Image
-              src={laceFrame}
-              alt=""
-              aria-hidden
-              fill
-              placeholder="blur"
-              sizes="(max-width: 640px) 92vw, 34rem"
-              className="object-contain"
-            />
-            <div className="absolute inset-x-[15%] inset-y-[20%] flex items-center justify-center">
-              <AttireNotes tone="paper" />
+                Window insets and the 1126/819 aspect are the title block's,
+                measured off the asset's alpha — see the note there before
+                changing either. The box is wider than the title's because this is
+                two lines of prose rather than one script line: the window is 70%
+                of the box, so 34rem clears a comfortable measure. */}
+            <div className="relative -mt-[1.5rem] w-full max-w-[24rem] -translate-x-[0.75rem] sm:mx-auto sm:-mt-6 sm:max-w-[34rem] sm:-translate-x-[5rem] lg:-translate-x-[8rem]">
+              <div className="relative aspect-[1126/819]">
+                <Image
+                  src={laceFrame}
+                  alt=""
+                  aria-hidden
+                  fill
+                  placeholder="blur"
+                  sizes="(max-width: 640px) 92vw, 34rem"
+                  className="object-contain"
+                />
+                <div className="absolute inset-x-[15%] inset-y-[20%] flex items-center justify-center">
+                  <AttireNotes tone="paper" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </section>
   );
