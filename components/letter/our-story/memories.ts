@@ -38,7 +38,7 @@ export const MEMORIES: Memory[] = [
     date: "March 2025",
     title: "Enjoying our time together",
     body: "Missing each other all the time; with our 2 suitcases, we travel and travel and travel. Spending time with each other as much as we can.",
-    caption: "two suitcases",
+    caption: "our travels",
     image: "/our-story/enjoying-our-time.jpg",
     width: 1125,
     height: 2000,
