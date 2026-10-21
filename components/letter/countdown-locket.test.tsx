@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { CountdownLocket } from "@/components/letter/countdown-locket";
 
 describe("CountdownLocket", () => {
-  it("renders decorative ribbon, locket frame, and both temporary photo windows", () => {
+  it("renders decorative ribbon, locket frame, and both photo windows", () => {
     render(<CountdownLocket />);
 
     const locket = screen.getByTestId("countdown-locket");
@@ -33,7 +33,10 @@ describe("CountdownLocket", () => {
       maskImage: "url(/locket/locket-window-mask.webp)",
     });
 
-    expect(screen.getAllByTestId("countdown-locket-photo-placeholder")).toHaveLength(2);
-    expect(screen.queryByTestId("countdown-locket-photo")).not.toBeInTheDocument();
+    const photos = screen.getAllByTestId("countdown-locket-photo");
+    expect(photos.map((p) => p.getAttribute("href"))).toEqual([
+      "/locket/groom.jpg",
+      "/locket/bride.jpg",
+    ]);
   });
 });

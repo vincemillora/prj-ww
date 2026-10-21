@@ -20,7 +20,7 @@ export function Polaroid({
 
   return (
     <figure
-      className="relative w-[min(56vw,13rem)] rounded-[2px] bg-paper p-3 pb-11 shadow-[0_14px_28px_-6px_color-mix(in_srgb,var(--ink)_50%,transparent),0_2px_5px_color-mix(in_srgb,var(--ink)_30%,transparent)] sm:w-64"
+      className="relative w-[min(56vw,13rem)] rounded-[2px] bg-paper p-3 pb-11 shadow-[0_14px_28px_-6px_color-mix(in_srgb,var(--ink)_50%,transparent),0_2px_5px_color-mix(in_srgb,var(--ink)_30%,transparent)] sm:w-64 lg:w-80 xl:w-96"
       style={{ transform: `rotate(${tilt}deg)` }}
     >
       <div className="relative aspect-square overflow-hidden rounded-[1px] bg-ink shadow-[inset_0_2px_10px_color-mix(in_srgb,var(--ink)_30%,transparent)]">
@@ -38,7 +38,7 @@ export function Polaroid({
               alt={title}
               width={width ?? 600}
               height={height ?? 600}
-              sizes="(max-width: 639px) min(56vw, 13rem), 16rem"
+              sizes="(max-width: 639px) min(56vw, 13rem), (max-width: 1023px) 16rem, (max-width: 1279px) 20rem, 24rem"
               className="size-full object-cover"
               style={position ? { objectPosition: position } : undefined}
             />
