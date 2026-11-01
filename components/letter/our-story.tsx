@@ -5,7 +5,12 @@ import { useReducedMotion } from "motion/react";
 
 import { PhotoLightbox } from "@/components/letter/photo-lightbox";
 import { SectionHeading } from "@/components/letter/section-heading";
-import { MEMORIES, type Memory } from "@/components/letter/our-story/memories";
+import {
+  MEMORIES,
+  printsOf,
+  type StoryPrint,
+} from "@/components/letter/our-story/memories";
+import { PolaroidStack } from "@/components/letter/our-story/polaroid-stack";
 import {
   CameraCharm,
   InkCharm,
@@ -50,7 +55,11 @@ function LaceBand({ flipped = false }: { flipped?: boolean }) {
 }
 
 export function OurStory() {
-  const [active, setActive] = useState<Memory | null>(null);
+  /** The print open in the lightbox, with its memory's title for alt text. */
+  const [active, setActive] = useState<{
+    print: StoryPrint;
+    title: string;
+  } | null>(null);
   const reduce = !!useReducedMotion();
 
   return (
@@ -111,6 +120,7 @@ export function OurStory() {
               <ol className="relative overflow-x-clip">
                 {MEMORIES.map((memory, index) => {
                   const onRight = vineSide(index) === "right";
+                  const prints = printsOf(memory);
 
                   // Shared by both halves of the memory, so the print and its
                   // caption cannot drift onto different curves or sides. No
@@ -152,11 +162,27 @@ export function OurStory() {
                         )}
                       >
                         <InViewReveal {...arrival}>
-                          <Polaroid
-                            memory={memory}
-                            reduce={reduce}
-                            onOpen={() => setActive(memory)}
-                          />
+                          {prints.length > 1 ? (
+                            <PolaroidStack
+                              memory={memory}
+                              prints={prints}
+                              reduce={reduce}
+                              paused={active !== null}
+                              onOpen={(print) =>
+                                setActive({ print, title: memory.title })
+                              }
+                            />
+                          ) : (
+                            <Polaroid
+                              print={prints[0]}
+                              title={memory.title}
+                              tilt={memory.tilt}
+                              reduce={reduce}
+                              onOpen={() =>
+                                setActive({ print: prints[0], title: memory.title })
+                              }
+                            />
+                          )}
                         </InViewReveal>
 
                         <InViewReveal
@@ -186,7 +212,8 @@ export function OurStory() {
                             testId="story-title"
                             text={memory.title}
                           />
-                          <p className="mt-2 text-body text-paper">
+                          {/* pre-line keeps a "\n" in a body as a line break. */}
+                          <p className="mt-2 whitespace-pre-line text-body text-paper">
                             {memory.body}
                           </p>
                         </InViewReveal>
@@ -215,13 +242,13 @@ export function OurStory() {
 
       <PhotoLightbox
         photo={
-          active?.image
+          active?.print.image
             ? {
-                id: `story-${active.date}`,
-                src: active.image,
+                id: active.print.id,
+                src: active.print.image,
                 alt: active.title,
-                w: active.width ?? 600,
-                h: active.height ?? 600,
+                w: active.print.width ?? 600,
+                h: active.print.height ?? 600,
               }
             : null
         }

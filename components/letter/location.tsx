@@ -2,18 +2,15 @@
 
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
-import {
-  animate,
-  motion,
-  useInView,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-  type PanInfo,
-} from 'motion/react';
+import { motion, useInView } from 'motion/react';
 
 import { cn } from '@/lib/utils';
 import { WEDDING_VENUE } from '@/lib/wedding';
+import {
+  peekRoom,
+  StackCard,
+  type StackLayout,
+} from '@/components/letter/card-stack';
 import { DeferredMap } from '@/components/letter/deferred-map';
 import { Dome } from '@/components/letter/dome';
 import { letterButton } from '@/components/letter/letter-button';
@@ -99,11 +96,15 @@ const TILTS = [0, -2.2, 1.8, -1.4, 2.4];
 const PEEK = 15;
 /** How much each card behind the front one shrinks. */
 const SHRINK = 0.045;
+/** The deck's shape, shared by every StackCard in it. */
+const LAYOUT: StackLayout = {
+  count: COUNT,
+  peek: PEEK,
+  shrink: SHRINK,
+  tilts: TILTS,
+};
 /** Room under the stack for the deepest card's peek. */
-const PEEK_ROOM = (COUNT - 1) * PEEK;
-
-/** Offset + velocity past which a drag throws the card to the back. */
-const THROW_THRESHOLD = 160;
+const PEEK_ROOM = peekRoom(LAYOUT);
 
 /** Shared silhouette: the photos are bare images, but they sit in the deck
     with the same corner radius as the venue card.
@@ -254,6 +255,7 @@ function VenueDeck() {
               aria-label={`${VENUE.name} — map and photos`}
             >
               <StackCard
+                layout={LAYOUT}
                 dealt={dealt}
                 depth={depthOf('venue')}
                 isFront={front === 'venue'}
@@ -342,6 +344,7 @@ function VenueDeck() {
               {PHOTOS.map((photo) => (
                 <StackCard
                   key={photo.id}
+                  layout={LAYOUT}
                   stretch
                   dealt={dealt}
                   depth={depthOf(photo.id)}
@@ -469,120 +472,6 @@ function VenueTbd() {
           </p>
         </CardContent>
       </Card>
-    </motion.div>
-  );
-}
-
-/**
- * One card in the deck.
- *
- * Two nested motion elements so the two motions never fight over `rotate`:
- * the outer one animates the card's resting place in the deck (depth peek,
- * shrink, tilt), the inner one carries the live drag (x, tilt-with-throw,
- * fade-out on dismiss).
- *
- * `stretch` absolutely fills the stack's box — every card uses it except the
- * venue card, which stays in normal flow and is what gives the box its height.
- *
- * `dealt` is the entrance: false means squared up on the front card, true means
- * out at this card's depth. It feeds the SAME `animate` target the shuffle uses,
- * so no second transition, no separate reveal, and no chance of the two fighting
- * over `y`.
- */
-function StackCard({
-  dealt,
-  depth,
-  isFront,
-  onDismiss,
-  onBringToFront,
-  stretch = false,
-  children,
-}: {
-  /** False until the stack reaches the viewport — see Location's deal-in note. */
-  dealt: boolean;
-  depth: number;
-  isFront: boolean;
-  onDismiss: () => void;
-  onBringToFront: () => void;
-  stretch?: boolean;
-  children: React.ReactNode;
-}) {
-  const reduce = useReducedMotion();
-  const x = useMotionValue(0);
-  const lift = useMotionValue(0);
-  const dragRotate = useTransform(x, [-240, 240], reduce ? [0, 0] : [-14, 14]);
-
-  /**
-   * Throw the card off the side, then slide it back in *underneath* the deck.
-   *
-   * The two legs are split by `onDismiss()`: while the card is off-screen the
-   * deck re-orders, so this card's `z-index` drops to the back. The return leg
-   * then travels the same path in reverse with every other card drawn over it,
-   * which reads as the card tucking under the stack rather than vanishing. The
-   * outer element's spring is meanwhile settling into the new depth's peek and
-   * shrink, so the card arrives already sized for the bottom of the deck.
-   */
-  const throwAway = async (direction: number) => {
-    if (reduce) {
-      onDismiss();
-      return;
-    }
-
-    await Promise.all([
-      animate(x, direction * 460, { duration: 0.26, ease: [0.32, 0, 0.67, 0] }),
-      // A shallow dip on the way out, so the arc back in comes from below the
-      // deck's front edge rather than straight across it.
-      animate(lift, PEEK_ROOM * 0.5, { duration: 0.26, ease: 'easeOut' }),
-    ]);
-
-    onDismiss();
-
-    await Promise.all([
-      animate(x, 0, { duration: 0.46, ease: [0.33, 1, 0.68, 1] }),
-      animate(lift, 0, { duration: 0.46, ease: [0.33, 1, 0.68, 1] }),
-    ]);
-  };
-
-  const handleDragEnd = (_: unknown, info: PanInfo) => {
-    // Velocity counts as distance travelled, so a short fast flick throws too.
-    const power = info.offset.x + info.velocity.x * 0.2;
-    if (Math.abs(power) > THROW_THRESHOLD) void throwAway(Math.sign(power));
-  };
-
-  return (
-    <motion.div
-      // Both branches must be positioned: `z-index` is what orders the deck,
-      // and it is ignored on a `position: static` element.
-      className={cn(stretch ? 'absolute inset-0' : 'relative')}
-      style={{ zIndex: COUNT - depth }}
-      animate={{
-        y: dealt ? depth * PEEK : 0,
-        scale: dealt ? 1 - depth * SHRINK : 1,
-        rotate: reduce || !dealt ? 0 : (TILTS[depth] ?? 0),
-      }}
-      transition={
-        reduce
-          ? { duration: 0.15 }
-          : { type: 'spring', stiffness: 320, damping: 34 }
-      }
-    >
-      <motion.div
-        className={cn(
-          stretch && 'size-full',
-          isFront ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
-        )}
-        style={{ x, y: lift, rotate: dragRotate }}
-        drag={isFront ? 'x' : false}
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.9}
-        dragMomentum={false}
-        onDragEnd={handleDragEnd}
-        // A card behind the front one is mostly hidden; its peeking bottom
-        // edge is the tap target that pulls it forward.
-        onClick={isFront ? undefined : onBringToFront}
-      >
-        {children}
-      </motion.div>
     </motion.div>
   );
 }

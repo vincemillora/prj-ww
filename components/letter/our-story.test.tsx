@@ -17,6 +17,10 @@ vi.mock("@/components/letter/section-heading", () => ({
 }));
 vi.mock("@/components/letter/our-story/memories", () => ({
   MEMORIES: [],
+  printsOf: () => [],
+}));
+vi.mock("@/components/letter/our-story/polaroid-stack", () => ({
+  PolaroidStack: () => null,
 }));
 vi.mock("@/components/letter/our-story/story-art", () => ({
   CameraCharm: () => null,

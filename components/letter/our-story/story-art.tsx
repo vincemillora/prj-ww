@@ -4,22 +4,32 @@ import type { CSSProperties } from "react";
 
 import { MORPH, photoLayoutId } from "@/components/letter/photo-lightbox";
 import { MotionImage } from "@/components/letter/motion-image";
-import type { Memory } from "@/components/letter/our-story/memories";
+import type { StoryPrint } from "@/components/letter/our-story/memories";
 import { cn } from "@/lib/utils";
 
 export function Polaroid({
-  memory,
+  print,
+  title,
+  tilt,
   reduce,
   onOpen,
+  inert,
 }: {
-  memory: Memory;
+  print: StoryPrint;
+  /** The memory's title, used as the photo's alt text. */
+  title: string;
+  tilt: number;
   reduce: boolean;
   onOpen: () => void;
+  /** Set on a print sitting behind the front of a stack, so its button can't
+      be reached and a tap falls through to the card that brings it forward. */
+  inert?: boolean;
 }) {
-  const { image, caption, title, tilt, width, height, position } = memory;
+  const { id, image, caption, width, height, position } = print;
 
   return (
     <figure
+      inert={inert}
       className="relative w-[min(56vw,13rem)] rounded-[2px] bg-paper p-3 pb-11 shadow-[0_14px_28px_-6px_color-mix(in_srgb,var(--ink)_50%,transparent),0_2px_5px_color-mix(in_srgb,var(--ink)_30%,transparent)] sm:w-64 lg:w-80 xl:w-96"
       style={{ transform: `rotate(${tilt}deg)` }}
     >
@@ -32,7 +42,7 @@ export function Polaroid({
             className="block size-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-paper"
           >
             <MotionImage
-              layoutId={reduce ? undefined : photoLayoutId(`story-${memory.date}`)}
+              layoutId={reduce ? undefined : photoLayoutId(id)}
               transition={MORPH}
               src={image}
               alt={title}
