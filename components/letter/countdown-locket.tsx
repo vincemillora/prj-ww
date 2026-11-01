@@ -30,22 +30,24 @@ export function CountdownLocket(): React.JSX.Element {
         }}
         viewBox="0 0 800 600"
       >
-        {/* Childhood photos. Each is drawn 40 units larger than its 300x300
-            window so the dx/dy nudges that centre the face never expose an
+        {/* Childhood photos. Each 300x300 window starts at (x, 210). The photo
+            is drawn larger than its window so the dx/dy nudge (from the window
+            centre) and the tilt (around the window centre) never expose an
             edge inside the heart mask. */}
         {[
-          { x: 65, dx: 20, dy: 20, src: "/locket/groom.jpg" },
-          { x: 435, dx: -20, dy: 20, src: "/locket/bride.jpg" },
-        ].map(({ x, dx, dy, src }) => (
+          { x: 65, dx: 5, dy: 55, rotate: -15, size: 400, src: "/locket/groom.jpg" },
+          { x: 435, dx: -12, dy: 45, rotate: 15, size: 400, src: "/locket/bride.jpg" },
+        ].map(({ x, dx, dy, rotate, size, src }) => (
           <image
             data-testid="countdown-locket-photo"
-            height="340"
+            height={size}
             href={src}
             key={x}
             preserveAspectRatio="xMidYMid slice"
-            width="340"
-            x={x - 20 + dx}
-            y={210 + dy}
+            transform={rotate ? `rotate(${rotate} ${x + 150} 360)` : undefined}
+            width={size}
+            x={x + 150 + dx - size / 2}
+            y={360 + dy - size / 2}
           />
         ))}
       </svg>
