@@ -81,8 +81,16 @@ export function OurStory() {
             </OrnamentDrift>
 
             {/* Row height and vine units are paired. If story copy changes,
-                re-measure the tallest memory before adjusting either value. */}
-            <div className="relative [--row-h:46rem] sm:[--row-h:44rem]">
+                re-measure the tallest memory before adjusting either value.
+                Each memory is centred in its row, and the vine crosses the
+                middle at every row edge, so a memory taller than its row runs
+                into the vine. Tallest today is the date night memory (print,
+                stack dots and a two-line body): about 45.5rem on a phone,
+                50rem at sm and 51rem from xl, where the print is widest. On a
+                phone the vine swings the full width (VINE_REACH.mobile), so it
+                sweeps through the text column for longer and needs about 4rem
+                clear above and below; on wider screens 1rem is enough. */}
+            <div className="relative [--row-h:54rem] sm:[--row-h:52rem] xl:[--row-h:55rem]">
               <Vine
                 rows={MEMORIES.length}
                 reach={VINE_REACH.mobile}
